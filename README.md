@@ -186,13 +186,14 @@ To run the complete test suite:
 npm test
 ```
 
-### Covered Test Matrix (37 Tests)
-- **Unit Tests**:
+### Covered Test Matrix (45 Tests)
+- **Unit & Hardening Tests**:
+  - `hardening.test.ts`: IPv6 bracketed SSRF prevention, pipeline/inspector entrypoint validation, redirect loop detection, cross-domain redirect blocking, snapshot idempotency, `snapshot_pages` join table, `CrawlPolicy` depth bounds, and multiline adversarial prompt injection annotations.
   - `security.test.ts`: SSRF defense, loopback & private IP blocking, non-destructive prompt injection tagging.
   - `discovery.test.ts`: LLMs.txt, OpenAPI, Sitemap, Markdown, GitHub, and Skill providers.
-  - `ranker.test.ts`: Purpose-based ranking logic (`navigation`, `api`, `examples`, `implementation`).
+  - `ranker.test.ts`: Purpose-based ranking logic (`navigation`, `api`, `examples`, `implementation`) with deterministic tie-breaking.
   - `normalizer.test.ts`: HTML to Markdown conversion, code block extraction, OpenAPI schema detection, content hashing stability.
-  - `storage.test.ts`: SQLite schema initialization, cascading foreign keys, WAL mode, FTS5 full-text indexing.
+  - `storage.test.ts`: SQLite schema initialization, cascading foreign keys, WAL mode, FTS5 full-text indexing, and snapshot page membership.
 - **Integration Fixture Tests**:
   - **Fixture A**: Simple HTML documentation crawl and normalization.
   - **Fixture B**: HTML + `llms.txt` discovery and multi-page crawl.

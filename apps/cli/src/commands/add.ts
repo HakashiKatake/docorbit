@@ -1,4 +1,4 @@
-import { DocRouterDb, DocRouterRepository } from '../../../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../../../packages/storage/src/index.ts';
 import { IngestionPipeline } from '../../../../packages/core/src/index.ts';
 import { formatIngestionResult } from '../formatters/terminal.ts';
 
@@ -12,13 +12,13 @@ export interface AddCommandOptions {
 export async function runAddCommand(targetUrl: string, options: AddCommandOptions = {}): Promise<void> {
   if (!targetUrl) {
     console.error('Error: Please provide a documentation target URL.');
-    console.error('Usage: docrouter add <url> [--json] [--db <path>]');
+    console.error('Usage: docorbit add <url> [--json] [--db <path>]');
     process.exit(1);
   }
 
-  const dbPath = options.dbPath || '.docrouter/docrouter.db';
-  const db = new DocRouterDb(dbPath);
-  const repository = new DocRouterRepository(db);
+  const dbPath = options.dbPath || '.docorbit/docorbit.db';
+  const db = new DocOrbitDb(dbPath);
+  const repository = new DocOrbitRepository(db);
 
   try {
     const pipeline = new IngestionPipeline(repository, {
@@ -36,7 +36,7 @@ export async function runAddCommand(targetUrl: string, options: AddCommandOption
       console.log(formatIngestionResult(result));
     }
   } catch (err: unknown) {
-    console.error(`DocRouter Ingestion Error: ${err instanceof Error ? err.message : String(err)}`);
+    console.error(`DocOrbit Ingestion Error: ${err instanceof Error ? err.message : String(err)}`);
     process.exit(1);
   } finally {
     db.close();

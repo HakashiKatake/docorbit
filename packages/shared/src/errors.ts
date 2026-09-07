@@ -1,14 +1,14 @@
-export class DocRouterError extends Error {
+export class DocOrbitError extends Error {
   code: string;
 
-  constructor(message: string, code: string = 'DOCROUTER_ERROR') {
+  constructor(message: string, code: string = 'DOCORBIT_ERROR') {
     super(message);
-    this.name = 'DocRouterError';
+    this.name = 'DocOrbitError';
     this.code = code;
   }
 }
 
-export class SsrfError extends DocRouterError {
+export class SsrfError extends DocOrbitError {
   ip?: string;
   host?: string;
 
@@ -20,7 +20,7 @@ export class SsrfError extends DocRouterError {
   }
 }
 
-export class FetchTimeoutError extends DocRouterError {
+export class FetchTimeoutError extends DocOrbitError {
   timeoutMs?: number;
 
   constructor(message: string, timeoutMs?: number) {
@@ -30,7 +30,7 @@ export class FetchTimeoutError extends DocRouterError {
   }
 }
 
-export class PayloadTooLargeError extends DocRouterError {
+export class PayloadTooLargeError extends DocOrbitError {
   byteCount?: number;
   maxBytes?: number;
 
@@ -42,7 +42,7 @@ export class PayloadTooLargeError extends DocRouterError {
   }
 }
 
-export class ValidationError extends DocRouterError {
+export class ValidationError extends DocOrbitError {
   validationDetails?: unknown;
 
   constructor(message: string, validationDetails?: unknown) {

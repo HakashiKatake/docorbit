@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { DocRouterDb, DocRouterRepository } from '../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
 import type { DiscoveredSource, NormalizedPage } from '../../packages/shared/src/index.ts';
 
-test('DocRouterRepository saves and retrieves sources and pages in SQLite', () => {
-  const db = new DocRouterDb(':memory:');
-  const repo = new DocRouterRepository(db);
+test('DocOrbitRepository saves and retrieves sources and pages in SQLite', () => {
+  const db = new DocOrbitDb(':memory:');
+  const repo = new DocOrbitRepository(db);
 
   assert.strictEqual(db.isFtsAvailable(), true);
 

@@ -1,3 +1,11 @@
 export * from './db.ts';
 export * from './schema.ts';
 export * from './repository.ts';
+export type * from './interfaces.ts';
+export * from './search-tokens.ts';
+export * from './repositories/source-repository.ts';
+export * from './repositories/page-repository.ts';
+export * from './repositories/chunk-repository.ts';
+export * from './repositories/api-repository.ts';
+export * from './repositories/example-repository.ts';
+export * from './repositories/pitfall-repository.ts';

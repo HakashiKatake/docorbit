@@ -82,7 +82,7 @@ export function normalizeHtmlToMarkdown(html: string, baseUrl: string): Extracte
       code: rawCode,
     });
 
-    const placeholder = `__DOCROUTER_CODE_BLOCK_${codeBlockPlaceholders.length}__`;
+    const placeholder = `__DOCORBIT_CODE_BLOCK_${codeBlockPlaceholders.length}__`;
     codeBlockPlaceholders.push(`\n\`\`\`${lang}\n${rawCode}\n\`\`\`\n`);
     return placeholder;
   });
@@ -233,7 +233,7 @@ export function normalizeHtmlToMarkdown(html: string, baseUrl: string): Extracte
 
   // 11. Restore preserved code blocks
   for (let i = 0; i < codeBlockPlaceholders.length; i++) {
-    cleaned = cleaned.replace(`__DOCROUTER_CODE_BLOCK_${i}__`, codeBlockPlaceholders[i]);
+    cleaned = cleaned.replace(`__DOCORBIT_CODE_BLOCK_${i}__`, codeBlockPlaceholders[i]);
   }
 
   // 12. Normalize whitespace

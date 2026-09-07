@@ -3,7 +3,7 @@ import { dirname } from 'node:path';
 import { mkdirSync } from 'node:fs';
 import { SCHEMA_SQL, FTS_SCHEMA_SQL } from './schema.ts';
 
-export class DocRouterDb {
+export class DocOrbitDb {
   private db: DatabaseSync;
   private ftsAvailable = false;
 
@@ -36,6 +36,18 @@ export class DocRouterDb {
       // Column already exists
     }
 
+    try {
+      this.db.exec('ALTER TABLE snapshots ADD COLUMN doc_version TEXT;');
+    } catch {
+      // Column already exists
+    }
+
+    try {
+      this.db.exec('ALTER TABLE chunks ADD COLUMN doc_version TEXT;');
+    } catch {
+      // Column already exists
+    }
+
     // Test and enable FTS5 virtual table
     try {
       this.db.exec(FTS_SCHEMA_SQL);
@@ -57,3 +69,4 @@ export class DocRouterDb {
     this.db.close();
   }
 }
+

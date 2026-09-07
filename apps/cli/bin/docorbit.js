@@ -3,6 +3,6 @@
 import { main } from '../src/index.ts';
 
 main().catch(err => {
-  console.error('Fatal DocRouter Error:', err);
+  console.error('Fatal DocOrbit Error:', err);
   process.exit(1);
 });

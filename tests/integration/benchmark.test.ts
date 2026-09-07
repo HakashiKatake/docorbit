@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert';
 import { performance } from 'node:perf_hooks';
 import { buildNormalizedPage } from '../../packages/normalizer/src/index.ts';
-import { DocRouterDb, DocRouterRepository } from '../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
 import type { NormalizedPage } from '../../packages/shared/src/index.ts';
 
 function generateHtmlPage(targetBytes: number, title: string): string {
@@ -20,8 +20,8 @@ function generateHtmlPage(targetBytes: number, title: string): string {
 }
 
 test('Benchmark: 50KB, 500KB, 5MB Page Normalization and Storage', () => {
-  const db = new DocRouterDb(':memory:');
-  const repo = new DocRouterRepository(db);
+  const db = new DocOrbitDb(':memory:');
+  const repo = new DocOrbitRepository(db);
 
   const sourceId = repo.saveSource({
     url: 'https://benchmark.example.com',
@@ -105,7 +105,7 @@ test('Benchmark: 50KB, 500KB, 5MB Page Normalization and Storage', () => {
   const memDeltaMb = (finalMem - initialMem) / (1024 * 1024);
 
   // Print Benchmark Table
-  console.log('\n=== DocRouter Milestone 1 Performance Benchmark ===');
+  console.log('\n=== DocOrbit Milestone 1 Performance Benchmark ===');
   console.log('-----------------------------------------------------------------------------');
   console.log('| Target      | Size       | Normalization | SQLite Storage | Total Time   |');
   console.log('-----------------------------------------------------------------------------');

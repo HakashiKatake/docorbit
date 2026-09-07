@@ -2,10 +2,10 @@ import test from 'node:test';
 import assert from 'node:assert';
 import { validateTargetUrl, detectSecurityAnnotations, isPrivateOrBlockedIp } from '../../packages/security/src/index.ts';
 import { computeContentHash } from '../../packages/shared/src/index.ts';
-import { DocRouterDb, DocRouterRepository } from '../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
 import { SecureFetcher } from '../../packages/crawler/src/index.ts';
 import { IngestionPipeline, inspectDocumentation } from '../../packages/core/src/index.ts';
-import { SsrfError, DocRouterError } from '../../packages/shared/src/index.ts';
+import { SsrfError, DocOrbitError } from '../../packages/shared/src/index.ts';
 import { createFixtureFetch, FIXTURE_ORIGIN } from '../fixtures/server.ts';
 
 test('Hardening: IPv6 bracketed hostnames are strictly blocked', async () => {
@@ -31,8 +31,8 @@ test('Hardening: inspectDocumentation and IngestionPipeline reject blocked IPs a
     (err: unknown) => err instanceof SsrfError
   );
 
-  const db = new DocRouterDb(':memory:');
-  const repo = new DocRouterRepository(db);
+  const db = new DocOrbitDb(':memory:');
+  const repo = new DocOrbitRepository(db);
   const pipeline = new IngestionPipeline(repo, { allowLocalhostForTesting: false });
 
   await assert.rejects(
@@ -60,7 +60,7 @@ test('Hardening: SecureFetcher detects redirect loops', async () => {
 
   await assert.rejects(
     async () => fetcher.fetch('http://127.0.0.1:8080/a'),
-    (err: unknown) => err instanceof DocRouterError && err.message.includes('Redirect loop')
+    (err: unknown) => err instanceof DocOrbitError && err.message.includes('Redirect loop')
   );
 });
 
@@ -81,13 +81,13 @@ test('Hardening: SecureFetcher rejects cross-domain redirects when policy prohib
   // Cross-port/origin redirect on localhost is detected as cross-domain
   await assert.rejects(
     async () => fetcher.fetch('http://127.0.0.1:8080/orig', { allowCrossDomainRedirects: false }),
-    (err: unknown) => err instanceof DocRouterError
+    (err: unknown) => err instanceof DocOrbitError
   );
 });
 
 test('Hardening: Snapshot model and idempotency across repeated ingestion', async () => {
-  const db = new DocRouterDb(':memory:');
-  const repo = new DocRouterRepository(db);
+  const db = new DocOrbitDb(':memory:');
+  const repo = new DocOrbitRepository(db);
 
   const fixtureFetch = createFixtureFetch(FIXTURE_ORIGIN);
   const pipeline = new IngestionPipeline(repo, {
@@ -122,8 +122,8 @@ test('Hardening: Snapshot model and idempotency across repeated ingestion', asyn
 });
 
 test('Hardening: CrawlPolicy maxDepth stops link traversal', async () => {
-  const db = new DocRouterDb(':memory:');
-  const repo = new DocRouterRepository(db);
+  const db = new DocOrbitDb(':memory:');
+  const repo = new DocOrbitRepository(db);
 
   const fixtureFetch = createFixtureFetch(FIXTURE_ORIGIN);
   const pipeline = new IngestionPipeline(repo, {

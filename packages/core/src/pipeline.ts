@@ -9,8 +9,17 @@ import type {
 import { validateTargetUrl } from '../../security/src/index.ts';
 import { SecureFetcher, DEFAULT_CRAWLER_CONFIG } from '../../crawler/src/index.ts';
 import { createDefaultDiscoveryCoordinator, rankSources } from '../../discovery/src/index.ts';
-import { buildNormalizedPage, parseLlmsTxt, isValidLlmsTxt } from '../../normalizer/src/index.ts';
-import { DocRouterRepository } from '../../storage/src/index.ts';
+import {
+  buildNormalizedPage,
+  parseLlmsTxt,
+  isValidLlmsTxt,
+  slicePageIntoChunks,
+  parseOpenApiEndpoints,
+  detectOpenApiSpec,
+  extractIndexedExamples,
+  extractPitfalls,
+} from '../../normalizer/src/index.ts';
+import { DocOrbitRepository } from '../../storage/src/index.ts';
 
 export interface IngestionOptions {
   crawlerConfig?: Partial<CrawlerConfig>;
@@ -44,17 +53,19 @@ export interface IngestionResult {
     totalEstimatedTokens: number;
     totalCodeExamples: number;
     machineReadableSources: number;
+    totalChunks: number;
   };
 }
 
+
 export class IngestionPipeline {
-  private repository: DocRouterRepository;
+  private repository: DocOrbitRepository;
   private fetcher: SecureFetcher;
   private config: CrawlerConfig;
   private policy: CrawlPolicy;
   private allowLocalhostForTesting: boolean;
 
-  constructor(repository: DocRouterRepository, options: IngestionOptions = {}) {
+  constructor(repository: DocOrbitRepository, options: IngestionOptions = {}) {
     this.repository = repository;
     this.config = {
       ...DEFAULT_CRAWLER_CONFIG,
@@ -240,6 +251,39 @@ export class IngestionPipeline {
       ingestedAt: new Date().toISOString(),
     });
 
+    // Milestone 2: Semantic slicing of pages into standalone DocumentChunks
+    let totalChunks = 0;
+    for (const p of ingestedPages) {
+      const slicingResult = slicePageIntoChunks(p, snapshotId);
+      this.repository.saveChunks(
+        slicingResult.chunks,
+        slicingResult.relationships,
+        slicingResult.codeSnippets,
+        slicingResult.symbols
+      );
+      totalChunks += slicingResult.chunks.length;
+
+      // Milestone 4: API Endpoints
+      if (p.openApiSummary || detectOpenApiSpec(p.content, p.url)) {
+        const endpoints = parseOpenApiEndpoints(p.content, p.id, snapshotId, p.url, p.docVersion);
+        if (endpoints.length > 0) {
+          this.repository.saveApiEndpoints(endpoints);
+        }
+      }
+
+      // Milestone 4: Indexed Examples
+      const examples = extractIndexedExamples(p, slicingResult.chunks, primarySource?.authority || 'official', p.docVersion, snapshotId);
+      if (examples.length > 0) {
+        this.repository.saveIndexedExamples(examples);
+      }
+
+      // Milestone 4: Pitfalls
+      const pitfalls = extractPitfalls(p, slicingResult.chunks, p.docVersion, snapshotId);
+      if (pitfalls.length > 0) {
+        this.repository.savePitfalls(pitfalls);
+      }
+    }
+
     const durationMs = Date.now() - startTime;
 
     let totalBytes = 0;
@@ -279,7 +323,9 @@ export class IngestionPipeline {
         totalEstimatedTokens,
         totalCodeExamples,
         machineReadableSources: discovered.filter(s => s.status === 'valid' && s.machineReadable).length,
+        totalChunks,
       },
     };
   }
 }
+

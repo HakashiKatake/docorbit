@@ -1,8 +1,8 @@
-# DocRouter Milestone 1: Deep Architecture & Security Audit
+# DocOrbit Milestone 1: Deep Architecture & Security Audit
 
 **Audit Date**: September 2026  
 **Auditor**: Systems Architecture & Security Review  
-**Target Codebase**: DocRouter v0.1.0 (Milestone 1 Baseline)  
+**Target Codebase**: DocOrbit v0.1.0 (Milestone 1 Baseline)  
 **Baseline Test Status**: 37/37 passing
 
 ---
@@ -45,7 +45,7 @@ This report documents every finding against the architectural specification, cla
 ## 3. Deep Audit by Domain
 
 ### 3.1 Compilation & Runtime Strategy
-- **Actual Code**: Entrypoint `bin/docrouter.js` specifies shebang `#!/usr/bin/env -S node --experimental-strip-types` and imports `apps/cli/src/index.ts` directly.
+- **Actual Code**: Entrypoint `bin/docorbit.js` specifies shebang `#!/usr/bin/env -S node --experimental-strip-types` and imports `apps/cli/src/index.ts` directly.
 - **Tradeoff**: Node 24 native type stripping eliminates build complexity, eliminates `node_modules`, and enables sub-40ms startup. However, it requires Node.js >= 22.6 / 24 and environments supporting `/usr/bin/env -S`.
 - **Verdict**: Keep `--experimental-strip-types` for Milestone 1 development and local CLI. Defer compilation to JavaScript (`dist/`) to Milestone 7 when packaging for npm distribution.
 
@@ -56,9 +56,9 @@ This report documents every finding against the architectural specification, cla
 
 ### 3.3 SSRF Implementation & Network Security
 - **P0 Finding — Hardcoded Test Overrides in Production Providers**:
-  `GithubProvider`, `MarkdownProvider`, `SkillProvider`, and `GenericWebProvider` hardcoded `allowLocalhostForTesting: true` in their `fetcher.fetch()` calls. If a user ran `docrouter inspect http://127.0.0.1:8080`, the providers happily probed `127.0.0.1` because the provider option bypassed the fetcher's default SSRF guard!
+  `GithubProvider`, `MarkdownProvider`, `SkillProvider`, and `GenericWebProvider` hardcoded `allowLocalhostForTesting: true` in their `fetcher.fetch()` calls. If a user ran `docorbit inspect http://127.0.0.1:8080`, the providers happily probed `127.0.0.1` because the provider option bypassed the fetcher's default SSRF guard!
 - **P1 Finding — Target URL Unvalidated at Entry**:
-  `inspectDocumentation(targetUrl)` and `IngestionPipeline.ingest(targetUrl)` did not call `validateTargetUrl(targetUrl)` before launching discovery. Instead, errors were caught inside provider probe loops and swallowed, causing `docrouter inspect http://127.0.0.1` to silently succeed and report 0 sources instead of failing with an `SsrfError`.
+  `inspectDocumentation(targetUrl)` and `IngestionPipeline.ingest(targetUrl)` did not call `validateTargetUrl(targetUrl)` before launching discovery. Instead, errors were caught inside provider probe loops and swallowed, causing `docorbit inspect http://127.0.0.1` to silently succeed and report 0 sources instead of failing with an `SsrfError`.
 - **P1 Finding — IPv6 Bracket Handling Bug**:
   `new URL('http://[::1]').hostname` yields `'[::1]'` (with brackets). `isIP('[::1]')` from `node:net` returns `0` (false) because it expects unbracketed IPv6 strings. Consequently, bracketed IPv6 literals bypassed `isIP()` and fell through to DNS lookup.
 - **P1 Finding — DNS TOCTOU / Rebinding in Fetch**:
@@ -123,9 +123,9 @@ This report documents every finding against the architectural specification, cla
 - As a consequence, pages only referenced `source_id`. Overwriting pages on subsequent crawls destroyed historical snapshot fidelity.
 
 ### 3.12 Ingestion Idempotency (P0 Critical Bug)
-- **Reproduction**: Running `docrouter add <url>` twice on the same target immediately failed with:
-  `DocRouter Ingestion Error: UNIQUE constraint failed: snapshots.id`
-- **Root Cause**: `DocRouterRepository.createSnapshot` generated a deterministic ID `snap_${hash.slice(0, 16)}` and executed a raw `INSERT INTO snapshots` without `ON CONFLICT DO UPDATE`.
+- **Reproduction**: Running `docorbit add <url>` twice on the same target immediately failed with:
+  `DocOrbit Ingestion Error: UNIQUE constraint failed: snapshots.id`
+- **Root Cause**: `DocOrbitRepository.createSnapshot` generated a deterministic ID `snap_${hash.slice(0, 16)}` and executed a raw `INSERT INTO snapshots` without `ON CONFLICT DO UPDATE`.
 - When re-ingesting identical content, the database crashed rather than returning the existing snapshot.
 
 ### 3.13 Security Annotations & Prompt Injection
@@ -141,7 +141,7 @@ This report documents every finding against the architectural specification, cla
 - **Required**: Add `snapshot_pages` join table and `provenance_json` column on `pages`.
 
 ### 3.15 CLI JSON Contract
-- **Audit**: Inspected `docrouter inspect --json` and `docrouter add --json`.
+- **Audit**: Inspected `docorbit inspect --json` and `docorbit add --json`.
 - **Gaps**: `IngestionResult` lacked explicit `target` object, `selectedSources` purpose mapping, and categorized `warnings`/`errors` arrays.
 
 ### 3.16 Target Abstraction
@@ -183,7 +183,7 @@ This report documents every finding against the architectural specification, cla
 
 ### P0 — Security & Correctness Blockers (Fix Immediately)
 1. **SSRF Provider Bypass**: Discovery providers hardcoding `allowLocalhostForTesting: true`, disabling SSRF protection for `inspect` and `add`.
-2. **Snapshot Idempotency Crash**: `UNIQUE constraint failed: snapshots.id` crashing `docrouter add` when executed twice on the same target.
+2. **Snapshot Idempotency Crash**: `UNIQUE constraint failed: snapshots.id` crashing `docorbit add` when executed twice on the same target.
 3. **Unvalidated Entry Target**: `inspectDocumentation` and `IngestionPipeline` failing to validate `targetUrl` before invoking discovery, swallowing SSRF errors.
 
 ### P1 — Architectural Gaps to Fix in Milestone 1

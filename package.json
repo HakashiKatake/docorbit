@@ -1,17 +1,17 @@
 {
-  "name": "docrouter",
+  "name": "docorbit",
   "version": "0.1.0",
   "description": "The Documentation Intelligence Layer for AI Coding Agents",
   "type": "module",
   "main": "packages/core/src/index.ts",
   "bin": {
-    "docrouter": "./bin/docrouter.js"
+    "docorbit": "./bin/docorbit.js"
   },
   "scripts": {
     "test": "node --experimental-strip-types --test tests/unit/*.test.ts tests/integration/*.test.ts",
     "test:unit": "node --experimental-strip-types --test tests/unit/*.test.ts",
     "test:integration": "node --experimental-strip-types --test tests/integration/*.test.ts",
-    "docrouter": "node --experimental-strip-types bin/docrouter.js"
+    "docorbit": "node --experimental-strip-types bin/docorbit.js"
   },
   "keywords": [
     "documentation",
@@ -22,6 +22,6 @@
     "llms-txt",
     "context"
   ],
-  "author": "DocRouter Team",
+  "author": "DocOrbit Team",
   "license": "MIT"
 }

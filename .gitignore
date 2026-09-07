@@ -2,7 +2,7 @@
 node_modules/
 
 # Local databases
-.docrouter/
+.docorbit/
 *.db
 *.db-journal
 *.db-wal
@@ -20,3 +20,5 @@ yarn-error.log*
 dist/
 coverage/
 .system_generated/
+/docs
+/eval-results/

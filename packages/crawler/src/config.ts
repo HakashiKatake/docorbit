@@ -8,5 +8,5 @@ export const DEFAULT_CRAWLER_CONFIG: CrawlerConfig = {
   maxRedirects: 5,
   concurrency: 5,
   allowedProtocols: ['http:', 'https:'],
-  userAgent: 'DocRouter/1.0 (+https://github.com/docrouter/docrouter)',
+  userAgent: 'DocOrbit/1.0 (+https://github.com/docorbit/docorbit)',
 };

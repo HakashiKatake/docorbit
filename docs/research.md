@@ -1,4 +1,4 @@
-# DocRouter Research: The State of AI Documentation Intelligence
+# DocOrbit Research: The State of AI Documentation Intelligence
 
 ## 1. Industry Context & Problem Statement
 

@@ -2,15 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert';
 import { createFixtureFetch, FIXTURE_ORIGIN } from '../fixtures/server.ts';
 import { SecureFetcher } from '../../packages/crawler/src/index.ts';
-import { DocRouterDb, DocRouterRepository } from '../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
 import { IngestionPipeline, inspectDocumentation } from '../../packages/core/src/index.ts';
 import { SsrfError, PayloadTooLargeError } from '../../packages/shared/src/index.ts';
 
 const fixtureFetch = createFixtureFetch(FIXTURE_ORIGIN);
 
 test('Fixture A: Simple HTML documentation crawl and normalization', async () => {
-  const db = new DocRouterDb(':memory:');
-  const repo = new DocRouterRepository(db);
+  const db = new DocOrbitDb(':memory:');
+  const repo = new DocOrbitRepository(db);
 
   const fetcher = new SecureFetcher({
     allowLocalhostForTesting: true,
@@ -34,13 +34,22 @@ test('Fixture A: Simple HTML documentation crawl and normalization', async () =>
   assert.strictEqual(mainPage.codeExamples[0].language, 'bash');
   assert.strictEqual(mainPage.codeExamples[1].language, 'typescript');
   assert.ok(result.snapshotId.startsWith('snap_'));
+  assert.ok(result.stats.totalChunks >= 3, `Expected at least 3 chunks, got ${result.stats.totalChunks}`);
+  assert.ok(repo.countChunks() >= 3, `Expected at least 3 stored chunks in repository, got ${repo.countChunks()}`);
+
+  // Test retrieval engine against ingested fixture chunks
+  const retrieval = new (await import('../../packages/retrieval/src/index.ts')).RetrievalEngine(repo);
+  const searchHits = await retrieval.search('simple-lib installation', { limit: 5 });
+  assert.ok(searchHits.length > 0, 'RetrievalEngine should find chunks for fixture query');
+  assert.ok(searchHits[0].chunk.content.includes('npm install simple-lib'));
 
   db.close();
+
 });
 
 test('Fixture B: HTML + llms.txt discovery and multi-page crawl', async () => {
-  const db = new DocRouterDb(':memory:');
-  const repo = new DocRouterRepository(db);
+  const db = new DocOrbitDb(':memory:');
+  const repo = new DocOrbitRepository(db);
 
   const fetcher = new SecureFetcher({
     allowLocalhostForTesting: true,
@@ -84,8 +93,8 @@ test('Fixture C: HTML + llms.txt + llms-full.txt discovery and source ranking', 
 });
 
 test('Fixture D: HTML + OpenAPI spec discovery and structured extraction', async () => {
-  const db = new DocRouterDb(':memory:');
-  const repo = new DocRouterRepository(db);
+  const db = new DocOrbitDb(':memory:');
+  const repo = new DocOrbitRepository(db);
 
   const fetcher = new SecureFetcher({
     allowLocalhostForTesting: true,
@@ -156,8 +165,8 @@ test('Fixture G: Malicious redirect attempting SSRF to cloud metadata is blocked
 });
 
 test('Fixture H: Prompt injection content produces security annotations', async () => {
-  const db = new DocRouterDb(':memory:');
-  const repo = new DocRouterRepository(db);
+  const db = new DocOrbitDb(':memory:');
+  const repo = new DocOrbitRepository(db);
 
   const fetcher = new SecureFetcher({
     allowLocalhostForTesting: true,
@@ -190,8 +199,8 @@ test('Fixture H: Prompt injection content produces security annotations', async 
 });
 
 test('Fixture I: Broken sitemaps and 404 links are handled without crashing', async () => {
-  const db = new DocRouterDb(':memory:');
-  const repo = new DocRouterRepository(db);
+  const db = new DocOrbitDb(':memory:');
+  const repo = new DocOrbitRepository(db);
 
   const fetcher = new SecureFetcher({
     allowLocalhostForTesting: true,

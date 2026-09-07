@@ -1,7 +1,7 @@
 import {
   FetchTimeoutError,
   PayloadTooLargeError,
-  DocRouterError,
+  DocOrbitError,
 } from '../../shared/src/index.ts';
 import { validateTargetUrl } from '../../security/src/index.ts';
 import type { SsrfValidationOptions } from '../../security/src/index.ts';
@@ -89,19 +89,19 @@ export class SecureFetcher {
         if ([301, 302, 303, 307, 308].includes(res.status)) {
           const location = res.headers.get('location');
           if (!location) {
-            throw new DocRouterError(`Redirect response (${res.status}) missing Location header.`);
+            throw new DocOrbitError(`Redirect response (${res.status}) missing Location header.`);
           }
 
           redirectCount++;
           if (redirectCount > maxRedirects) {
-            throw new DocRouterError(`Exceeded maximum allowed redirects (${maxRedirects}).`);
+            throw new DocOrbitError(`Exceeded maximum allowed redirects (${maxRedirects}).`);
           }
 
           const nextUrl = new URL(location, currentUrl).href;
 
           // Check for redirect loop
           if (seenRedirects.has(nextUrl)) {
-            throw new DocRouterError(`Redirect loop detected: "${nextUrl}" already visited in redirect chain.`);
+            throw new DocOrbitError(`Redirect loop detected: "${nextUrl}" already visited in redirect chain.`);
           }
           seenRedirects.add(nextUrl);
 
@@ -110,7 +110,7 @@ export class SecureFetcher {
             const origOrigin = new URL(urlStr).origin;
             const nextOrigin = new URL(nextUrl).origin;
             if (origOrigin !== nextOrigin) {
-              throw new DocRouterError(`Cross-origin redirect from "${origOrigin}" to "${nextOrigin}" prohibited by policy.`);
+              throw new DocOrbitError(`Cross-origin redirect from "${origOrigin}" to "${nextOrigin}" prohibited by policy.`);
             }
           }
 
@@ -168,18 +168,18 @@ export class SecureFetcher {
           bytesRead,
         };
       } catch (err: unknown) {
-        if (err instanceof DocRouterError) throw err;
+        if (err instanceof DocOrbitError) throw err;
         if (controller.signal.aborted) {
           const reason = controller.signal.reason;
-          if (reason instanceof DocRouterError) throw reason;
+          if (reason instanceof DocOrbitError) throw reason;
           throw new FetchTimeoutError(`Request timed out after ${timeoutMs}ms`, timeoutMs);
         }
-        throw new DocRouterError(`Fetch failure for "${currentUrl}": ${err instanceof Error ? err.message : String(err)}`);
+        throw new DocOrbitError(`Fetch failure for "${currentUrl}": ${err instanceof Error ? err.message : String(err)}`);
       } finally {
         clearTimeout(timeoutId);
       }
     }
 
-    throw new DocRouterError(`Exceeded maximum allowed redirects (${maxRedirects}).`);
+    throw new DocOrbitError(`Exceeded maximum allowed redirects (${maxRedirects}).`);
   }
 }

@@ -9,7 +9,7 @@ export interface InspectCommandOptions {
 export async function runInspectCommand(targetUrl: string, options: InspectCommandOptions = {}): Promise<void> {
   if (!targetUrl) {
     console.error('Error: Please provide a documentation target URL.');
-    console.error('Usage: docrouter inspect <url> [--json]');
+    console.error('Usage: docorbit inspect <url> [--json]');
     process.exit(1);
   }
 
@@ -24,7 +24,7 @@ export async function runInspectCommand(targetUrl: string, options: InspectComma
       console.log(formatInspectionReport(report));
     }
   } catch (err: unknown) {
-    console.error(`DocRouter Inspection Error: ${err instanceof Error ? err.message : String(err)}`);
+    console.error(`DocOrbit Inspection Error: ${err instanceof Error ? err.message : String(err)}`);
     process.exit(1);
   }
 }

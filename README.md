@@ -445,11 +445,12 @@ npx -y docorbit mcp --stdio
 npx -y docorbit mcp --port 3000 --host 127.0.0.1
 ```
 
-#### The 14 Agent-Native Tools:
+#### The 15 Agent-Native Tools:
 
 | Tool Name | Type | Description |
 | :--- | :--- | :--- |
-| `get_implementation_context` | **High-Level Centerpiece** | Orchestrates task → project/dependency detection → version resolution → intent → retrieval → APIs → examples → pitfalls → recipe → token-budgeted context → provenance → verification hints. |
+| `ingest_doc` | **Ingestion & Loop Starter** | Ingests, crawls, and indexes documentation from any URL or raw content directly into local SQLite store, with optional instant implementation recipe synthesis. |
+| `get_implementation_context` | **High-Level Centerpiece** | Orchestrates task → project/dependency detection → version resolution → intent → retrieval → APIs → examples → pitfalls → recipe → token-budgeted context → provenance → verification hints (supports auto-ingestion from `url`). |
 | `check_api` | Verification | Deterministically checks code against indexed OpenAPI schemas, parameters, required body fields, deprecations, and version contracts. |
 | `diff_docs` | Intelligence | Compares documentation versions/snapshots to detect added, removed, modified, and deprecated endpoints/pitfalls. |
 | `analyze_impact` | Intelligence | Scans workspace project files for breaking changes and deprecated APIs, returning line, snippet, and certainty. |

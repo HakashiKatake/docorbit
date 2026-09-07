@@ -1,4 +1,4 @@
-import { DocOrbitDb, DocOrbitRepository } from '../../../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath } from '../../../../packages/storage/src/index.ts';
 import { RetrievalEngine } from '../../../../packages/retrieval/src/index.ts';
 import type { ChunkType } from '../../../../packages/shared/src/index.ts';
 import { formatSearchResults } from '../formatters/terminal.ts';
@@ -20,7 +20,7 @@ export async function runSearchCommand(query: string, options: SearchCommandOpti
     process.exit(1);
   }
 
-  const dbPath = options.dbPath || '.docorbit/docorbit.db';
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
   const engine = new RetrievalEngine(repository);

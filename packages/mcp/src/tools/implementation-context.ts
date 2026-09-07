@@ -1,5 +1,6 @@
 import type { CallToolResult, McpTool } from '../types.ts';
 import type { McpContext, McpToolHandler } from './types.ts';
+import { IngestionPipeline } from '../../../core/src/index.ts';
 
 export class ImplementationContextTool implements McpToolHandler {
   readonly definition: McpTool = {
@@ -11,6 +12,10 @@ export class ImplementationContextTool implements McpToolHandler {
         task: {
           type: 'string',
           description: 'The specific coding task or feature to implement (e.g. "Implement Stripe webhook signature verification in Express").',
+        },
+        url: {
+          type: 'string',
+          description: 'Optional documentation target URL. If provided and not yet indexed in DocOrbit, DocOrbit will automatically ingest and index it before compiling context.',
         },
         project: {
           type: 'string',
@@ -50,8 +55,23 @@ export class ImplementationContextTool implements McpToolHandler {
     const tokenBudget = typeof args.tokenBudget === 'number' && args.tokenBudget > 0
       ? args.tokenBudget
       : 4000;
+    const url = typeof args.url === 'string' ? args.url.trim() : undefined;
 
     try {
+      if (url) {
+        const existing = ctx.repo.getSourceByUrl(url);
+        if (!existing) {
+          try {
+            const pipeline = new IngestionPipeline(ctx.repo, {
+              crawlerConfig: { maxPages: 20 },
+            });
+            await pipeline.ingest(url);
+          } catch {
+            // Proceed gracefully with available context if crawling fails
+          }
+        }
+      }
+
       const result = await ctx.implService.getContext({
         task,
         projectPath,

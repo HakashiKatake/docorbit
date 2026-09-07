@@ -1,4 +1,4 @@
-import { DocOrbitDb, DocOrbitRepository } from '../../../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath } from '../../../../packages/storage/src/index.ts';
 import { IngestionPipeline } from '../../../../packages/core/src/index.ts';
 import { formatIngestionResult } from '../formatters/terminal.ts';
 
@@ -16,7 +16,7 @@ export async function runAddCommand(targetUrl: string, options: AddCommandOption
     process.exit(1);
   }
 
-  const dbPath = options.dbPath || '.docorbit/docorbit.db';
+  const dbPath = resolveDefaultDbPath(options.dbPath);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
 

@@ -1,4 +1,4 @@
-import { DocOrbitDb, DocOrbitRepository } from '../../../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath } from '../../../../packages/storage/src/index.ts';
 import { WorkspaceResolver } from '../../../../packages/workspace/src/index.ts';
 import {
   McpServer,
@@ -15,8 +15,8 @@ export interface McpCommandOptions {
 }
 
 export async function runMcpCommand(options: McpCommandOptions = {}): Promise<void> {
-  const dbPath = options.dbPath || '.docorbit/docorbit.db';
   const projectDir = options.projectDir || process.cwd();
+  const dbPath = resolveDefaultDbPath(options.dbPath, projectDir);
 
   const db = new DocOrbitDb(dbPath);
   const repo = new DocOrbitRepository(db);

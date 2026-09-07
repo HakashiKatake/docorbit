@@ -13,6 +13,7 @@ import { DiffDocsTool } from './diff-docs.ts';
 import { AnalyzeImpactTool } from './analyze-impact.ts';
 import { GetDocumentationMapTool } from './get-docs-map.ts';
 import { ExportAgentContextTool } from './export-context.ts';
+import { IngestDocTool } from './ingest-doc.ts';
 
 export * from './types.ts';
 export {
@@ -31,6 +32,7 @@ export {
   AnalyzeImpactTool,
   GetDocumentationMapTool,
   ExportAgentContextTool,
+  IngestDocTool,
 };
 
 export function createDefaultTools(): Map<string, McpToolHandler> {
@@ -50,6 +52,7 @@ export function createDefaultTools(): Map<string, McpToolHandler> {
     new AnalyzeImpactTool(),
     new GetDocumentationMapTool(),
     new ExportAgentContextTool(),
+    new IngestDocTool(),
   ];
   for (const tool of list) {
     tools.set(tool.definition.name, tool);

@@ -31,6 +31,9 @@ export {
   CheckApiTool,
   DiffDocsTool,
   AnalyzeImpactTool,
+  GetDocumentationMapTool,
+  ExportAgentContextTool,
+  IngestDocTool,
 } from './tools/index.ts';
 
 export type { ResourceManagerOptions } from './resources/index.ts';

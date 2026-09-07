@@ -136,9 +136,9 @@ function setupMockDb(): { db: DocOrbitDb; repo: DocOrbitRepository; server: McpS
   return { db, repo, server, sourceId, snapId };
 }
 
-test('MCP Tools: createDefaultTools registers exactly 14 standard tools', () => {
+test('MCP Tools: createDefaultTools registers exactly 15 standard tools', () => {
   const tools = createDefaultTools();
-  assert.strictEqual(tools.size, 14);
+  assert.strictEqual(tools.size, 15);
 
   const expectedNames = [
     'search_docs',
@@ -155,6 +155,7 @@ test('MCP Tools: createDefaultTools registers exactly 14 standard tools', () => 
     'analyze_impact',
     'get_documentation_map',
     'export_agent_context',
+    'ingest_doc',
   ];
 
   for (const name of expectedNames) {
@@ -218,7 +219,7 @@ test('MCP Protocol: ping and initialized notification handling', async () => {
   }
 });
 
-test('MCP Protocol: tools/list returns all 14 tools with complete schemas', async () => {
+test('MCP Protocol: tools/list returns all 15 tools with complete schemas', async () => {
   const { db, server } = setupMockDb();
   try {
     const res = await server.handleMessage({
@@ -229,13 +230,14 @@ test('MCP Protocol: tools/list returns all 14 tools with complete schemas', asyn
 
     assert.ok(res && res.result);
     const result = res.result as { tools: Array<{ name: string; description: string }> };
-    assert.strictEqual(result.tools.length, 14);
+    assert.strictEqual(result.tools.length, 15);
     assert.ok(result.tools.some(t => t.name === 'get_implementation_context'));
     assert.ok(result.tools.some(t => t.name === 'check_api'));
     assert.ok(result.tools.some(t => t.name === 'diff_docs'));
     assert.ok(result.tools.some(t => t.name === 'analyze_impact'));
     assert.ok(result.tools.some(t => t.name === 'get_documentation_map'));
     assert.ok(result.tools.some(t => t.name === 'export_agent_context'));
+    assert.ok(result.tools.some(t => t.name === 'ingest_doc'));
   } finally {
     db.close();
   }
@@ -474,3 +476,51 @@ test('MCP Protocol: error handling for malformed requests and unknown tools', as
     db.close();
   }
 });
+
+test('MCP Tool: ingest_doc indexes raw documentation and compiles immediate context', async () => {
+  const { db, server, repo } = setupMockDb();
+  try {
+    const rawContent = `
+# Atlassian Remote MCP Server
+Connect Jira and Confluence using Model Context Protocol over SSE.
+Endpoint: https://mcp.atlassian.com/v2/mcp
+OAuth: Requires OAuth 2.1 PKCE.
+\`\`\`typescript
+const client = new Client({ url: "https://mcp.atlassian.com/v2/mcp" });
+\`\`\`
+⚠️ Breaking Change: v1 endpoints are deprecated.
+`;
+
+    const res = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 50,
+      method: 'tools/call',
+      params: {
+        name: 'ingest_doc',
+        arguments: {
+          content: rawContent,
+          title: 'Atlassian Remote MCP Docs',
+          taskContext: 'Connect Atlassian Remote MCP',
+        },
+      },
+    });
+
+    assert.ok(res && res.result);
+    const result = res.result as { isError?: boolean; content: Array<{ text: string }> };
+    assert.strictEqual(result.isError, undefined);
+    assert.ok(result.content[0].text);
+
+    const parsed = JSON.parse(result.content[0].text);
+    assert.ok(parsed.markdown.includes('DocOrbit: Ingested & Context Compiled'));
+    assert.strictEqual(parsed.data.stats.pagesCount, 1);
+    assert.ok(parsed.data.stats.chunksCount > 0);
+    assert.ok(parsed.data.implementationContext);
+
+    // Verify repository now contains the chunk
+    const chunks = repo.searchChunksFts('Atlassian Remote MCP');
+    assert.ok(chunks.length > 0);
+  } finally {
+    db.close();
+  }
+});
+

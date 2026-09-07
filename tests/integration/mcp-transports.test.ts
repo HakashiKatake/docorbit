@@ -95,7 +95,7 @@ test('Stdio Transport: handles single request, batch request, notifications, and
     assert.strictEqual(batchRes.length, 2);
     assert.strictEqual(batchRes[0].id, 2);
     assert.strictEqual(batchRes[1].id, 3);
-    assert.strictEqual(batchRes[1].result.tools.length, 14);
+    assert.strictEqual(batchRes[1].result.tools.length, 15);
 
     // 5. Parse error on malformed JSON
     const beforeErr = stdoutChunks.length;
@@ -220,7 +220,7 @@ test('Streamable HTTP Transport: in-memory health check, CORS, POST /mcp (JSON &
     assert.ok(String(postJson.headers['content-type']).includes('application/json'));
     const toolsResult = JSON.parse(postJson.body);
     assert.strictEqual(toolsResult.id, 'req-1');
-    assert.strictEqual(toolsResult.result.tools.length, 14);
+    assert.strictEqual(toolsResult.result.tools.length, 15);
 
     // 4. POST /mcp with Accept: text/event-stream (Modern Streamable HTTP)
     const postStreamEx = createMockHttpExchange({

@@ -17,7 +17,7 @@ import { runExportCommand } from './commands/export.ts';
 import { handleEvaluateCommand } from './commands/evaluate.ts';
 import type { ChunkType, PitfallKind } from '../../../packages/shared/src/index.ts';
 
-const VERSION = '0.1.1';
+const VERSION = '0.1.3';
 
 function printHelp(): void {
   console.log(`
@@ -77,7 +77,7 @@ EXAMPLES:
   docorbit verify "fetch('/v1/charges', { method: 'POST' })" --doc-version v14
   docorbit diff --from v14 --to v15
   docorbit impact --from v14 --to v15 --project .
-  docorbit mcp --stdio
+  docorbit mcp
   docorbit api "create subscription" --doc-version v1
   docorbit examples "verify webhook signature" --language typescript --framework express
   docorbit pitfalls "server actions" --kind server_only --doc-version v14
@@ -86,13 +86,25 @@ EXAMPLES:
 }
 
 export async function main(args: string[] = process.argv.slice(2)): Promise<void> {
-  if (args.length === 0 || args.includes('-h') || args.includes('--help')) {
+  if (args.includes('-h') || args.includes('--help')) {
     printHelp();
     return;
   }
 
   if (args.includes('-v') || args.includes('--version')) {
     console.log(`DocOrbit v${VERSION}`);
+    return;
+  }
+
+  // When invoked with zero arguments:
+  // 1. If spawned by an MCP host/pipe (!process.stdin.isTTY), automatically start MCP server
+  // 2. If run in an interactive terminal, display the CLI help menu
+  if (args.length === 0) {
+    if (!process.stdin.isTTY) {
+      await runMcpCommand({ stdio: true });
+      return;
+    }
+    printHelp();
     return;
   }
 

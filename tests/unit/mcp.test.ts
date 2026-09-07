@@ -524,3 +524,170 @@ const client = new Client({ url: "https://mcp.atlassian.com/v2/mcp" });
   }
 });
 
+test('MCP Tools: parameter aliases and fallback-resistant execution', async () => {
+  const { db, server } = setupMockDb();
+  try {
+    // 1. search_docs with 'q' alias
+    const searchRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 60,
+      method: 'tools/call',
+      params: { name: 'search_docs', arguments: { q: 'webhook' } },
+    });
+    assert.ok(searchRes && searchRes.result);
+    const searchData = JSON.parse((searchRes.result as any).content[0].text);
+    assert.ok(searchData.data.results.length > 0);
+
+    // 2. find_api with 'endpoint' alias
+    const apiRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 61,
+      method: 'tools/call',
+      params: { name: 'find_api', arguments: { endpoint: '/v1/webhook_endpoints' } },
+    });
+    assert.ok(apiRes && apiRes.result);
+    const apiData = JSON.parse((apiRes.result as any).content[0].text);
+    assert.ok(apiData.data.endpoints.length > 0);
+
+    // 3. get_doc with 'id' alias (page id and chunk id)
+    const docRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 62,
+      method: 'tools/call',
+      params: { name: 'get_doc', arguments: { id: 'page_wh' } },
+    });
+    assert.ok(docRes && docRes.result);
+    const docData = JSON.parse((docRes.result as any).content[0].text);
+    assert.strictEqual(docData.data.page?.id, 'page_wh');
+
+    // 3b. get_doc with chunk id
+    const chunkRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 621,
+      method: 'tools/call',
+      params: { name: 'get_doc', arguments: { id: 'chk_wh_01' } },
+    });
+    assert.ok(chunkRes && chunkRes.result);
+    const chunkData = JSON.parse((chunkRes.result as any).content[0].text);
+    assert.strictEqual(chunkData.data.chunk?.id, 'chk_wh_01');
+
+    // 4. find_example with 'topic' alias
+    const exRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 63,
+      method: 'tools/call',
+      params: { name: 'find_example', arguments: { topic: 'verify webhook' } },
+    });
+    assert.ok(exRes && exRes.result);
+    const exData = JSON.parse((exRes.result as any).content[0].text);
+    assert.ok(exData.data.examples.length > 0);
+
+    // 5. find_pitfall with 'topic' alias
+    const pitfallRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 64,
+      method: 'tools/call',
+      params: { name: 'find_pitfall', arguments: { topic: 'raw body' } },
+    });
+    assert.ok(pitfallRes && pitfallRes.result);
+    const pitfallData = JSON.parse((pitfallRes.result as any).content[0].text);
+    assert.ok(pitfallData.data.pitfalls.length > 0);
+
+    // 6. find_recipe with 'goal' alias
+    const recipeRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 65,
+      method: 'tools/call',
+      params: { name: 'find_recipe', arguments: { goal: 'verify signatures' } },
+    });
+    assert.ok(recipeRes && recipeRes.result);
+    const recipeData = JSON.parse((recipeRes.result as any).content[0].text);
+    assert.ok(recipeData.data.goal);
+
+    // 7. check_api with 'snippet' alias
+    const checkRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 66,
+      method: 'tools/call',
+      params: {
+        name: 'check_api',
+        arguments: {
+          snippet: 'const event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);',
+          library: 'stripe',
+        },
+      },
+    });
+    assert.ok(checkRes && checkRes.result);
+    const checkData = JSON.parse((checkRes.result as any).content[0].text);
+    assert.ok(checkData.data);
+
+    // 8. diff_docs with 'from' and 'to' aliases
+    const diffRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 67,
+      method: 'tools/call',
+      params: {
+        name: 'diff_docs',
+        arguments: { from: 'v14', to: 'v15' },
+      },
+    });
+    assert.ok(diffRes && diffRes.result);
+    const diffData = JSON.parse((diffRes.result as any).content[0].text);
+    assert.ok(diffData.data);
+
+    // 9. get_implementation_context with 'goal' alias
+    const implRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 68,
+      method: 'tools/call',
+      params: {
+        name: 'get_implementation_context',
+        arguments: { goal: 'handle webhook signature verification' },
+      },
+    });
+    assert.ok(implRes && implRes.result);
+    const implData = JSON.parse((implRes.result as any).content[0].text);
+    assert.ok(implData.data);
+
+    // 10. export_agent_context with default arguments (no format required)
+    const exportRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 69,
+      method: 'tools/call',
+      params: { name: 'export_agent_context', arguments: {} },
+    });
+    assert.ok(exportRes && exportRes.result);
+    const exportData = JSON.parse((exportRes.result as any).content[0].text);
+    assert.strictEqual(exportData.data.format, 'agents.md');
+
+    // 11. get_version with no library lists workspace dependencies
+    const versionRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 70,
+      method: 'tools/call',
+      params: { name: 'get_version', arguments: {} },
+    });
+    assert.ok(versionRes && versionRes.result);
+    const versionData = JSON.parse((versionRes.result as any).content[0].text);
+    assert.ok(versionData.markdown.includes('Workspace Version Intelligence'));
+
+    // 12. list_sources on empty DB does not suggest CLI command
+    const emptyDb = new DocOrbitDb(':memory:');
+    const emptyRepo = new DocOrbitRepository(emptyDb);
+    const emptyServer = new McpServer({ repo: emptyRepo });
+    const listRes = await emptyServer.handleMessage({
+      jsonrpc: '2.0',
+      id: 71,
+      method: 'tools/call',
+      params: { name: 'list_sources', arguments: {} },
+    });
+    assert.ok(listRes && listRes.result);
+    const listData = JSON.parse((listRes.result as any).content[0].text);
+    assert.ok(!listData.markdown.includes('docorbit add'));
+    assert.ok(listData.markdown.includes('ingest_doc'));
+    emptyDb.close();
+  } finally {
+    db.close();
+  }
+});
+

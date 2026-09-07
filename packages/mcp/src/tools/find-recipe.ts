@@ -27,13 +27,19 @@ export class FindRecipeTool implements McpToolHandler {
   };
 
   async execute(args: Record<string, unknown>, ctx: McpContext): Promise<CallToolResult> {
-    const goal = typeof args.goal === 'string'
-      ? args.goal.trim()
-      : (typeof args.task === 'string' ? args.task.trim() : (typeof args.query === 'string' ? args.query.trim() : ''));
+    const goal = (
+      typeof args.goal === 'string' ? args.goal :
+      typeof args.task === 'string' ? args.task :
+      typeof args.query === 'string' ? args.query :
+      typeof args.workflow === 'string' ? args.workflow :
+      typeof args.description === 'string' ? args.description :
+      typeof args.search === 'string' ? args.search : ''
+    ).trim();
+
     if (!goal) {
       return {
         isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: goal (or task)' }) }],
+        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: goal (or task, query, workflow)' }) }],
       };
     }
 
@@ -42,7 +48,7 @@ export class FindRecipeTool implements McpToolHandler {
       : (typeof args.version === 'string' ? args.version : undefined);
     const projectPath = typeof args.projectPath === 'string'
       ? args.projectPath
-      : (typeof args.project === 'string' ? args.project : ctx.workspaceRoot);
+      : (typeof args.project === 'string' ? args.project : (ctx.projectDir || ctx.workspaceRoot || '.'));
 
     const engine = new RecipeEngine(ctx.repo);
     const recipe = await engine.assembleRecipe(goal, {

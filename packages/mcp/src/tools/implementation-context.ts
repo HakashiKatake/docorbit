@@ -33,23 +33,41 @@ export class ImplementationContextTool implements McpToolHandler {
           type: 'number',
           description: 'Maximum token budget for packed context (default: 4000).',
         },
+        goal: {
+          type: 'string',
+          description: 'Alias for task.',
+        },
+        query: {
+          type: 'string',
+          description: 'Alias for task.',
+        },
       },
-      required: ['task'],
     },
   };
 
   async execute(args: Record<string, unknown>, ctx: McpContext): Promise<CallToolResult> {
-    const task = typeof args.task === 'string' ? args.task.trim() : '';
+    const task =
+      (typeof args.task === 'string' ? args.task.trim() : '') ||
+      (typeof args.goal === 'string' ? args.goal.trim() : '') ||
+      (typeof args.query === 'string' ? args.query.trim() : '') ||
+      (typeof args.prompt === 'string' ? args.prompt.trim() : '') ||
+      (typeof args.description === 'string' ? args.description.trim() : '');
+
     if (!task) {
       return {
         isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: task' }) }],
+        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: task (or goal/query)' }) }],
       };
     }
 
-    const projectPath = typeof args.project === 'string'
-      ? args.project
-      : (ctx.workspaceRoot || '.');
+    const projectPath =
+      (typeof args.project === 'string' ? args.project : undefined) ||
+      (typeof args.projectDir === 'string' ? args.projectDir : undefined) ||
+      (typeof args.dir === 'string' ? args.dir : undefined) ||
+      (typeof args.workspaceRoot === 'string' ? args.workspaceRoot : undefined) ||
+      ctx.projectDir ||
+      ctx.workspaceRoot ||
+      '.';
     const library = typeof args.library === 'string' ? args.library : undefined;
     const version = typeof args.version === 'string' ? args.version : undefined;
     const tokenBudget = typeof args.tokenBudget === 'number' && args.tokenBudget > 0

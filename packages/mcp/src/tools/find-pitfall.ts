@@ -32,13 +32,19 @@ export class FindPitfallTool implements McpToolHandler {
   };
 
   async execute(args: Record<string, unknown>, ctx: McpContext): Promise<CallToolResult> {
-    const query = typeof args.query === 'string'
-      ? args.query.trim()
-      : (typeof args.task === 'string' ? args.task.trim() : '');
+    const query = (
+      typeof args.query === 'string' ? args.query :
+      typeof args.topic === 'string' ? args.topic :
+      typeof args.task === 'string' ? args.task :
+      typeof args.symbol === 'string' ? args.symbol :
+      typeof args.concept === 'string' ? args.concept :
+      typeof args.search === 'string' ? args.search : ''
+    ).trim();
+
     if (!query) {
       return {
         isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: query (or task)' }) }],
+        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: query (or topic, symbol, task)' }) }],
       };
     }
 
@@ -60,7 +66,7 @@ export class FindPitfallTool implements McpToolHandler {
           {
             type: 'text',
             text: JSON.stringify({
-              markdown: `### Pitfalls & Warnings for "${query}"\n\nNo matching pitfalls or warnings found.`,
+              markdown: `### Pitfalls & Warnings for "${query}"\n\nNo matching pitfalls or warnings found.\n\n> [!TIP]\n> Try searching documentation text with **\`search_docs(query: "${query}")\`** or verify code syntax with **\`check_api\`**.`,
               data: { query, count: 0, pitfalls: [] },
             }, null, 2),
           },

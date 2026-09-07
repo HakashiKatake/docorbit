@@ -55,24 +55,23 @@ export function writeDocsLock(projectDir: string, lock: DocsLock): void {
 }
 
 /**
- * Helper to match a project dependency to an ingested source in the repository.
+ * Helper to match a project dependency to all matching ingested sources in the repository.
  */
-function findMatchingSource(dep: ProjectDependency, repo: DocOrbitRepository) {
-  const sources = repo.listSources();
+export function getMatchingSources(
+  dep: ProjectDependency,
+  sources: Array<{ id: string; url: string; metadata?: Record<string, unknown> | null }>
+) {
   const depClean = dep.name.toLowerCase().replace(/^@[^/]+\//, ''); // e.g. @stripe/stripe-js -> stripe-js
+  const depLower = dep.name.toLowerCase();
 
-  for (const src of sources) {
+  return sources.filter(src => {
     const srcUrl = src.url.toLowerCase();
-    // Direct match: URL or metadata contains dependency name
-    if (
+    return (
       srcUrl.includes(depClean) ||
-      srcUrl.includes(dep.name.toLowerCase()) ||
+      srcUrl.includes(depLower) ||
       (src.metadata && String(src.metadata.name || '').toLowerCase() === depClean)
-    ) {
-      return src;
-    }
-  }
-  return null;
+    );
+  });
 }
 
 /**
@@ -86,6 +85,7 @@ export function generateDocsLock(
 ): DocsLock {
   const lockedDeps: Record<string, LockedDoc> = {};
   const allSnapshots = repo.listSnapshots();
+  const allSources = repo.listSources();
 
   // Detect duplicate package names across monorepo packages
   const nameCounts = new Map<string, number>();
@@ -100,19 +100,21 @@ export function generateDocsLock(
       ? `${dep.packagePath}:${dep.name}`
       : dep.name;
 
-    // Check if we have documentation for this dependency
-    const matchingSource = findMatchingSource(dep, repo);
-    if (!matchingSource) continue;
+    // Check if we have documentation for this dependency across all matching sources
+    const matchingSources = getMatchingSources(dep, allSources);
+    if (matchingSources.length === 0) continue;
 
-    // Find snapshots for matching source
-    const sourceSnapshots = allSnapshots.filter(s => s.sourceId === matchingSource.id);
+    // Find snapshots across all matching sources (ignoring candidate sources with 0 snapshots)
+    const matchingSourceIds = new Set(matchingSources.map(s => s.id));
+    const sourceSnapshots = allSnapshots.filter(s => matchingSourceIds.has(s.sourceId));
     if (sourceSnapshots.length === 0) continue;
 
-    // Gather available versions from snapshots
+    // Gather available versions from snapshots, preferring snapshots with higher pageCount
     const versionToSnapshot = new Map<string, typeof sourceSnapshots[0]>();
     for (const snap of sourceSnapshots) {
       const v = snap.docVersion || 'latest';
-      if (!versionToSnapshot.has(v)) {
+      const existingSnap = versionToSnapshot.get(v);
+      if (!existingSnap || (snap.pageCount || 0) > (existingSnap.pageCount || 0)) {
         versionToSnapshot.set(v, snap);
       }
     }
@@ -123,6 +125,7 @@ export function generateDocsLock(
 
     const selectedSnapshot = versionToSnapshot.get(resolution.selectedDocVersion) || sourceSnapshots[0];
     const snapshotHash = selectedSnapshot.snapshotHash;
+    const matchingSource = matchingSources.find(s => s.id === selectedSnapshot.sourceId) || matchingSources[0];
 
     // Deterministic timestamp preservation:
     // If existingLock already has this dependency with identical snapshotHash and resolvedVersion, keep the timestamp

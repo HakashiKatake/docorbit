@@ -65,13 +65,19 @@ export function resolveDefaultDbPath(explicitDbPath?: string, projectDir?: strin
     return resolveGlobalDbPath();
   }
 
-  // 2. If projectDir is provided, store inside project root .docorbit/
+  const globalPath = resolveGlobalDbPath();
+
+  // 2. If projectDir is provided, check project root .docorbit/
   if (projectDir) {
     const resolvedProjectDir = resolve(projectDir);
     const userHome = process.env.HOME || process.env.USERPROFILE || getHomedir();
     if (resolvedProjectDir !== '/' && resolvedProjectDir !== userHome) {
       const root = findNearestProjectRoot(resolvedProjectDir) || resolvedProjectDir;
-      return join(root, '.docorbit', 'docorbit.db');
+      const projDb = join(root, '.docorbit', 'docorbit.db');
+      if (existsSync(projDb) || !existsSync(globalPath)) {
+        return projDb;
+      }
+      return globalPath;
     }
   }
 
@@ -81,12 +87,16 @@ export function resolveDefaultDbPath(explicitDbPath?: string, projectDir?: strin
     const userHome = process.env.HOME || process.env.USERPROFILE || getHomedir();
     if (cwd && cwd !== '/' && cwd !== userHome) {
       const root = findNearestProjectRoot(cwd) || cwd;
-      return join(root, '.docorbit', 'docorbit.db');
+      const projDb = join(root, '.docorbit', 'docorbit.db');
+      if (existsSync(projDb) || !existsSync(globalPath)) {
+        return projDb;
+      }
+      return globalPath;
     }
   } catch {}
 
-  // 4. Fallback to global user store only when outside any project: ~/.docorbit/docorbit.db
-  return resolveGlobalDbPath();
+  // 4. Fallback to global user store: ~/.docorbit/docorbit.db
+  return globalPath;
 }
 
 export class DocOrbitDb {

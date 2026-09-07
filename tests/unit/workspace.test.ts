@@ -9,6 +9,7 @@ import {
   updateDocsLock,
   readDocsLock,
   writeDocsLock,
+  WorkspaceResolver,
 } from '../../packages/workspace/src/index.ts';
 import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
 
@@ -245,6 +246,92 @@ test('DocsLock: deterministic lockfile generation and bit-for-bit stability with
     // 3. Selective update with updateDocsLock
     const lockUpdated = updateDocsLock(scan, repo, lock2, 'next');
     assert.ok(lockUpdated.dependencies['next']);
+  } finally {
+    db.close();
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test('DocsLock: locks dependencies when candidate sources without snapshots exist alongside ingested sources', () => {
+  const tempDir = mkdtempSync(join(tmpdir(), 'docorbit-multi-source-test-'));
+  const dbPath = join(tempDir, 'test.db');
+  const db = new DocOrbitDb(dbPath);
+  const repo = new DocOrbitRepository(db);
+
+  try {
+    writeFileSync(
+      join(tempDir, 'package.json'),
+      JSON.stringify({
+        dependencies: {
+          stripe: '^17.7.0',
+        },
+      })
+    );
+
+    // Save multiple sources discovered during discovery
+    repo.saveSource({
+      id: 'src_stripe_sitemap',
+      url: 'https://docs.stripe.com/sitemap.xml',
+      type: 'sitemap',
+      discoveredBy: 'sitemap',
+      status: 'valid',
+      confidence: 0.9,
+      authority: 'official',
+      machineReadable: true,
+    });
+
+    repo.saveSource({
+      id: 'src_stripe_llms',
+      url: 'https://docs.stripe.com/llms.txt',
+      type: 'llms_txt',
+      discoveredBy: 'llms_txt',
+      status: 'valid',
+      confidence: 0.98,
+      authority: 'official',
+      machineReadable: true,
+    });
+
+    const activeSourceId = repo.saveSource({
+      url: 'https://docs.stripe.com/api.md',
+      type: 'markdown',
+      discoveredBy: 'markdown',
+      status: 'valid',
+      confidence: 0.95,
+      authority: 'official',
+      machineReadable: true,
+    });
+
+    // Only activeSourceId has page and snapshot
+    repo.savePage({
+      id: 'page_stripe_1',
+      sourceId: activeSourceId,
+      title: 'Stripe API Reference',
+      url: 'https://docs.stripe.com/api',
+      content: '# Stripe API Reference\nCharges and Payments API.',
+      contentHash: 'hash_stripe_content',
+      fetchedAt: '2026-01-01T00:00:00Z',
+      rawBytes: 2000,
+      estimatedTokens: 300,
+      headings: [],
+      links: [],
+      codeExamples: [],
+      securityAnnotations: [],
+    });
+    const snapshotId = repo.createSnapshot(activeSourceId, { targetUrl: 'https://docs.stripe.com/api', pageCount: 1 });
+
+    const scan = detectWorkspaceDependencies(tempDir);
+    const lock = generateDocsLock(scan, repo);
+
+    assert.ok(lock.dependencies['stripe'], 'Expected stripe dependency to be locked');
+    assert.strictEqual(lock.dependencies['stripe'].docSourceUrl, 'https://docs.stripe.com/api.md');
+    assert.strictEqual(lock.dependencies['stripe'].snapshotId, snapshotId);
+
+    // Verify workspace resolver also matches
+    const resolver = new WorkspaceResolver(repo);
+    const resolved = resolver.resolveWorkspace(scan);
+    assert.strictEqual(resolved.matches.length, 1);
+    assert.strictEqual(resolved.matches[0].dependency.name, 'stripe');
+    assert.strictEqual(resolved.matches[0].snapshotId, snapshotId);
   } finally {
     db.close();
     rmSync(tempDir, { recursive: true, force: true });

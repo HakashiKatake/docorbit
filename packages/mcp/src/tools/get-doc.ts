@@ -25,9 +25,25 @@ export class GetDocTool implements McpToolHandler {
   };
 
   async execute(args: Record<string, unknown>, ctx: McpContext): Promise<CallToolResult> {
-    const chunkId = typeof args.chunkId === 'string' ? args.chunkId.trim() : undefined;
-    const pageId = typeof args.pageId === 'string' ? args.pageId.trim() : undefined;
-    const url = typeof args.url === 'string' ? args.url.trim() : undefined;
+    const rawId = typeof args.id === 'string' ? args.id.trim() : (typeof args.docId === 'string' ? args.docId.trim() : undefined);
+    let chunkId = typeof args.chunkId === 'string'
+      ? args.chunkId.trim()
+      : (rawId && rawId.startsWith('chk_') ? rawId : undefined);
+    let pageId = typeof args.pageId === 'string'
+      ? args.pageId.trim()
+      : (rawId && rawId.startsWith('page_') ? rawId : undefined);
+    let url = typeof args.url === 'string'
+      ? args.url.trim()
+      : (rawId && (rawId.startsWith('http://') || rawId.startsWith('https://')) ? rawId : undefined);
+
+    // If rawId was passed without standard prefix, check whether it matches a chunk first
+    if (!chunkId && !pageId && !url && rawId) {
+      if (ctx.repo.getChunk(rawId)) {
+        chunkId = rawId;
+      } else {
+        pageId = rawId;
+      }
+    }
 
     if (!chunkId && !pageId && !url) {
       return {
@@ -35,7 +51,7 @@ export class GetDocTool implements McpToolHandler {
         content: [
           {
             type: 'text',
-            text: JSON.stringify({ error: 'Please provide at least one identifier: chunkId, pageId, or url.' }),
+            text: JSON.stringify({ error: 'Please provide at least one identifier: id, chunkId, pageId, or url.' }),
           },
         ],
       };
@@ -45,11 +61,13 @@ export class GetDocTool implements McpToolHandler {
       const chunk = ctx.repo.getChunk(chunkId);
       if (!chunk) {
         return {
-          isError: true,
           content: [
             {
               type: 'text',
-              text: JSON.stringify({ error: `Chunk not found: ${chunkId}`, available: false }),
+              text: JSON.stringify({
+                markdown: `### Documentation Chunk Not Found\n\nNo chunk found with ID \`${chunkId}\`. Call \`search_docs\` to discover valid chunk IDs.`,
+                data: { error: `Chunk not found: ${chunkId}`, available: false },
+              }, null, 2),
             },
           ],
         };
@@ -91,11 +109,13 @@ export class GetDocTool implements McpToolHandler {
     const page = pageId ? ctx.repo.getPage(pageId) : (url ? ctx.repo.getPageByUrl(url) : null);
     if (!page) {
       return {
-        isError: true,
         content: [
           {
             type: 'text',
-            text: JSON.stringify({ error: `Page not found for ${pageId ? `pageId: ${pageId}` : `url: ${url}`}`, available: false }),
+            text: JSON.stringify({
+              markdown: `### Documentation Page Not Found\n\nNo page found for ${pageId ? `ID \`${pageId}\`` : `URL \`${url}\``}. Call \`list_sources\` to verify indexed documentation.`,
+              data: { error: `Page not found for ${pageId ? `pageId: ${pageId}` : `url: ${url}`}`, available: false },
+            }, null, 2),
           },
         ],
       };

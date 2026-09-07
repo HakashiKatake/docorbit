@@ -34,13 +34,19 @@ export class FindExampleTool implements McpToolHandler {
   };
 
   async execute(args: Record<string, unknown>, ctx: McpContext): Promise<CallToolResult> {
-    const query = typeof args.query === 'string'
-      ? args.query.trim()
-      : (typeof args.task === 'string' ? args.task.trim() : '');
+    const query = (
+      typeof args.query === 'string' ? args.query :
+      typeof args.task === 'string' ? args.task :
+      typeof args.topic === 'string' ? args.topic :
+      typeof args.symbol === 'string' ? args.symbol :
+      typeof args.goal === 'string' ? args.goal :
+      typeof args.search === 'string' ? args.search : ''
+    ).trim();
+
     if (!query) {
       return {
         isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: query (or task)' }) }],
+        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: query (or task, topic, symbol)' }) }],
       };
     }
 
@@ -64,7 +70,7 @@ export class FindExampleTool implements McpToolHandler {
           {
             type: 'text',
             text: JSON.stringify({
-              markdown: `### Code Examples for "${query}"\n\nNo verified code examples found.`,
+              markdown: `### Code Examples for "${query}"\n\nNo verified code examples found.\n\n> [!TIP]\n> Try searching documentation text directly with **\`search_docs(query: "${query}")\`** or generate an implementation blueprint with **\`find_recipe(goal: "${query}")\`**.`,
               data: { query, count: 0, examples: [] },
             }, null, 2),
           },

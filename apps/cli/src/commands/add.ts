@@ -1,5 +1,11 @@
 import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath, hasProjectDb } from '../../../../packages/storage/src/index.ts';
 import { IngestionPipeline } from '../../../../packages/core/src/index.ts';
+import {
+  detectWorkspaceDependencies,
+  generateDocsLock,
+  readDocsLock,
+  writeDocsLock,
+} from '../../../../packages/workspace/src/index.ts';
 import { formatIngestionResult } from '../formatters/terminal.ts';
 import { promptStorageLocation } from '../prompts.ts';
 
@@ -51,6 +57,25 @@ export async function runAddCommand(targetUrl: string, options: AddCommandOption
       console.log(JSON.stringify(result, null, 2));
     } else {
       console.log(formatIngestionResult(result));
+    }
+
+    // Automatically update docs.lock if in a project directory with dependencies
+    try {
+      const targetDir = options.projectDir || '.';
+      const scanResult = detectWorkspaceDependencies(targetDir);
+      if (scanResult.dependencies.length > 0) {
+        const existingLock = readDocsLock(targetDir);
+        const lock = generateDocsLock(scanResult, repository, existingLock);
+        const lockedCount = Object.keys(lock.dependencies).length;
+        if (lockedCount > 0) {
+          writeDocsLock(targetDir, lock);
+          if (!options.json) {
+            console.log(`\nUpdated docs.lock: ${lockedCount} project dependencies resolved to documentation.`);
+          }
+        }
+      }
+    } catch {
+      // Non-critical: do not fail add command if lockfile update encounters issues
     }
   } catch (err: unknown) {
     console.error(`DocOrbit Ingestion Error: ${err instanceof Error ? err.message : String(err)}`);

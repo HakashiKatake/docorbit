@@ -33,17 +33,26 @@ export class CheckApiTool implements McpToolHandler {
           type: 'string',
           description: 'Optional path of the file being verified for context.',
         },
+        snippet: {
+          type: 'string',
+          description: 'Alternative alias for code snippet.',
+        },
       },
-      required: ['code'],
     },
   };
 
   async execute(args: Record<string, unknown>, ctx: McpContext): Promise<CallToolResult> {
-    const code = typeof args.code === 'string' ? args.code : '';
+    const code =
+      (typeof args.code === 'string' ? args.code.trim() : '') ||
+      (typeof args.snippet === 'string' ? args.snippet.trim() : '') ||
+      (typeof args.codeSnippet === 'string' ? args.codeSnippet.trim() : '') ||
+      (typeof args.symbol === 'string' ? args.symbol.trim() : '') ||
+      (typeof args.query === 'string' ? args.query.trim() : '');
+
     if (!code) {
       return {
         isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required argument: code' }) }],
+        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required argument: code (or snippet)' }) }],
       };
     }
 

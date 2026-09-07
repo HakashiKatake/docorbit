@@ -28,12 +28,14 @@ export class ExportAgentContextTool implements McpToolHandler {
           description: 'Optional library or skill name label.',
         },
       },
-      required: ['format'],
     },
   };
 
   async execute(args: Record<string, unknown>, ctx: McpContext): Promise<CallToolResult> {
-    const rawFormat = typeof args.format === 'string' ? args.format.toLowerCase() : 'agents.md';
+    const rawFormat =
+      (typeof args.format === 'string' ? args.format.toLowerCase() : '') ||
+      (typeof args.type === 'string' ? args.type.toLowerCase() : '') ||
+      'agents.md';
     const validFormats: ExportFormat[] = ['agents.md', 'claude.md', 'skill.md', 'llms.txt', 'docs-map.md'];
     const format = validFormats.includes(rawFormat as ExportFormat) ? (rawFormat as ExportFormat) : 'agents.md';
 

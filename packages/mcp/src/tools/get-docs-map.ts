@@ -22,8 +22,14 @@ export class GetDocumentationMapTool implements McpToolHandler {
   };
 
   async execute(args: Record<string, unknown>, ctx: McpContext): Promise<CallToolResult> {
-    const sourceId = typeof args.sourceId === 'string' ? args.sourceId : undefined;
-    const docVersion = typeof args.docVersion === 'string' ? args.docVersion : undefined;
+    const sourceId =
+      (typeof args.sourceId === 'string' ? args.sourceId : undefined) ||
+      (typeof args.source === 'string' ? args.source : undefined) ||
+      (typeof args.url === 'string' ? args.url : undefined) ||
+      (typeof args.library === 'string' ? args.library : undefined);
+    const docVersion =
+      (typeof args.docVersion === 'string' ? args.docVersion : undefined) ||
+      (typeof args.version === 'string' ? args.version : undefined);
 
     const exportService = ctx.exportService || new ExportService(ctx.repo);
     const map = exportService.getDocumentationMap({ sourceId, docVersion });

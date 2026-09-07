@@ -31,16 +31,27 @@ export class FindApiTool implements McpToolHandler {
   };
 
   async execute(args: Record<string, unknown>, ctx: McpContext): Promise<CallToolResult> {
-    const query = typeof args.query === 'string' ? args.query.trim() : '';
+    const query = (
+      typeof args.query === 'string' ? args.query :
+      typeof args.symbol === 'string' ? args.symbol :
+      typeof args.path === 'string' ? args.path :
+      typeof args.endpoint === 'string' ? args.endpoint :
+      typeof args.name === 'string' ? args.name :
+      typeof args.task === 'string' ? args.task :
+      typeof args.search === 'string' ? args.search : ''
+    ).trim();
+
     if (!query) {
       return {
         isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: query' }) }],
+        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: query (or symbol, path, endpoint)' }) }],
       };
     }
 
     const method = typeof args.method === 'string' ? args.method.toLowerCase() : undefined;
-    const version = typeof args.version === 'string' ? args.version : undefined;
+    const version = typeof args.version === 'string'
+      ? args.version
+      : (typeof args.docVersion === 'string' ? args.docVersion : undefined);
     const limit = typeof args.limit === 'number' && args.limit > 0 ? args.limit : 5;
 
     const endpoints = ctx.repo.searchApiEndpoints(query, {
@@ -55,7 +66,7 @@ export class FindApiTool implements McpToolHandler {
           {
             type: 'text',
             text: JSON.stringify({
-              markdown: `### API Search for "${query}"\n\nNo matching API endpoints found.`,
+              markdown: `### API Search for "${query}"\n\nNo matching API endpoints found.\n\n> [!TIP]\n> Try searching documentation text with **\`search_docs(query: "${query}")\`**, or call **\`list_sources\`** to verify indexed documentation.`,
               data: { query, count: 0, endpoints: [] },
             }, null, 2),
           },

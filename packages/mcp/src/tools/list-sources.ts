@@ -28,7 +28,7 @@ export class ListSourcesTool implements McpToolHandler {
           {
             type: 'text',
             text: JSON.stringify({
-              markdown: '### Indexed Documentation Sources\n\nNo documentation sources have been added yet. Use `docorbit add <url>` to ingest documentation.',
+              markdown: '### Indexed Documentation Sources\n\nNo documentation sources have been indexed yet. Use the `ingest_doc` tool with a documentation URL (e.g. `ingest_doc(url: "https://...")`) to index documentation directly.',
               data: { count: 0, sources: [] },
             }, null, 2),
           },

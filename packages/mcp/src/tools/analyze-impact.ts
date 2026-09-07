@@ -33,17 +33,47 @@ export class AnalyzeImpactTool implements McpToolHandler {
           type: 'string',
           description: 'Optional documentation source ID filter.',
         },
+        projectDir: {
+          type: 'string',
+          description: 'Alias for project directory.',
+        },
+        from: {
+          type: 'string',
+          description: 'Alias for fromVersion.',
+        },
+        to: {
+          type: 'string',
+          description: 'Alias for toVersion.',
+        },
       },
     },
   };
 
   async execute(args: Record<string, unknown>, ctx: McpContext): Promise<CallToolResult> {
-    const projectDir = typeof args.project === 'string' ? args.project : (ctx.projectDir || ctx.workspaceRoot || process.cwd());
-    const fromVersion = typeof args.fromVersion === 'string' ? args.fromVersion : undefined;
-    const toVersion = typeof args.toVersion === 'string' ? args.toVersion : undefined;
-    const fromSnapshotId = typeof args.fromSnapshotId === 'string' ? args.fromSnapshotId : undefined;
-    const toSnapshotId = typeof args.toSnapshotId === 'string' ? args.toSnapshotId : undefined;
-    const sourceId = typeof args.sourceId === 'string' ? args.sourceId : undefined;
+    const projectDir =
+      (typeof args.project === 'string' ? args.project : undefined) ||
+      (typeof args.projectDir === 'string' ? args.projectDir : undefined) ||
+      (typeof args.dir === 'string' ? args.dir : undefined) ||
+      (typeof args.workspaceRoot === 'string' ? args.workspaceRoot : undefined) ||
+      ctx.projectDir ||
+      ctx.workspaceRoot ||
+      process.cwd();
+    const fromVersion =
+      (typeof args.fromVersion === 'string' ? args.fromVersion : undefined) ||
+      (typeof args.from === 'string' ? args.from : undefined);
+    const toVersion =
+      (typeof args.toVersion === 'string' ? args.toVersion : undefined) ||
+      (typeof args.to === 'string' ? args.to : undefined);
+    const fromSnapshotId =
+      (typeof args.fromSnapshotId === 'string' ? args.fromSnapshotId : undefined) ||
+      (typeof args.fromSnapshot === 'string' ? args.fromSnapshot : undefined);
+    const toSnapshotId =
+      (typeof args.toSnapshotId === 'string' ? args.toSnapshotId : undefined) ||
+      (typeof args.toSnapshot === 'string' ? args.toSnapshot : undefined);
+    const sourceId =
+      (typeof args.sourceId === 'string' ? args.sourceId : undefined) ||
+      (typeof args.source === 'string' ? args.source : undefined) ||
+      (typeof args.library === 'string' ? args.library : undefined);
 
     const impactService = ctx.impactService || new ImpactAnalysisService(ctx.repo);
     const { result, markdown } = impactService.analyzeImpact({

@@ -5,7 +5,7 @@ import type {
   VersionResolutionResult,
 } from '../../shared/src/index.ts';
 import type { DocOrbitRepository } from '../../storage/src/index.ts';
-import { readDocsLock } from './lockfile.ts';
+import { readDocsLock, getMatchingSources } from './lockfile.ts';
 import { detectWorkspaceDependencies } from './detector.ts';
 import { resolveDocVersion } from './semver.ts';
 
@@ -122,14 +122,12 @@ export function resolveProjectContext(
       parts.some(p => p.length > 2 && queryTokens.has(p));
 
     if (matches) {
-      // Find matching source
-      const src = allSources.find(s => {
-        const u = s.url.toLowerCase();
-        return u.includes(cleanName) || u.includes(dep.name.toLowerCase());
-      });
+      // Find matching sources
+      const matchingSources = getMatchingSources(dep, allSources);
+      const matchingSourceIds = new Set(matchingSources.map(s => s.id));
+      const snapshots = allSnapshots.filter(s => matchingSourceIds.has(s.sourceId));
 
-      if (src) {
-        const snapshots = allSnapshots.filter(s => s.sourceId === src.id);
+      if (snapshots.length > 0) {
         const availableVersions = snapshots.map(s => s.docVersion || 'latest');
         const projectVer = dep.resolvedVersion || dep.requestedVersion;
         const resolution = resolveDocVersion(projectVer, availableVersions, dep.name);
@@ -195,16 +193,11 @@ export class WorkspaceResolver {
     const matches: WorkspaceMatch[] = [];
 
     for (const dep of scan.dependencies) {
-      const cleanName = dep.name.toLowerCase().replace(/^@[^/]+\//, '');
-      const src = allSources.find(s => {
-        const u = s.url.toLowerCase();
-        return u.includes(cleanName) || u.includes(dep.name.toLowerCase()) ||
-          (s.metadata && String(s.metadata.name || '').toLowerCase() === cleanName);
-      });
+      const matchingSources = getMatchingSources(dep, allSources);
+      if (matchingSources.length === 0) continue;
 
-      if (!src) continue;
-
-      const snapshots = allSnapshots.filter(s => s.sourceId === src.id);
+      const matchingSourceIds = new Set(matchingSources.map(s => s.id));
+      const snapshots = allSnapshots.filter(s => matchingSourceIds.has(s.sourceId));
       if (snapshots.length === 0) continue;
 
       const availableVersions = snapshots.map(s => s.docVersion || 'latest');

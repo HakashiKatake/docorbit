@@ -26,15 +26,16 @@ export class GetVersionTool implements McpToolHandler {
   };
 
   async execute(args: Record<string, unknown>, ctx: McpContext): Promise<CallToolResult> {
-    const library = typeof args.library === 'string' ? args.library.trim() : '';
-    if (!library) {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: library' }) }],
-      };
-    }
+    const library = (
+      typeof args.library === 'string' ? args.library :
+      typeof args.package === 'string' ? args.package :
+      typeof args.packageName === 'string' ? args.packageName :
+      typeof args.name === 'string' ? args.name : ''
+    ).trim();
 
-    const projectPath = typeof args.projectPath === 'string' ? args.projectPath : (ctx.workspaceRoot || '.');
+    const projectPath = typeof args.projectPath === 'string'
+      ? args.projectPath
+      : (typeof args.project === 'string' ? args.project : (ctx.projectDir || ctx.workspaceRoot || '.'));
 
     let scan;
     try {
@@ -46,6 +47,45 @@ export class GetVersionTool implements McpToolHandler {
           {
             type: 'text',
             text: JSON.stringify({ error: `Failed to inspect workspace manifests at ${projectPath}: ${err instanceof Error ? err.message : String(err)}` }),
+          },
+        ],
+      };
+    }
+
+    // If no specific library is requested, return version intelligence for all workspace dependencies
+    if (!library) {
+      const resolver = new WorkspaceResolver(ctx.repo);
+      const resolution = resolver.resolveWorkspace(scan);
+      const lines: string[] = [
+        `### Workspace Version Intelligence (${scan.dependencies.length} dependencies detected)`,
+        `**Ecosystems**: ${scan.ecosystems.length > 0 ? scan.ecosystems.join(', ') : 'none detected'}\n`,
+      ];
+
+      if (scan.dependencies.length === 0) {
+        lines.push('No dependencies were detected in workspace manifests.');
+      } else {
+        lines.push('| Dependency | Requested | Resolved | Doc Version | Confidence |');
+        lines.push('|---|---|---|---|---|');
+        for (const dep of scan.dependencies) {
+          const match = resolution.matches.find(m => m.dependency.name.toLowerCase() === dep.name.toLowerCase());
+          const conf = match ? `${Math.round(match.confidence * 100)}%` : '-';
+          lines.push(`| \`${dep.name}\` | \`${dep.requestedVersion}\` | \`${dep.resolvedVersion || '-'}\` | \`${match?.targetVersion || 'unresolved'}\` | ${conf} |`);
+        }
+      }
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              markdown: lines.join('\n'),
+              data: {
+                ecosystems: scan.ecosystems,
+                dependenciesCount: scan.dependencies.length,
+                dependencies: scan.dependencies,
+                resolutionMatches: resolution.matches,
+              },
+            }, null, 2),
           },
         ],
       };

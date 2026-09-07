@@ -31,11 +31,19 @@ export class SearchDocsTool implements McpToolHandler {
   };
 
   async execute(args: Record<string, unknown>, ctx: McpContext): Promise<CallToolResult> {
-    const query = typeof args.query === 'string' ? args.query.trim() : '';
+    const query = (
+      typeof args.query === 'string' ? args.query :
+      typeof args.search === 'string' ? args.search :
+      typeof args.q === 'string' ? args.q :
+      typeof args.text === 'string' ? args.text :
+      typeof args.symbol === 'string' ? args.symbol :
+      typeof args.topic === 'string' ? args.topic : ''
+    ).trim();
+
     if (!query) {
       return {
         isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: query' }) }],
+        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: query (or search)' }) }],
       };
     }
 
@@ -53,12 +61,20 @@ export class SearchDocsTool implements McpToolHandler {
 
     if (results.length === 0) {
       const isUrl = query.startsWith('http://') || query.startsWith('https://');
-      const message = isUrl
-        ? `No indexed documentation found for "${query}". It looks like a URL — use the "ingest_doc" tool to ingest and index this documentation first, then search for keywords or concepts.`
-        : `No documentation chunks found matching "${query}". Try refining terms or checking available sources.`;
-      const markdown = isUrl
-        ? `### Search Results for "${query}"\n\nNo matching documentation found.\n\n> [!TIP]\n> **"${query}" looks like a URL.** To index this documentation into DocOrbit, use the **\`ingest_doc\`** tool with \`url: "${query}"\`. Once indexed, search will return relevant sections.`
-        : `### Search Results for "${query}"\n\nNo matching documentation found.`;
+      const totalSources = ctx.repo.listSources().length;
+      let message = `No documentation chunks found matching "${query}".`;
+      let markdown = `### Search Results for "${query}"\n\nNo matching documentation found.`;
+
+      if (isUrl) {
+        message = `No indexed documentation found for "${query}". It looks like a URL — use the "ingest_doc" tool to ingest and index this documentation first, then search for keywords or concepts.`;
+        markdown = `### Search Results for "${query}"\n\nNo matching documentation found.\n\n> [!TIP]\n> **"${query}" looks like a URL.** To index this documentation into DocOrbit, call the **\`ingest_doc\`** tool with \`url: "${query}"\`. Once indexed, search will return relevant sections.`;
+      } else if (totalSources === 0) {
+        message = `DocOrbit has not indexed any documentation sources yet in this workspace. Call "ingest_doc" with the official documentation URL (e.g. ingest_doc(url: "https://docs.stripe.com/api")) to index documentation directly.`;
+        markdown = `### Search Results for "${query}"\n\nNo documentation sources have been indexed yet in this workspace.\n\n> [!TIP]\n> Use the **\`ingest_doc\`** tool with the target documentation URL (e.g. \`ingest_doc(url: "https://docs.stripe.com/api")\`) to crawl and index official documentation directly from your agent conversation.`;
+      } else {
+        markdown = `### Search Results for "${query}"\n\nNo documentation chunks found matching "${query}". Try broader search terms, or call \`list_sources\` to verify available documentation.`;
+      }
+
       const emptyPayload = {
         query,
         count: 0,

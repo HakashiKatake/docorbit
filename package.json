@@ -1,18 +1,38 @@
 {
   "name": "docorbit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The Documentation Intelligence Layer for AI Coding Agents",
   "type": "module",
-  "main": "packages/core/src/index.ts",
+  "main": "./dist/packages/core/src/index.js",
+  "types": "./dist/packages/core/src/index.d.ts",
   "bin": {
     "docorbit": "./bin/docorbit.js"
   },
+  "files": [
+    "bin",
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "scripts": {
+    "build": "tsc",
+    "prepack": "npm run build && npm test",
     "test": "node --experimental-strip-types --test tests/unit/*.test.ts tests/integration/*.test.ts",
     "test:unit": "node --experimental-strip-types --test tests/unit/*.test.ts",
     "test:integration": "node --experimental-strip-types --test tests/integration/*.test.ts",
-    "docorbit": "node --experimental-strip-types bin/docorbit.js"
+    "docorbit": "node bin/docorbit.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HakashiKatake/docorbit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/HakashiKatake/docorbit/issues"
+  },
+  "homepage": "https://github.com/HakashiKatake/docorbit#readme",
   "keywords": [
     "documentation",
     "ai-agents",

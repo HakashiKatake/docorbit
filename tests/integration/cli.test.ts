@@ -33,7 +33,7 @@ test('CLI --version outputs version', () => {
   });
 
   assert.strictEqual(res.status, 0);
-  assert.ok(res.stdout.includes('DocOrbit v0.1.0'));
+  assert.ok(res.stdout.includes('DocOrbit v0.1.1'));
 });
 
 test('CLI inspect --json against public target produces valid JSON schema', () => {

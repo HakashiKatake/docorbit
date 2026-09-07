@@ -1,6 +1,6 @@
-#!/usr/bin/env -S node --experimental-strip-types
+#!/usr/bin/env node
 
-import { main } from '../apps/cli/src/index.ts';
+import { main } from '../dist/apps/cli/src/index.js';
 
 main().catch(err => {
   console.error('Fatal DocOrbit Error:', err);

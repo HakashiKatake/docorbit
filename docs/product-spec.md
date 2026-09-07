@@ -21,6 +21,7 @@
 3. **Project & Version Aware**: Anchor documentation context to the local repository's pinned dependency versions (`package.json`, `Cargo.lock`, `go.mod`).
 4. **Token-Budgeted Context**: Maximize useful signal per token. Avoid dumping entire multi-megabyte docs into an agent's context window.
 5. **Untrusted Documentation Model**: Treat all external documentation as untrusted data. Protect against SSRF, payload floods, and prompt injections through structural isolation and security annotations.
+6. **Project-Scoped Storage by Default**: Index databases default to the local repository root (`.docorbit/docorbit.db`). If users or agents do not specify any flag, storage is strictly project-local to eliminate orphaned disk leaks and prevent cross-project version collisions. Global storage (`-g`) is explicitly opt-in.
 
 ---
 

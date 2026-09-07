@@ -211,6 +211,16 @@ export interface NormalizedPage {
 Uses Node.js 24's native `node:sqlite` (`DatabaseSync`):
 - Write-Ahead Logging (`PRAGMA journal_mode = WAL;`) for high-concurrency reading.
 - Foreign key constraints enabled (`PRAGMA foreign_keys = ON;`).
+- **Project-Local Default Storage Architecture**:
+  - **Zero Disk Leak Lifecycle**: By default, documentation databases are stored in the nearest project root (`<projectRoot>/.docorbit/docorbit.db`). When a project is deleted or archived, all indexed data is removed with it, preventing permanent disk bloat.
+  - **Hierarchical Project Root Detection (`findNearestProjectRoot`)**: Recursively ascends the directory tree from `cwd` or `--project` looking for project root markers (`package.json`, `Cargo.toml`, `go.mod`, `pyproject.toml`, `requirements.txt`, `pom.xml`, `build.gradle`, `.git`, `.docorbit`), stopping safely before user home.
+  - **Storage Resolution Ladder (`resolveDefaultDbPath`)**:
+    1. Explicit `--db <path>` parameter (or `:memory:`).
+    2. Explicit global flag (`-g` / `--global`) → resolves to `~/.docorbit/docorbit.db`.
+    3. Explicit project directory (`--project <dir>` or `-p`) → resolves to `<projectDir>/.docorbit/docorbit.db`.
+    4. Auto-detected project root from `cwd` → resolves to `<projectRoot>/.docorbit/docorbit.db`.
+    5. Fallback only outside any project (root `/` or user home) → `~/.docorbit/docorbit.db`.
+  - **Interactive TTY Selection (`promptStorageLocation`)**: First-time interactive runs prompt users to choose between `[1] Project-local (default)` and `[2] Global`, which can be bypassed with `-p` or `-g`.
 - Schema tables:
   - `sources`: Discovered and ingested sources.
   - `pages`: Normalized documentation pages with hashes and provenance.

@@ -12,7 +12,7 @@
   <a href="https://www.npmjs.com/package/docorbit"><img src="https://img.shields.io/npm/v/docorbit?color=339933&style=flat-square" alt="npm version" /></a>
   <a href="https://www.npmjs.com/package/docorbit"><img src="https://img.shields.io/npm/dm/docorbit?color=blue&style=flat-square" alt="npm downloads" /></a>
   <a href="https://glama.ai/mcp/servers/HakashiKatake/docorbit"><img src="https://glama.ai/mcp/servers/HakashiKatake/docorbit/badges/score.svg" alt="docorbit MCP server score" /></a>
-  <a href="https://github.com/HakashiKatake/docorbit/actions"><img src="https://img.shields.io/badge/tests-128%20passing-brightgreen.svg?style=flat-square" alt="tests passing" /></a>
+  <a href="https://github.com/HakashiKatake/docorbit/actions"><img src="https://img.shields.io/badge/tests-131%20passing-brightgreen.svg?style=flat-square" alt="tests passing" /></a>
   <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D22.5.0-black.svg?style=flat-square" alt="Node.js version" /></a>
   <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-15%20tools-blueviolet.svg?style=flat-square" alt="Model Context Protocol" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="license MIT" /></a>
@@ -26,6 +26,7 @@
 
 <p align="center">
   <a href="#quick-start">Quick Start</a> •
+  <a href="#project-scoped-storage">Project vs Global Storage</a> •
   <a href="#why-docorbit">Why DocOrbit?</a> •
   <a href="#see-it-in-action">See It in Action</a> •
   <a href="#mcp-integration">MCP Integration</a> •
@@ -53,7 +54,7 @@
                             │
                             ▼
               ┌───────────────────────────┐
-              │  Structured Knowledge DB  │ ◄── SQLite FTS5 (APIs, Code, Pitfalls, Chunks)
+              │  Structured Knowledge DB  │ ◄── Project-local SQLite: <projectRoot>/.docorbit/
               └─────────────┬─────────────┘
                             │
               ┌─────────────┴─────────────┐
@@ -76,14 +77,20 @@
 
 DocOrbit requires **Node.js ≥ 22.5.0** and has **zero external runtime dependencies**.
 
+> [!IMPORTANT]
+> **Project-Based by Default**: If you do not specify any flags, DocOrbit **always defaults to project-based storage** (`<projectRoot>/.docorbit/docorbit.db`). When you delete or branch a project, its documentation cache is isolated and cleans up automatically — **zero orphaned files, zero global disk bloat, and zero cross-project version collisions**.
+
 ### 1. Run via npx (Zero Installation)
 
 ```bash
 # View all developer commands
 npx docorbit --help
 
-# Ingest and index documentation into local SQLite
+# Ingest and index documentation into project-local SQLite (default)
 npx docorbit add https://nextjs.org/docs/14/app/api-reference/file-conventions/route
+
+# Or explicitly pass -p to skip prompts and ensure project-local storage
+npx docorbit add https://nextjs.org/docs/14/app/api-reference/file-conventions/route -p
 
 # Query version-aware context within a strict token budget
 npx docorbit context "How do I implement dynamic route params in Next.js 14?" --tokens 2000
@@ -91,9 +98,9 @@ npx docorbit context "How do I implement dynamic route params in Next.js 14?" --
 
 ### 2. Connect to Your Coding Agent (MCP)
 
-Add DocOrbit to your agent's MCP configuration:
+When started by an agent (Cursor, Claude Desktop, Windsurf, Zed), DocOrbit **automatically resolves to the active project workspace's SQLite database** (`.docorbit/docorbit.db`):
 
-#### Claude Desktop (`claude_desktop_config.json`)
+#### Cursor (`.cursor/mcp.json`)
 ```json
 {
   "mcpServers": {
@@ -105,7 +112,7 @@ Add DocOrbit to your agent's MCP configuration:
 }
 ```
 
-#### Cursor (`.cursor/mcp.json`)
+#### Claude Desktop (`claude_desktop_config.json`)
 ```json
 {
   "mcpServers": {
@@ -122,7 +129,33 @@ Add DocOrbit to your agent's MCP configuration:
 claude mcp add docorbit -- npx -y docorbit
 ```
 
-*DocOrbit detects when standard input is a machine pipe and starts the MCP stdio transport automatically. Explicit `docorbit mcp` also works.*
+*DocOrbit detects when standard input is a machine pipe and starts the MCP stdio transport automatically in project-local mode. If you prefer a shared user-wide store across all projects, pass `-g`: `["-y", "docorbit", "mcp", "-g"]`.*
+
+---
+
+## Project-Scoped Storage & Flags
+
+DocOrbit gives developers full control over where documentation is persisted:
+
+| Storage Mode | Location | Flag | Best Used For |
+| :--- | :--- | :---: | :--- |
+| **Project-Local (Default)** | `<projectRoot>/.docorbit/docorbit.db` | `-p`, `--project` | **Default for all workflows.** Zero disk leaks. Clean git isolation (`.gitignore`). Deletes when project is deleted. No version collisions between projects. |
+| **Global Store** | `~/.docorbit/docorbit.db` | `-g`, `--global` | Shared documentation across multiple ad-hoc scripts or global toolchains without repository workspaces. |
+
+### Interactive Selection Prompt
+When running `docorbit init` or `docorbit add <url>` in an interactive terminal without flags on a new project, DocOrbit will ask:
+
+```text
+? Where would you like to store DocOrbit documentation?
+  1) Project-local (.docorbit/ in project root) [Recommended - zero disk leak]
+  2) Global (~/.docorbit/ in user home directory)
+  Tip: Pass -p / --project or -g / --global to skip this question in future.
+
+Select storage location [1/2] (default: 1): 
+```
+* Pressing **Enter** directly accepts the default (`[1] Project-local`).
+* Non-interactive environments (CI, agents, pipes, scripts, `--json`) **automatically default to Project-local** without hanging.
+* Passing `-p` or `-g` immediately selects that target and skips the prompt.
 
 ---
 
@@ -428,33 +461,42 @@ npx docorbit dashboard
 
 ```bash
 # Workspace & Versioning
-docorbit init [dir]        # Scan project dependencies and generate docs.lock
-docorbit update [pkg]      # Selectively or globally refresh documentation versions
+docorbit init [dir] [-p|-g]  # Scan project dependencies and generate docs.lock
+docorbit update [pkg] [-p|-g]# Selectively or globally refresh documentation versions
 
 # Ingestion & Discovery
-docorbit inspect <url>     # Probe domain for machine-readable specifications
-docorbit add <url>         # Ingest, chunk, and index documentation into SQLite
+docorbit inspect <url>       # Probe domain for machine-readable specifications
+docorbit add <url> [-p|-g]   # Ingest, chunk, and index documentation into SQLite
 
 # Search & Retrieval
-docorbit search "<query>"  # Hybrid FTS5 search across documentation chunks
-docorbit context "<task>"  # Pack token-budgeted context for coding agents
+docorbit search "<q>" [-p|-g]# Hybrid FTS5 search across documentation chunks
+docorbit context "<t>" [-p|-g] Pack token-budgeted context for coding agents
 
 # API & Implementation Knowledge
-docorbit api "<query>"     # Inspect structured OpenAPI endpoints
-docorbit examples "<task>" # Filter code examples by framework and language
-docorbit pitfalls "<task>" # Inspect deprecations and runtime traps
-docorbit recipes "<goal>"  # Assemble evidence-grounded blueprints
+docorbit api "<query>" [-p|-g] Inspect structured OpenAPI endpoints
+docorbit examples "<t>" [-p] # Filter code examples by framework and language
+docorbit pitfalls "<t>" [-p] # Inspect deprecations and runtime traps
+docorbit recipes "<g>" [-p]  # Assemble evidence-grounded blueprints
 
 # Verification & Change Intelligence
-docorbit verify <code>     # Verify code against indexed schemas
-docorbit diff [source]     # Compare documentation versions and snapshots
-docorbit impact [source]   # Scan workspace for breaking changes
+docorbit verify <code> [-p]  # Verify code against indexed schemas
+docorbit diff [source] [-p]  # Compare documentation versions and snapshots
+docorbit impact [source] [-p]# Scan workspace for breaking changes
 
 # Dashboard & Exports
-docorbit dashboard         # Launch local inspection UI (alias: ui)
-docorbit export [format]   # Export AGENTS.md, CLAUDE.md, skill.md, llms.txt, docs-map.md
-docorbit mcp               # Start Model Context Protocol server (stdio / HTTP)
+docorbit dashboard [-p|-g]   # Launch local inspection UI (alias: ui)
+docorbit export [fmt] [-p|-g]# Export AGENTS.md, CLAUDE.md, skill.md, llms.txt, docs-map.md
+docorbit mcp [-p|-g]         # Start Model Context Protocol server (stdio / HTTP)
 ```
+
+### CLI Storage Flags
+
+| Flag | Description |
+| :--- | :--- |
+| *(None / Default)* | **Project-Local Default**: Resolves to `<projectRoot>/.docorbit/docorbit.db`. If run without flags in an interactive terminal on a new project, prompts to choose between project-local (default on Enter) and global. |
+| `-p`, `--project [dir]`, `--local` | Explicitly targets project-local storage in the nearest project root (or specified directory). Bypasses interactive prompts. |
+| `-g`, `--global` | Explicitly targets the user-wide global documentation store (`~/.docorbit/docorbit.db`). Bypasses interactive prompts. |
+| `--db <path>` | Custom SQLite database file path override. |
 
 ---
 

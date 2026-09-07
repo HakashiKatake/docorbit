@@ -22,3 +22,4 @@ coverage/
 .system_generated/
 /docs
 /eval-results/
+*.tgz

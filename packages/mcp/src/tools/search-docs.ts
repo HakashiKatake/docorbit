@@ -52,18 +52,25 @@ export class SearchDocsTool implements McpToolHandler {
     });
 
     if (results.length === 0) {
+      const isUrl = query.startsWith('http://') || query.startsWith('https://');
+      const message = isUrl
+        ? `No indexed documentation found for "${query}". It looks like a URL — use the "ingest_doc" tool to ingest and index this documentation first, then search for keywords or concepts.`
+        : `No documentation chunks found matching "${query}". Try refining terms or checking available sources.`;
+      const markdown = isUrl
+        ? `### Search Results for "${query}"\n\nNo matching documentation found.\n\n> [!TIP]\n> **"${query}" looks like a URL.** To index this documentation into DocOrbit, use the **\`ingest_doc\`** tool with \`url: "${query}"\`. Once indexed, search will return relevant sections.`
+        : `### Search Results for "${query}"\n\nNo matching documentation found.`;
       const emptyPayload = {
         query,
         count: 0,
         results: [],
-        message: `No documentation chunks found matching "${query}". Try refining terms or checking available sources.`,
+        message,
       };
       return {
         content: [
           {
             type: 'text',
             text: JSON.stringify({
-              markdown: `### Search Results for "${query}"\n\nNo matching documentation found.`,
+              markdown,
               data: emptyPayload,
             }, null, 2),
           },

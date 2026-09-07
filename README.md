@@ -11,10 +11,17 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/docorbit"><img src="https://img.shields.io/npm/v/docorbit?color=339933&style=flat-square" alt="npm version" /></a>
   <a href="https://www.npmjs.com/package/docorbit"><img src="https://img.shields.io/npm/dm/docorbit?color=blue&style=flat-square" alt="npm downloads" /></a>
+  <a href="https://glama.ai/mcp/servers/HakashiKatake/docorbit"><img src="https://glama.ai/mcp/servers/HakashiKatake/docorbit/badges/score.svg" alt="docorbit MCP server score" /></a>
   <a href="https://github.com/HakashiKatake/docorbit/actions"><img src="https://img.shields.io/badge/tests-128%20passing-brightgreen.svg?style=flat-square" alt="tests passing" /></a>
   <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D22.5.0-black.svg?style=flat-square" alt="Node.js version" /></a>
   <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-15%20tools-blueviolet.svg?style=flat-square" alt="Model Context Protocol" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="license MIT" /></a>
+</p>
+
+<p align="center">
+  <a href="https://glama.ai/mcp/servers/HakashiKatake/docorbit">
+    <img src="https://glama.ai/mcp/servers/HakashiKatake/docorbit/badges/card.svg" alt="docorbit MCP server card" />
+  </a>
 </p>
 
 <p align="center">

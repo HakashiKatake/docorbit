@@ -35,7 +35,24 @@ export function findNearestProjectRoot(startDir: string): string | null {
   return null;
 }
 
-export function resolveDefaultDbPath(explicitDbPath?: string, projectDir?: string): string {
+export function resolveGlobalDbPath(): string {
+  const userHome = process.env.HOME || process.env.USERPROFILE || getHomedir();
+  if (userHome) {
+    return join(userHome, '.docorbit', 'docorbit.db');
+  }
+  return join(getTmpdir(), '.docorbit', 'docorbit.db');
+}
+
+export function hasProjectDb(projectDir: string = '.'): boolean {
+  try {
+    const resolved = resolve(projectDir);
+    const root = findNearestProjectRoot(resolved) || resolved;
+    return existsSync(join(root, '.docorbit', 'docorbit.db'));
+  } catch {}
+  return false;
+}
+
+export function resolveDefaultDbPath(explicitDbPath?: string, projectDir?: string, isGlobal?: boolean): string {
   if (explicitDbPath && explicitDbPath !== ':memory:') {
     return explicitDbPath;
   }
@@ -43,7 +60,12 @@ export function resolveDefaultDbPath(explicitDbPath?: string, projectDir?: strin
     return ':memory:';
   }
 
-  // 1. If projectDir is provided, store inside project root .docorbit/
+  // 1. Explicitly requested global store (-g / --global)
+  if (isGlobal) {
+    return resolveGlobalDbPath();
+  }
+
+  // 2. If projectDir is provided, store inside project root .docorbit/
   if (projectDir) {
     const resolvedProjectDir = resolve(projectDir);
     const userHome = process.env.HOME || process.env.USERPROFILE || getHomedir();
@@ -53,7 +75,7 @@ export function resolveDefaultDbPath(explicitDbPath?: string, projectDir?: strin
     }
   }
 
-  // 2. Detect project root from current working directory
+  // 3. Detect project root from current working directory
   try {
     const cwd = process.cwd();
     const userHome = process.env.HOME || process.env.USERPROFILE || getHomedir();
@@ -63,13 +85,8 @@ export function resolveDefaultDbPath(explicitDbPath?: string, projectDir?: strin
     }
   } catch {}
 
-  // 3. Fallback to global user store only when outside any project: ~/.docorbit/docorbit.db
-  const userHome = process.env.HOME || process.env.USERPROFILE || getHomedir();
-  if (userHome) {
-    return join(userHome, '.docorbit', 'docorbit.db');
-  }
-
-  return join(getTmpdir(), '.docorbit', 'docorbit.db');
+  // 4. Fallback to global user store only when outside any project: ~/.docorbit/docorbit.db
+  return resolveGlobalDbPath();
 }
 
 export class DocOrbitDb {

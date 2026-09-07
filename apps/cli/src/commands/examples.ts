@@ -4,7 +4,7 @@ import type { ExamplesCommandOptions } from '../../../../packages/shared/src/ind
 import { formatIndexedExamples } from '../formatters/terminal.ts';
 
 export async function runExamplesCommand(task: string = '', options: ExamplesCommandOptions = {}): Promise<void> {
-  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir, options.global);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
 

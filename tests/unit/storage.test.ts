@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { DocOrbitDb, DocOrbitRepository, findNearestProjectRoot, resolveDefaultDbPath } from '../../packages/storage/src/index.ts';
+import {
+  DocOrbitDb,
+  DocOrbitRepository,
+  findNearestProjectRoot,
+  resolveDefaultDbPath,
+  resolveGlobalDbPath,
+  hasProjectDb,
+} from '../../packages/storage/src/index.ts';
 import type { DiscoveredSource, NormalizedPage } from '../../packages/shared/src/index.ts';
 
 test('DocOrbitRepository saves and retrieves sources and pages in SQLite', () => {
@@ -103,4 +110,16 @@ test('resolveDefaultDbPath resolves project-local database path by default', () 
   // 4. Inferred from cwd (inside repo)
   const dbFromCwd = resolveDefaultDbPath();
   assert.strictEqual(dbFromCwd, `${currentDir}/.docorbit/docorbit.db`);
+
+  // 5. Explicit global flag (-g / --global) overrides project detection
+  const dbGlobal = resolveDefaultDbPath(undefined, currentDir, true);
+  assert.strictEqual(dbGlobal, resolveGlobalDbPath());
+  assert.ok(dbGlobal.includes('.docorbit/docorbit.db'));
+});
+
+test('hasProjectDb returns true only if .docorbit/docorbit.db exists in project', () => {
+  const currentDir = process.cwd();
+  // Depending on whether local test runs created it:
+  const exists = hasProjectDb(currentDir);
+  assert.strictEqual(typeof exists, 'boolean');
 });

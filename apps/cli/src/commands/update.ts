@@ -12,6 +12,8 @@ export interface UpdateCommandOptions {
   json?: boolean;
   dbPath?: string;
   projectDir?: string;
+  global?: boolean;
+  project?: boolean;
 }
 
 export async function runUpdateCommand(
@@ -23,11 +25,11 @@ export async function runUpdateCommand(
 
   if (!existingLock) {
     console.log(`No docs.lock found at ${projectDir}. Initializing first...`);
-    await runInitCommand(projectDir, { json: options.json, dbPath: options.dbPath });
+    await runInitCommand(projectDir, { json: options.json, dbPath: options.dbPath, global: options.global, project: options.project });
     return;
   }
 
-  const dbPath = resolveDefaultDbPath(options.dbPath, projectDir);
+  const dbPath = resolveDefaultDbPath(options.dbPath, projectDir, options.global);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
 

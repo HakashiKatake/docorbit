@@ -47,41 +47,45 @@ COMMANDS:
   mcp               Start agent-native Model Context Protocol (MCP) server (stdio / streamable HTTP)
 
 OPTIONS:
-  --project <dir>    Workspace root for project-aware dependency detection (default: current dir)
-  --doc-version <v>  Target documentation version filter/boost (e.g. v14, 15.0)
-  --from <v>         Base version for documentation diffing / impact analysis (e.g. v14)
-  --to <v>           Target version for documentation diffing / impact analysis (e.g. v15)
-  --library <lib>    Filter or target specific library (e.g. stripe, next)
-  --format <fmt>     Export format: agents.md, claude.md, skill.md, llms.txt, docs-map.md
-  --output <path>    Custom output file path for export command
-  --stdout           Print exported agent content directly to stdout
-  --json             Output results as structured JSON
-  --db <path>        Custom SQLite database path (default: .docorbit/docorbit.db)
-  --tokens <num>     Token budget for context packaging (default: 3000)
-  --limit <num>      Maximum search results to return (default: 10)
-  --type <type>      Filter by chunk type: prose, code, api, warning, example, mixed
-  --method <method>  Filter API endpoints by HTTP method: get, post, put, delete, patch
-  --language <lang>  Filter code examples by language: typescript, python, go, rust, bash
-  --framework <fw>   Filter code examples by framework: next, react, express, fastapi, flask
-  --kind <kind>      Filter pitfalls by kind: deprecated, removed, breaking_change, server_only, rate_limit, security
-  --stdio            Run MCP server over standard I/O (stdin/stdout) (default)
-  --port <num>       Port for HTTP server or dashboard (default: 3737 for dashboard)
-  --host <ip>        Host to bind HTTP transport / dashboard (default: 127.0.0.1)
-  --max-pages <num>  Maximum pages to crawl and ingest (default: 50)
-  --allow-localhost  Allow localhost / loopback targets (useful for local development & testing)
-  -h, --help         Show this help message
-  -v, --version      Show DocOrbit version
+  -p, --project [dir] Target project-local storage / workspace root (default: current dir)
+  -g, --global        Target global storage (~/.docorbit/docorbit.db)
+  --doc-version <v>   Target documentation version filter/boost (e.g. v14, 15.0)
+  --from <v>          Base version for documentation diffing / impact analysis (e.g. v14)
+  --to <v>            Target version for documentation diffing / impact analysis (e.g. v15)
+  --library <lib>     Filter or target specific library (e.g. stripe, next)
+  --format <fmt>      Export format: agents.md, claude.md, skill.md, llms.txt, docs-map.md
+  --output <path>     Custom output file path for export command
+  --stdout            Print exported agent content directly to stdout
+  --json              Output results as structured JSON
+  --db <path>         Custom SQLite database path (default: .docorbit/docorbit.db)
+  --tokens <num>      Token budget for context packaging (default: 3000)
+  --limit <num>       Maximum search results to return (default: 10)
+  --type <type>       Filter by chunk type: prose, code, api, warning, example, mixed
+  --method <method>   Filter API endpoints by HTTP method: get, post, put, delete, patch
+  --language <lang>   Filter code examples by language: typescript, python, go, rust, bash
+  --framework <fw>    Filter code examples by framework: next, react, express, fastapi, flask
+  --kind <kind>       Filter pitfalls by kind: deprecated, removed, breaking_change, server_only, rate_limit, security
+  --stdio             Run MCP server over standard I/O (stdin/stdout) (default)
+  --port <num>        Port for HTTP server or dashboard (default: 3737 for dashboard)
+  --host <ip>         Host to bind HTTP transport / dashboard (default: 127.0.0.1)
+  --max-pages <num>   Maximum pages to crawl and ingest (default: 50)
+  --allow-localhost   Allow localhost / loopback targets (useful for local development & testing)
+  -h, --help          Show this help message
+  -v, --version       Show DocOrbit version
 
 EXAMPLES:
-  docorbit init .
+  docorbit init -p
+  docorbit init -g
+  docorbit add https://docs.stripe.com -p
+  docorbit search "webhooks" -g
   docorbit verify "fetch('/v1/charges', { method: 'POST' })" --doc-version v14
   docorbit diff --from v14 --to v15
-  docorbit impact --from v14 --to v15 --project .
-  docorbit mcp
+  docorbit impact --from v14 --to v15 -p
+  docorbit mcp -p
   docorbit api "create subscription" --doc-version v1
   docorbit examples "verify webhook signature" --language typescript --framework express
   docorbit pitfalls "server actions" --kind server_only --doc-version v14
-  docorbit recipes "Handle webhook signature verification in Next.js" --project .
+  docorbit recipes "Handle webhook signature verification in Next.js" -p
 `);
 }
 
@@ -114,6 +118,9 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
   const isJson = args.includes('--json');
   const allowLocalhost = args.includes('--allow-localhost');
 
+  const isGlobal = args.includes('-g') || args.includes('--global');
+  let isProject = args.includes('-p') || args.includes('--local');
+
   let dbPath: string | undefined;
   const dbIdx = args.indexOf('--db');
   if (dbIdx !== -1 && args[dbIdx + 1]) {
@@ -122,8 +129,19 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
 
   let projectDir: string | undefined;
   const projIdx = args.indexOf('--project');
-  if (projIdx !== -1 && args[projIdx + 1]) {
-    projectDir = args[projIdx + 1];
+  if (projIdx !== -1) {
+    isProject = true;
+    if (args[projIdx + 1] && !args[projIdx + 1].startsWith('-')) {
+      projectDir = args[projIdx + 1];
+    }
+  }
+
+  const pIdx = args.indexOf('-p');
+  if (pIdx !== -1) {
+    isProject = true;
+    if (args[pIdx + 1] && !args[pIdx + 1].startsWith('-')) {
+      projectDir = args[pIdx + 1];
+    }
   }
 
   let docVersion: string | undefined;
@@ -255,12 +273,12 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
   switch (command) {
     case 'init': {
       const targetDir = queryArg || projectDir || '.';
-      await runInitCommand(targetDir, { json: isJson, dbPath });
+      await runInitCommand(targetDir, { json: isJson, dbPath, global: isGlobal, project: isProject });
       break;
     }
     case 'update': {
       const targetPkg = queryArg;
-      await runUpdateCommand(targetPkg, { json: isJson, dbPath, projectDir });
+      await runUpdateCommand(targetPkg, { json: isJson, dbPath, projectDir, global: isGlobal, project: isProject });
       break;
     }
     case 'inspect': {
@@ -278,7 +296,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         printHelp();
         process.exit(1);
       }
-      await runAddCommand(queryArg, { json: isJson, dbPath, maxPages, allowLocalhost, projectDir });
+      await runAddCommand(queryArg, { json: isJson, dbPath, maxPages, allowLocalhost, projectDir, global: isGlobal, project: isProject });
       break;
     }
     case 'search': {
@@ -287,7 +305,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         printHelp();
         process.exit(1);
       }
-      await runSearchCommand(queryArg, { json: isJson, dbPath, limit, chunkType, docVersion, projectDir });
+      await runSearchCommand(queryArg, { json: isJson, dbPath, limit, chunkType, docVersion, projectDir, global: isGlobal, project: isProject });
       break;
     }
     case 'context': {
@@ -296,19 +314,19 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         printHelp();
         process.exit(1);
       }
-      await runContextCommand(queryArg, { json: isJson, dbPath, tokens, docVersion, projectDir });
+      await runContextCommand(queryArg, { json: isJson, dbPath, tokens, docVersion, projectDir, global: isGlobal, project: isProject });
       break;
     }
     case 'api': {
-      await runApiCommand(queryArg || '', { method, docVersion, projectDir, limit, json: isJson, dbPath });
+      await runApiCommand(queryArg || '', { method, docVersion, projectDir, limit, json: isJson, dbPath, global: isGlobal, project: isProject });
       break;
     }
     case 'examples': {
-      await runExamplesCommand(queryArg || '', { language, framework, docVersion, projectDir, limit, json: isJson, dbPath });
+      await runExamplesCommand(queryArg || '', { language, framework, docVersion, projectDir, limit, json: isJson, dbPath, global: isGlobal, project: isProject });
       break;
     }
     case 'pitfalls': {
-      await runPitfallsCommand(queryArg || '', { kind, docVersion, projectDir, limit, json: isJson, dbPath });
+      await runPitfallsCommand(queryArg || '', { kind, docVersion, projectDir, limit, json: isJson, dbPath, global: isGlobal, project: isProject });
       break;
     }
     case 'recipes': {
@@ -317,7 +335,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         printHelp();
         process.exit(1);
       }
-      await runRecipesCommand(queryArg, { docVersion, projectDir, json: isJson, dbPath });
+      await runRecipesCommand(queryArg, { docVersion, projectDir, json: isJson, dbPath, global: isGlobal, project: isProject });
       break;
     }
     case 'mcp': {
@@ -327,6 +345,8 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         host,
         dbPath,
         projectDir,
+        global: isGlobal,
+        project: isProject,
       });
       break;
     }
@@ -344,6 +364,8 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         language,
         json: isJson,
         dbPath,
+        global: isGlobal,
+        project: isProject,
       });
       break;
     }
@@ -354,6 +376,8 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         projectDir,
         json: isJson,
         dbPath,
+        global: isGlobal,
+        project: isProject,
       });
       break;
     }
@@ -364,6 +388,8 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         projectDir,
         json: isJson,
         dbPath,
+        global: isGlobal,
+        project: isProject,
       });
       break;
     }
@@ -375,6 +401,8 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         projectDir,
         dbPath,
         noOpen,
+        global: isGlobal,
+        project: isProject,
       });
       break;
     }
@@ -388,6 +416,8 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         targetSource,
         json: isJson,
         dbPath,
+        global: isGlobal,
+        project: isProject,
       });
       break;
     }

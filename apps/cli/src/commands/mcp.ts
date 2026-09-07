@@ -12,11 +12,13 @@ export interface McpCommandOptions {
   host?: string;
   dbPath?: string;
   projectDir?: string;
+  global?: boolean;
+  project?: boolean;
 }
 
 export async function runMcpCommand(options: McpCommandOptions = {}): Promise<void> {
   const projectDir = options.projectDir || process.cwd();
-  const dbPath = resolveDefaultDbPath(options.dbPath, projectDir);
+  const dbPath = resolveDefaultDbPath(options.dbPath, projectDir, options.global);
 
   const db = new DocOrbitDb(dbPath);
   const repo = new DocOrbitRepository(db);

@@ -4,7 +4,7 @@ import type { PitfallsCommandOptions } from '../../../../packages/shared/src/ind
 import { formatPitfalls } from '../formatters/terminal.ts';
 
 export async function runPitfallsCommand(task: string = '', options: PitfallsCommandOptions = {}): Promise<void> {
-  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir, options.global);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
 

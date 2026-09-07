@@ -496,6 +496,8 @@ export interface ApiCommandOptions {
   limit?: number;
   json?: boolean;
   dbPath?: string;
+  global?: boolean;
+  project?: boolean;
 }
 
 export interface ExamplesCommandOptions {
@@ -506,6 +508,8 @@ export interface ExamplesCommandOptions {
   limit?: number;
   json?: boolean;
   dbPath?: string;
+  global?: boolean;
+  project?: boolean;
 }
 
 export interface PitfallsCommandOptions {
@@ -515,6 +519,8 @@ export interface PitfallsCommandOptions {
   limit?: number;
   json?: boolean;
   dbPath?: string;
+  global?: boolean;
+  project?: boolean;
 }
 
 export interface RecipesCommandOptions {
@@ -522,6 +528,8 @@ export interface RecipesCommandOptions {
   projectDir?: string;
   json?: boolean;
   dbPath?: string;
+  global?: boolean;
+  project?: boolean;
 }
 
 // --- Milestone 6 Verification, Diff & Impact Types ---
@@ -670,6 +678,8 @@ export interface VerifyCommandOptions {
   language?: string;
   json?: boolean;
   dbPath?: string;
+  global?: boolean;
+  project?: boolean;
 }
 
 export interface DiffCommandOptions {
@@ -679,6 +689,8 @@ export interface DiffCommandOptions {
   projectDir?: string;
   json?: boolean;
   dbPath?: string;
+  global?: boolean;
+  project?: boolean;
 }
 
 export interface ImpactCommandOptions {
@@ -688,6 +700,8 @@ export interface ImpactCommandOptions {
   source?: string;
   json?: boolean;
   dbPath?: string;
+  global?: boolean;
+  project?: boolean;
 }
 
 // --- Milestone 7: Web Dashboard & Agent File Exports ---
@@ -708,6 +722,8 @@ export interface ExportOptions {
   stdout?: boolean;
   tokenBudget?: number;
   dbPath?: string;
+  global?: boolean;
+  project?: boolean;
 }
 
 export interface ExportResult {

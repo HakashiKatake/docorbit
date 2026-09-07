@@ -13,6 +13,8 @@ export interface ExportCommandOptions {
   targetSource?: string;
   json?: boolean;
   dbPath?: string;
+  global?: boolean;
+  project?: boolean;
 }
 
 export async function runExportCommand(
@@ -38,7 +40,7 @@ export async function runExportCommand(
   }
 
   const projectDir = options.projectDir ? path.resolve(options.projectDir) : process.cwd();
-  const dbPath = resolveDefaultDbPath(options.dbPath, projectDir);
+  const dbPath = resolveDefaultDbPath(options.dbPath, projectDir, options.global);
 
   const db = new DocOrbitDb(dbPath);
   const repo = new DocOrbitRepository(db);

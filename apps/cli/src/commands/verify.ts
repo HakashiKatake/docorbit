@@ -19,7 +19,7 @@ export async function runVerifyCommand(codeOrFile: string = '', options: VerifyC
     code = fs.readFileSync(codeOrFile, 'utf8');
   }
 
-  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir, options.global);
   const db = new DocOrbitDb(dbPath);
   const repo = new DocOrbitRepository(db);
 

@@ -4,7 +4,7 @@ import type { ImpactCommandOptions } from '../../../../packages/shared/src/index
 import { formatImpactReport } from '../formatters/terminal.ts';
 
 export async function runImpactCommand(target: string = '', options: ImpactCommandOptions = {}): Promise<void> {
-  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir, options.global);
   const db = new DocOrbitDb(dbPath);
   const repo = new DocOrbitRepository(db);
 

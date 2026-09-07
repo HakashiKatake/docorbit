@@ -10,7 +10,7 @@ export async function runRecipesCommand(goal: string, options: RecipesCommandOpt
     process.exit(1);
   }
 
-  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir, options.global);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
   const recipeEngine = new RecipeEngine(repository);

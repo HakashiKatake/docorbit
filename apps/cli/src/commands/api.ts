@@ -4,7 +4,7 @@ import type { ApiCommandOptions } from '../../../../packages/shared/src/index.ts
 import { formatApiEndpoints } from '../formatters/terminal.ts';
 
 export async function runApiCommand(query: string = '', options: ApiCommandOptions = {}): Promise<void> {
-  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir, options.global);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
 

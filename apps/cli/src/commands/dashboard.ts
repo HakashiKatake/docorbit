@@ -9,11 +9,13 @@ export interface DashboardCommandOptions {
   projectDir?: string;
   dbPath?: string;
   noOpen?: boolean;
+  global?: boolean;
+  project?: boolean;
 }
 
 export async function runDashboardCommand(options: DashboardCommandOptions = {}): Promise<void> {
   const projectDir = options.projectDir || process.cwd();
-  const dbPath = resolveDefaultDbPath(options.dbPath, projectDir);
+  const dbPath = resolveDefaultDbPath(options.dbPath, projectDir, options.global);
   const port = options.port || 3737;
   const host = options.host || '127.0.0.1';
 

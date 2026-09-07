@@ -6,10 +6,13 @@ import {
   readDocsLock,
   writeDocsLock,
 } from '../../../../packages/workspace/src/index.ts';
+import { promptStorageLocation } from '../prompts.ts';
 
 export interface InitCommandOptions {
   json?: boolean;
   dbPath?: string;
+  global?: boolean;
+  project?: boolean;
 }
 
 export async function runInitCommand(
@@ -17,7 +20,14 @@ export async function runInitCommand(
   options: InitCommandOptions = {}
 ): Promise<void> {
   const projectDir = resolve(targetDir);
-  const dbPath = resolveDefaultDbPath(options.dbPath, projectDir);
+
+  let isGlobal = options.global;
+  if (!isGlobal && !options.project && !options.dbPath && !options.json && process.stdin.isTTY) {
+    const choice = await promptStorageLocation(projectDir);
+    isGlobal = choice === 'global';
+  }
+
+  const dbPath = resolveDefaultDbPath(options.dbPath, projectDir, isGlobal);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
 
@@ -35,6 +45,7 @@ export async function runInitCommand(
 
     console.log(`\n=== DocOrbit Project Initialization ===`);
     console.log(`Workspace Root:  ${projectDir}`);
+    console.log(`Storage Target:  ${isGlobal ? 'Global (~/.docorbit/docorbit.db)' : `Project-local (${dbPath})`}`);
     console.log(`Ecosystems:     ${scanResult.ecosystems.length > 0 ? scanResult.ecosystems.join(', ') : 'None detected'}`);
     console.log(`Manifests:       ${scanResult.manifestsFound.join(', ') || 'None'}`);
     console.log(`Dependencies:    ${scanResult.dependencies.length} detected`);

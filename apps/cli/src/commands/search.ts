@@ -11,16 +11,18 @@ export interface SearchCommandOptions {
   snapshotId?: string;
   docVersion?: string;
   projectDir?: string;
+  global?: boolean;
+  project?: boolean;
 }
 
 export async function runSearchCommand(query: string, options: SearchCommandOptions = {}): Promise<void> {
   if (!query) {
     console.error('Error: Please provide a search query.');
-    console.error('Usage: docorbit search "<query>" [--limit <n>] [--type <type>] [--doc-version <ver>] [--project <dir>] [--json] [--db <path>]');
+    console.error('Usage: docorbit search "<query>" [-p | -g] [--limit <n>] [--type <type>] [--doc-version <ver>] [--project <dir>] [--json] [--db <path>]');
     process.exit(1);
   }
 
-  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir, options.global);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
   const engine = new RetrievalEngine(repository);

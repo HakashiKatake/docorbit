@@ -10,16 +10,18 @@ export interface ContextCommandOptions {
   snapshotId?: string;
   docVersion?: string;
   projectDir?: string;
+  global?: boolean;
+  project?: boolean;
 }
 
 export async function runContextCommand(task: string, options: ContextCommandOptions = {}): Promise<void> {
   if (!task) {
     console.error('Error: Please provide a coding task description.');
-    console.error('Usage: docorbit context "<task>" [--tokens <n>] [--doc-version <ver>] [--project <dir>] [--json] [--db <path>]');
+    console.error('Usage: docorbit context "<task>" [-p | -g] [--tokens <n>] [--doc-version <ver>] [--project <dir>] [--json] [--db <path>]');
     process.exit(1);
   }
 
-  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir, options.global);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
   const engine = new RetrievalEngine(repository);

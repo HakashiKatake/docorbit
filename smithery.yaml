@@ -1,0 +1,13 @@
+# Smithery configuration for DocOrbit
+# https://smithery.ai/docs
+
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties: {}
+  commandFunction: |-
+    (config) => ({
+      command: 'npx',
+      args: ['-y', 'docorbit']
+    })

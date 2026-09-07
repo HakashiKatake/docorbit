@@ -1,0 +1,7 @@
+node_modules
+.git
+.docorbit
+eval-results
+tests
+dist
+*.tgz

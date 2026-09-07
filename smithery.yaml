@@ -9,5 +9,5 @@ startCommand:
   commandFunction: |-
     (config) => ({
       command: 'npx',
-      args: ['-y', 'docorbit']
+      args: ['-y', 'docorbit', 'mcp']
     })

@@ -106,7 +106,7 @@ When started by an agent (Cursor, Claude Desktop, Windsurf, Zed), DocOrbit **aut
   "mcpServers": {
     "docorbit": {
       "command": "npx",
-      "args": ["-y", "docorbit"]
+      "args": ["-y", "docorbit", "mcp"]
     }
   }
 }
@@ -118,7 +118,7 @@ When started by an agent (Cursor, Claude Desktop, Windsurf, Zed), DocOrbit **aut
   "mcpServers": {
     "docorbit": {
       "command": "npx",
-      "args": ["-y", "docorbit"]
+      "args": ["-y", "docorbit", "mcp"]
     }
   }
 }
@@ -126,7 +126,7 @@ When started by an agent (Cursor, Claude Desktop, Windsurf, Zed), DocOrbit **aut
 
 #### Claude Code (Terminal CLI)
 ```bash
-claude mcp add docorbit -- npx -y docorbit
+claude mcp add docorbit -- npx -y docorbit mcp
 ```
 
 *DocOrbit detects when standard input is a machine pipe and starts the MCP stdio transport automatically in project-local mode. If you prefer a shared user-wide store across all projects, pass `-g`: `["-y", "docorbit", "mcp", "-g"]`.*

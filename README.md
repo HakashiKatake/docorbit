@@ -64,19 +64,32 @@ docorbit/
 ## Getting Started
 
 ### Requirements
-- **Node.js 24.0.0+** (utilizes native `--experimental-strip-types` and `node:sqlite`)
-- **No `npm install` needed** for core runtime!
+- **Node.js 22.5.0+** (uses built-in `node:sqlite`)
+- **Zero native dependencies**
 
 ### Installation
-Clone the repository and link or run directly:
 
+#### Global or npx (Recommended)
+```bash
+# Run directly without install
+npx docorbit --help
+
+# Or install globally
+npm install -g docorbit
+docorbit --help
+```
+
+#### From Source
 ```bash
 # Clone repository
-git clone https://github.com/your-org/docorbit.git
+git clone https://github.com/HakashiKatake/docorbit.git
 cd docorbit
 
-# Run CLI directly
-node --experimental-strip-types bin/docorbit.js --help
+# Build distribution bundle
+npm run build
+
+# Run CLI
+node bin/docorbit.js --help
 ```
 
 ---
@@ -425,11 +438,11 @@ node --experimental-strip-types bin/docorbit.js export agents.md --output docs/A
 Start DocOrbit as an agent-native MCP server communicating via JSON-RPC 2.0. Coding agents (Claude Code, Cursor, Windsurf, OpenCode) can interact over standard input/output (`stdio`) or Streamable HTTP:
 
 ```bash
-# Start in Stdio mode (for CLI agents like Claude Code, Cursor, OpenCode)
-node --experimental-strip-types bin/docorbit.js mcp --stdio
+# Start in Stdio mode (for CLI agents like Claude Code, Cursor, Windsurf)
+npx -y docorbit mcp --stdio
 
 # Or start in Streamable HTTP mode (supports POST /mcp, GET /sse, GET /health)
-node --experimental-strip-types bin/docorbit.js mcp --port 3000 --host 127.0.0.1
+npx -y docorbit mcp --port 3000 --host 127.0.0.1
 ```
 
 #### The 14 Agent-Native Tools:
@@ -458,8 +471,8 @@ node --experimental-strip-types bin/docorbit.js mcp --port 3000 --host 127.0.0.1
 {
   "mcpServers": {
     "docorbit": {
-      "command": "node",
-      "args": ["--experimental-strip-types", "/path/to/docorbit/bin/docorbit.js", "mcp", "--stdio"]
+      "command": "npx",
+      "args": ["-y", "docorbit", "mcp", "--stdio"]
     }
   }
 }
@@ -470,8 +483,8 @@ node --experimental-strip-types bin/docorbit.js mcp --port 3000 --host 127.0.0.1
 {
   "mcpServers": {
     "docorbit": {
-      "command": "node",
-      "args": ["--experimental-strip-types", "/path/to/docorbit/bin/docorbit.js", "mcp", "--stdio"]
+      "command": "npx",
+      "args": ["-y", "docorbit", "mcp", "--stdio"]
     }
   }
 }

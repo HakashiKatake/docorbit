@@ -1,10 +1,10 @@
-import { DocOrbitDb, DocOrbitRepository } from '../../../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath } from '../../../../packages/storage/src/index.ts';
 import { resolveProjectContext } from '../../../../packages/workspace/src/index.ts';
 import type { ExamplesCommandOptions } from '../../../../packages/shared/src/index.ts';
 import { formatIndexedExamples } from '../formatters/terminal.ts';
 
 export async function runExamplesCommand(task: string = '', options: ExamplesCommandOptions = {}): Promise<void> {
-  const dbPath = options.dbPath || '.docorbit/docorbit.db';
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
 

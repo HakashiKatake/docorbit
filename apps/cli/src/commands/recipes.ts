@@ -1,4 +1,4 @@
-import { DocOrbitDb, DocOrbitRepository } from '../../../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath } from '../../../../packages/storage/src/index.ts';
 import { RecipeEngine } from '../../../../packages/retrieval/src/index.ts';
 import type { RecipesCommandOptions } from '../../../../packages/shared/src/index.ts';
 import { formatRecipe } from '../formatters/terminal.ts';
@@ -10,7 +10,7 @@ export async function runRecipesCommand(goal: string, options: RecipesCommandOpt
     process.exit(1);
   }
 
-  const dbPath = options.dbPath || '.docorbit/docorbit.db';
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
   const recipeEngine = new RecipeEngine(repository);

@@ -278,7 +278,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         printHelp();
         process.exit(1);
       }
-      await runAddCommand(queryArg, { json: isJson, dbPath, maxPages, allowLocalhost });
+      await runAddCommand(queryArg, { json: isJson, dbPath, maxPages, allowLocalhost, projectDir });
       break;
     }
     case 'search': {
@@ -351,6 +351,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       await runDiffCommand(queryArg || '', {
         from: fromVersion,
         to: toVersion,
+        projectDir,
         json: isJson,
         dbPath,
       });

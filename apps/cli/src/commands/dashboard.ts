@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { DocOrbitDb, DocOrbitRepository } from '../../../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath } from '../../../../packages/storage/src/index.ts';
 import { DashboardServer } from '../../../../packages/core/src/index.ts';
 import { c } from '../formatters/colors.ts';
 
@@ -12,8 +12,8 @@ export interface DashboardCommandOptions {
 }
 
 export async function runDashboardCommand(options: DashboardCommandOptions = {}): Promise<void> {
-  const projectDir = options.projectDir ? path.resolve(options.projectDir) : process.cwd();
-  const dbPath = options.dbPath || path.join(projectDir, '.docorbit', 'docorbit.db');
+  const projectDir = options.projectDir || process.cwd();
+  const dbPath = resolveDefaultDbPath(options.dbPath, projectDir);
   const port = options.port || 3737;
   const host = options.host || '127.0.0.1';
 

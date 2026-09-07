@@ -1,4 +1,4 @@
-import { DocOrbitDb, DocOrbitRepository } from '../../../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath } from '../../../../packages/storage/src/index.ts';
 import { RetrievalEngine } from '../../../../packages/retrieval/src/index.ts';
 import { formatContextPackage } from '../formatters/terminal.ts';
 
@@ -19,7 +19,7 @@ export async function runContextCommand(task: string, options: ContextCommandOpt
     process.exit(1);
   }
 
-  const dbPath = options.dbPath || '.docorbit/docorbit.db';
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
   const engine = new RetrievalEngine(repository);

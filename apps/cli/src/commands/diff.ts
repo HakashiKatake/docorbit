@@ -1,10 +1,10 @@
-import { DocOrbitDb, DocOrbitRepository } from '../../../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath } from '../../../../packages/storage/src/index.ts';
 import { DiffService } from '../../../../packages/verification/src/index.ts';
 import type { DiffCommandOptions } from '../../../../packages/shared/src/index.ts';
 import { formatDiffReport } from '../formatters/terminal.ts';
 
 export async function runDiffCommand(target: string = '', options: DiffCommandOptions = {}): Promise<void> {
-  const dbPath = options.dbPath || '.docorbit/docorbit.db';
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
   const db = new DocOrbitDb(dbPath);
   const repo = new DocOrbitRepository(db);
 

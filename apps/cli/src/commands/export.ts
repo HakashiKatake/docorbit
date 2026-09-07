@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { DocOrbitDb, DocOrbitRepository } from '../../../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath } from '../../../../packages/storage/src/index.ts';
 import { ExportService } from '../../../../packages/export/src/index.ts';
 import type { ExportFormat } from '../../../../packages/shared/src/index.ts';
 import { c } from '../formatters/colors.ts';
@@ -38,7 +38,7 @@ export async function runExportCommand(
   }
 
   const projectDir = options.projectDir ? path.resolve(options.projectDir) : process.cwd();
-  const dbPath = options.dbPath || path.join(projectDir, '.docorbit', 'docorbit.db');
+  const dbPath = resolveDefaultDbPath(options.dbPath, projectDir);
 
   const db = new DocOrbitDb(dbPath);
   const repo = new DocOrbitRepository(db);

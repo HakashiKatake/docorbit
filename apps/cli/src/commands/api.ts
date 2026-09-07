@@ -1,10 +1,10 @@
-import { DocOrbitDb, DocOrbitRepository } from '../../../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath } from '../../../../packages/storage/src/index.ts';
 import { resolveProjectContext } from '../../../../packages/workspace/src/index.ts';
 import type { ApiCommandOptions } from '../../../../packages/shared/src/index.ts';
 import { formatApiEndpoints } from '../formatters/terminal.ts';
 
 export async function runApiCommand(query: string = '', options: ApiCommandOptions = {}): Promise<void> {
-  const dbPath = options.dbPath || '.docorbit/docorbit.db';
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
 

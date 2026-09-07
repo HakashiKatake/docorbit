@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { DocOrbitDb, DocOrbitRepository } from '../../../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath } from '../../../../packages/storage/src/index.ts';
 import {
   detectWorkspaceDependencies,
   generateDocsLock,
@@ -17,7 +17,7 @@ export async function runInitCommand(
   options: InitCommandOptions = {}
 ): Promise<void> {
   const projectDir = resolve(targetDir);
-  const dbPath = options.dbPath || '.docorbit/docorbit.db';
+  const dbPath = resolveDefaultDbPath(options.dbPath, projectDir);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
 

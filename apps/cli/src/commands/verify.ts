@@ -1,5 +1,5 @@
 import * as fs from 'node:fs';
-import { DocOrbitDb, DocOrbitRepository } from '../../../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath } from '../../../../packages/storage/src/index.ts';
 import { VerificationService } from '../../../../packages/verification/src/index.ts';
 import type { VerifyCommandOptions } from '../../../../packages/shared/src/index.ts';
 import { formatVerificationReport } from '../formatters/terminal.ts';
@@ -19,7 +19,7 @@ export async function runVerifyCommand(codeOrFile: string = '', options: VerifyC
     code = fs.readFileSync(codeOrFile, 'utf8');
   }
 
-  const dbPath = options.dbPath || '.docorbit/docorbit.db';
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
   const db = new DocOrbitDb(dbPath);
   const repo = new DocOrbitRepository(db);
 

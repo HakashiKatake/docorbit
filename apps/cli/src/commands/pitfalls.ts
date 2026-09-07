@@ -1,10 +1,10 @@
-import { DocOrbitDb, DocOrbitRepository } from '../../../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath } from '../../../../packages/storage/src/index.ts';
 import { resolveProjectContext } from '../../../../packages/workspace/src/index.ts';
 import type { PitfallsCommandOptions } from '../../../../packages/shared/src/index.ts';
 import { formatPitfalls } from '../formatters/terminal.ts';
 
 export async function runPitfallsCommand(task: string = '', options: PitfallsCommandOptions = {}): Promise<void> {
-  const dbPath = options.dbPath || '.docorbit/docorbit.db';
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
 

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository, findNearestProjectRoot, resolveDefaultDbPath } from '../../packages/storage/src/index.ts';
 import type { DiscoveredSource, NormalizedPage } from '../../packages/shared/src/index.ts';
 
 test('DocOrbitRepository saves and retrieves sources and pages in SQLite', () => {
@@ -71,4 +71,36 @@ test('DocOrbitRepository saves and retrieves sources and pages in SQLite', () =>
   assert.strictEqual(ftsResults[0].id, 'page_123');
 
   db.close();
+});
+
+test('findNearestProjectRoot detects root directory containing package.json or git', () => {
+  const currentDir = process.cwd();
+  const root = findNearestProjectRoot(currentDir);
+  assert.ok(root !== null);
+  assert.strictEqual(root, currentDir);
+
+  // Nested subfolder
+  const nested = `${currentDir}/packages/storage/src`;
+  const detectedRoot = findNearestProjectRoot(nested);
+  assert.strictEqual(detectedRoot, currentDir);
+});
+
+test('resolveDefaultDbPath resolves project-local database path by default', () => {
+  const currentDir = process.cwd();
+
+  // 1. Explicit path
+  assert.strictEqual(resolveDefaultDbPath('/tmp/custom.db'), '/tmp/custom.db');
+  assert.strictEqual(resolveDefaultDbPath(':memory:'), ':memory:');
+
+  // 2. Project-scoped path with projectDir provided
+  const dbFromProjectDir = resolveDefaultDbPath(undefined, currentDir);
+  assert.strictEqual(dbFromProjectDir, `${currentDir}/.docorbit/docorbit.db`);
+
+  // 3. Project-scoped path from relative dot '.'
+  const dbFromDot = resolveDefaultDbPath(undefined, '.');
+  assert.strictEqual(dbFromDot, `${currentDir}/.docorbit/docorbit.db`);
+
+  // 4. Inferred from cwd (inside repo)
+  const dbFromCwd = resolveDefaultDbPath();
+  assert.strictEqual(dbFromCwd, `${currentDir}/.docorbit/docorbit.db`);
 });

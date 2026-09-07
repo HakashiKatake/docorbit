@@ -1,8 +1,39 @@
 import { DatabaseSync } from 'node:sqlite';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { mkdirSync, existsSync } from 'node:fs';
 import { homedir as getHomedir, tmpdir as getTmpdir } from 'node:os';
 import { SCHEMA_SQL, FTS_SCHEMA_SQL } from './schema.ts';
+
+const PROJECT_MARKERS = [
+  'package.json',
+  'Cargo.toml',
+  'go.mod',
+  'pyproject.toml',
+  'requirements.txt',
+  'pom.xml',
+  'build.gradle',
+  '.git',
+  '.docorbit',
+];
+
+export function findNearestProjectRoot(startDir: string): string | null {
+  try {
+    let current = resolve(startDir);
+    const userHome = process.env.HOME || process.env.USERPROFILE || getHomedir();
+    while (current && current !== '/' && current !== dirname(current)) {
+      if (userHome && current === userHome) {
+        break; // Don't treat user home directory as a project root
+      }
+      for (const marker of PROJECT_MARKERS) {
+        if (existsSync(join(current, marker))) {
+          return current;
+        }
+      }
+      current = dirname(current);
+    }
+  } catch {}
+  return null;
+}
 
 export function resolveDefaultDbPath(explicitDbPath?: string, projectDir?: string): string {
   if (explicitDbPath && explicitDbPath !== ':memory:') {
@@ -12,26 +43,27 @@ export function resolveDefaultDbPath(explicitDbPath?: string, projectDir?: strin
     return ':memory:';
   }
 
-  // 1. If projectDir has an existing .docorbit/docorbit.db, prefer it
+  // 1. If projectDir is provided, store inside project root .docorbit/
   if (projectDir) {
-    const projectDb = join(projectDir, '.docorbit', 'docorbit.db');
-    if (existsSync(projectDb)) {
-      return projectDb;
+    const resolvedProjectDir = resolve(projectDir);
+    const userHome = process.env.HOME || process.env.USERPROFILE || getHomedir();
+    if (resolvedProjectDir !== '/' && resolvedProjectDir !== userHome) {
+      const root = findNearestProjectRoot(resolvedProjectDir) || resolvedProjectDir;
+      return join(root, '.docorbit', 'docorbit.db');
     }
   }
 
-  // 2. If current working directory has .docorbit/docorbit.db, prefer it
+  // 2. Detect project root from current working directory
   try {
     const cwd = process.cwd();
-    if (cwd && cwd !== '/') {
-      const localDb = join(cwd, '.docorbit', 'docorbit.db');
-      if (existsSync(localDb)) {
-        return localDb;
-      }
+    const userHome = process.env.HOME || process.env.USERPROFILE || getHomedir();
+    if (cwd && cwd !== '/' && cwd !== userHome) {
+      const root = findNearestProjectRoot(cwd) || cwd;
+      return join(root, '.docorbit', 'docorbit.db');
     }
   } catch {}
 
-  // 3. Canonical global user store: ~/.docorbit/docorbit.db
+  // 3. Fallback to global user store only when outside any project: ~/.docorbit/docorbit.db
   const userHome = process.env.HOME || process.env.USERPROFILE || getHomedir();
   if (userHome) {
     return join(userHome, '.docorbit', 'docorbit.db');

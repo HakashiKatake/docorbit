@@ -676,6 +676,7 @@ export interface DiffCommandOptions {
   from?: string;
   to?: string;
   source?: string;
+  projectDir?: string;
   json?: boolean;
   dbPath?: string;
 }

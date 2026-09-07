@@ -7,16 +7,17 @@ export interface AddCommandOptions {
   dbPath?: string;
   maxPages?: number;
   allowLocalhost?: boolean;
+  projectDir?: string;
 }
 
 export async function runAddCommand(targetUrl: string, options: AddCommandOptions = {}): Promise<void> {
   if (!targetUrl) {
     console.error('Error: Please provide a documentation target URL.');
-    console.error('Usage: docorbit add <url> [--json] [--db <path>]');
+    console.error('Usage: docorbit add <url> [--json] [--db <path>] [--project <dir>]');
     process.exit(1);
   }
 
-  const dbPath = resolveDefaultDbPath(options.dbPath);
+  const dbPath = resolveDefaultDbPath(options.dbPath, options.projectDir);
   const db = new DocOrbitDb(dbPath);
   const repository = new DocOrbitRepository(db);
 

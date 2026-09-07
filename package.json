@@ -42,6 +42,9 @@
     "llms-txt",
     "context"
   ],
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
   "author": "DocOrbit Team",
   "license": "MIT"
 }

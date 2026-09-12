@@ -113,12 +113,9 @@ export class DocumentationTreeCrawler {
 
       // 2. Irrelevant marketing/auth/billing filter (never skip the root page requested by user)
       if (item.depth > 0) {
-        const isDocSite = parsedItemUrl.hostname.startsWith('docs.') ||
-                          parsedItemUrl.hostname.startsWith('api.') ||
-                          parsedItemUrl.pathname.startsWith('/docs') ||
-                          parsedItemUrl.pathname.startsWith('/api') ||
-                          parsedItemUrl.pathname.startsWith('/documentation') ||
-                          parsedItemUrl.pathname.startsWith('/guides');
+        const isDocHost = /^(?:docs?|apis?|developers?|dev|reference|help|learn|manual|book|wiki)\./i.test(parsedItemUrl.hostname);
+        const isDocPath = /\/(?:docs?|apis?|documentation|guides?|reference|manual|sdk|tutorials?|specs?)(?:\/|$)/i.test(parsedItemUrl.pathname);
+        const isDocSite = isDocHost || isDocPath;
 
         if (isDocSite) {
           // On documentation subdomains/paths, terms like checkout, billing, pricing, plans, subscribe
@@ -145,9 +142,9 @@ export class DocumentationTreeCrawler {
       if (baseDocPath && baseDocPath !== '/' && baseDocPath !== '') {
         const path = parsedItemUrl.pathname.toLowerCase();
         const base = baseDocPath.toLowerCase();
-        const isDocHost = parsedItemUrl.hostname.startsWith('docs.') || parsedItemUrl.hostname.startsWith('api.');
+        const isDocHost = /^(?:docs?|apis?|developers?|dev|reference|help|learn|manual|book|wiki)\./i.test(parsedItemUrl.hostname);
         const isWithinDocRoot = isDocHost || path.startsWith(base) || path.startsWith(`${base}/`);
-        const isDocSister = /\/(?:api|docs?|guides?|reference)(?:\/|$)/i.test(path);
+        const isDocSister = /\/(?:api|docs?|guides?|reference|manual|sdk|tutorials?|specs?)(?:\/|$)/i.test(path);
         if (!isWithinDocRoot && !isDocSister) {
           pagesSkipped.push({ url, reason: 'out_of_doc_scope' });
           return;
@@ -256,18 +253,21 @@ export class DocumentationTreeCrawler {
               let pageContentType = res.contentType;
               let finalUrl = res.finalUrl || current.url;
 
-              // If HTML body lacks code blocks or has client-side placeholders, probe for .md equivalent
-              if (!current.url.endsWith('.md') && !current.url.endsWith('.json') && res.contentType.includes('text/html')) {
+              // If HTML body lacks code blocks or has client-side placeholders, probe for .md or .mdx equivalent
+              if (!current.url.endsWith('.md') && !current.url.endsWith('.mdx') && !current.url.endsWith('.json') && res.contentType.includes('text/html')) {
                 if (!pageBody.includes('<pre') && !pageBody.includes('<code')) {
-                  try {
-                    const mdUrl = current.url.replace(/\/$/, '') + '.md';
-                    const mdRes = await this.fetcher.fetch(mdUrl, { timeoutMs: 3000 });
-                    if (mdRes.status >= 200 && mdRes.status < 300 && mdRes.body.length > 200) {
-                      pageBody = mdRes.body;
-                      pageContentType = 'text/markdown';
-                      finalUrl = mdRes.finalUrl || mdUrl;
-                    }
-                  } catch {}
+                  for (const ext of ['.md', '.mdx']) {
+                    try {
+                      const mdUrl = current.url.replace(/\/$/, '') + ext;
+                      const mdRes = await this.fetcher.fetch(mdUrl, { timeoutMs: 3000 });
+                      if (mdRes.status >= 200 && mdRes.status < 300 && mdRes.body.length > 200) {
+                        pageBody = mdRes.body;
+                        pageContentType = 'text/markdown';
+                        finalUrl = mdRes.finalUrl || mdUrl;
+                        break;
+                      }
+                    } catch {}
+                  }
                 }
               }
 

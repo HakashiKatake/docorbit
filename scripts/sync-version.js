@@ -41,10 +41,10 @@ fs.writeFileSync(sharedVersionPath, sharedVersionContent, 'utf-8');
 const indexHtmlPath = path.join(rootDir, 'site/index.html');
 if (fs.existsSync(indexHtmlPath)) {
   let html = fs.readFileSync(indexHtmlPath, 'utf-8');
-  html = html.replace(/DocOrbit v\d+\.\d+\.\d+ released/g, `DocOrbit v${targetVersion} released`);
-  html = html.replace(/<span class="brand-badge">v\d+\.\d+\.\d+<\/span>/g, `<span class="brand-badge">v${targetVersion}</span>`);
-  html = html.replace(/docorbit-ast-inspector \/\/ v\d+\.\d+\.\d+/g, `docorbit-ast-inspector // v${targetVersion}`);
-  html = html.replace(/DocOrbit \(v\d+\.\d+\.\d+\)/g, `DocOrbit (v${targetVersion})`);
+  html = html.replace(/DocOrbit v\d+\.\d+\.\d+(?:-[a-zA-Z0-9.]+)? released/g, `DocOrbit v${targetVersion} released`);
+  html = html.replace(/<span class="brand-badge">v\d+\.\d+\.\d+(?:-[a-zA-Z0-9.]+)?<\/span>/g, `<span class="brand-badge">v${targetVersion}</span>`);
+  html = html.replace(/docorbit-ast-inspector \/\/ v\d+\.\d+\.\d+(?:-[a-zA-Z0-9.]+)?/g, `docorbit-ast-inspector // v${targetVersion}`);
+  html = html.replace(/DocOrbit \(v\d+\.\d+\.\d+(?:-[a-zA-Z0-9.]+)?\)/g, `DocOrbit (v${targetVersion})`);
   fs.writeFileSync(indexHtmlPath, html, 'utf-8');
 }
 
@@ -53,7 +53,7 @@ for (const docsRel of ['site/docs.html', 'site/docs/index.html']) {
   const docsPath = path.join(rootDir, docsRel);
   if (fs.existsSync(docsPath)) {
     let html = fs.readFileSync(docsPath, 'utf-8');
-    html = html.replace(/<span class="brand-badge">v\d+\.\d+\.\d+<\/span>/g, `<span class="brand-badge">v${targetVersion}</span>`);
+    html = html.replace(/<span class="brand-badge">v\d+\.\d+\.\d+(?:-[a-zA-Z0-9.]+)?<\/span>/g, `<span class="brand-badge">v${targetVersion}</span>`);
     fs.writeFileSync(docsPath, html, 'utf-8');
   }
 }

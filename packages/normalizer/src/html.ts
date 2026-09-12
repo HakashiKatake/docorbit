@@ -67,13 +67,43 @@ export function normalizeHtmlToMarkdown(html: string, baseUrl: string): Extracte
       .replace(/\\\\/g, '\\');
   };
 
-  const fileRegex = /"name"\s*:\s*"File"\s*,\s*"attributes"\s*:\s*\{([^}]+)\}\s*,\s*"children"\s*:\s*\[([\s\S]*?)\]\s*\}\s*\]/gi;
-  let fMatch: RegExpExecArray | null;
-  while ((fMatch = fileRegex.exec(html)) !== null) {
-    const attrStr = fMatch[1];
-    const childrenStr = fMatch[2];
-    const langMatch = attrStr.match(/"language"\s*:\s*"([^"]+)"/);
-    const fileMatch = attrStr.match(/"filename"\s*:\s*"([^"]+)"/);
+  // 2a. Next.js __NEXT_DATA__ inspection
+  const nextDataMatch = html.match(/<script\b[^>]*id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/i);
+  if (nextDataMatch) {
+    try {
+      const nextData = JSON.parse(nextDataMatch[1]);
+      const pageProps = nextData?.props?.pageProps;
+      if (pageProps && typeof pageProps === 'object') {
+        const findSnippets = (obj: unknown, depth = 0) => {
+          if (!obj || depth > 5) return;
+          if (typeof obj === 'object') {
+            const rec = obj as Record<string, unknown>;
+            if (typeof rec.code === 'string' && rec.code.trim().length > 15) {
+              const lang = typeof rec.language === 'string' ? rec.language : (typeof rec.lang === 'string' ? rec.lang : 'typescript');
+              const fn = typeof rec.filename === 'string' ? rec.filename : (typeof rec.file === 'string' ? rec.file : (typeof rec.title === 'string' ? rec.title : undefined));
+              embeddedCodeBlocks.push({ language: lang, filename: fn, code: rec.code.trim() });
+            } else if (typeof rec.snippet === 'string' && rec.snippet.trim().length > 15) {
+              const lang = typeof rec.language === 'string' ? rec.language : 'typescript';
+              embeddedCodeBlocks.push({ language: lang, code: rec.snippet.trim() });
+            }
+            for (const val of Object.values(rec)) findSnippets(val, depth + 1);
+          } else if (Array.isArray(obj)) {
+            for (const item of obj) findSnippets(item, depth + 1);
+          }
+        };
+        findSnippets(pageProps);
+      }
+    } catch {}
+  }
+
+  // 2b. Generalized AST / Markdoc Component Blocks (File, Chunk, Code, CodeBlock, Snippet, CodeGroup, CodeTab)
+  const compRegex = /"name"\s*:\s*"(?:File|Chunk|Code|CodeBlock|Snippet|CodeGroup|CodeTab)"\s*,\s*"attributes"\s*:\s*\{([^}]+)\}\s*,\s*"children"\s*:\s*\[([\s\S]*?)\]\s*\}\s*\]/gi;
+  let compMatch: RegExpExecArray | null;
+  while ((compMatch = compRegex.exec(html)) !== null) {
+    const attrStr = compMatch[1];
+    const childrenStr = compMatch[2];
+    const langMatch = attrStr.match(/"(?:language|lang)"\s*:\s*"([^"]+)"/i);
+    const fileMatch = attrStr.match(/"(?:filename|file|title)"\s*:\s*"([^"]+)"/i);
     const lang = langMatch ? langMatch[1] : 'javascript';
     const filename = fileMatch ? unescapeUnicode(fileMatch[1]) : undefined;
 
@@ -90,7 +120,7 @@ export function normalizeHtmlToMarkdown(html: string, baseUrl: string): Extracte
         assembled += unescapeUnicode(cleaned) + '\n';
       }
     }
-    if (assembled.trim().length > 20) {
+    if (assembled.trim().length > 20 && !embeddedCodeBlocks.some(b => b.code === assembled.trim())) {
       embeddedCodeBlocks.push({
         language: lang,
         filename,
@@ -99,9 +129,9 @@ export function normalizeHtmlToMarkdown(html: string, baseUrl: string): Extracte
     }
   }
 
-  // Fallback for single Chunk tags
-  if (embeddedCodeBlocks.length === 0 && html.includes('"$$mdtype":"Tag"')) {
-    const chunkRegex = /"name"\s*:\s*"Chunk"\s*,\s*"attributes"\s*:\s*\{[^}]*?"language"\s*:\s*"([^"]+)"[^}]*\}\s*,\s*"chunks"\s*:\s*\[\s*"([\s\S]*?)"\s*\]/gi;
+  // 2c. Fallback for standalone Chunk / Code tags with language attribute
+  if (embeddedCodeBlocks.length === 0 && (html.includes('"$$mdtype":"Tag"') || html.includes('"language":'))) {
+    const chunkRegex = /"name"\s*:\s*"(?:Chunk|Code|Snippet)"\s*,\s*"attributes"\s*:\s*\{[^}]*?"(?:language|lang)"\s*:\s*"([^"]+)"[^}]*\}\s*,\s*"chunks"\s*:\s*\[\s*"([\s\S]*?)"\s*\]/gi;
     let cm: RegExpExecArray | null;
     const byLang = new Map<string, string[]>();
     while ((cm = chunkRegex.exec(html)) !== null) {
@@ -111,11 +141,32 @@ export function normalizeHtmlToMarkdown(html: string, baseUrl: string): Extracte
       byLang.get(lang)!.push(code);
     }
     for (const [lang, parts] of byLang.entries()) {
-      embeddedCodeBlocks.push({
-        language: lang,
-        code: parts.join('\n').trim(),
-      });
+      const joined = parts.join('\n').trim();
+      if (!embeddedCodeBlocks.some(b => b.code === joined)) {
+        embeddedCodeBlocks.push({
+          language: lang,
+          code: joined,
+        });
+      }
     }
+  }
+
+  // 2d. Elements with data-code or data-snippet attributes (e.g. Prism, Highlight.js, custom SPA wrappers)
+  const dataCodeRegex = /data-(?:code|snippet|source)=["']([^"']{30,})["']/gi;
+  let dataMatch: RegExpExecArray | null;
+  while ((dataMatch = dataCodeRegex.exec(html)) !== null) {
+    try {
+      let val = unescapeHtml(dataMatch[1]);
+      if (val.startsWith('%')) {
+        try { val = decodeURIComponent(val); } catch {}
+      }
+      if (val.length > 20 && !embeddedCodeBlocks.some(b => b.code === val.trim())) {
+        embeddedCodeBlocks.push({
+          language: 'typescript',
+          code: val.trim(),
+        });
+      }
+    } catch {}
   }
 
   // Remove non-content / boilerplate tags

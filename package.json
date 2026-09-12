@@ -19,7 +19,10 @@
     "node": ">=22.5.0"
   },
   "scripts": {
-    "build": "tsc",
+    "version:sync": "node scripts/sync-version.js",
+    "version:set": "node scripts/sync-version.js",
+    "postversion": "node scripts/sync-version.js",
+    "build": "node scripts/sync-version.js && tsc",
     "prepack": "npm run build && npm test",
     "test": "node --experimental-strip-types --test tests/unit/*.test.ts tests/integration/*.test.ts",
     "test:unit": "node --experimental-strip-types --test tests/unit/*.test.ts",

@@ -15,10 +15,9 @@ import { runDiffCommand } from './commands/diff.ts';
 import { runImpactCommand } from './commands/impact.ts';
 import { runDashboardCommand } from './commands/dashboard.ts';
 import { runExportCommand } from './commands/export.ts';
-import { handleEvaluateCommand } from './commands/evaluate.ts';
-import type { ChunkType, PitfallKind } from '../../../packages/shared/src/index.ts';
+import { DOCORBIT_VERSION, type ChunkType, type PitfallKind } from '../../../packages/shared/src/index.ts';
 
-const VERSION = '0.2.0';
+const VERSION = DOCORBIT_VERSION;
 
 function printHelp(): void {
   console.log(`

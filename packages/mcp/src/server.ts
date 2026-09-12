@@ -7,6 +7,7 @@ import {
   ImpactAnalysisService,
 } from '../../verification/src/index.ts';
 import { ExportService } from '../../export/src/index.ts';
+import { DOCORBIT_VERSION } from '../../shared/src/index.ts';
 import type {
   JsonRpcRequest,
   JsonRpcResponse,
@@ -44,7 +45,7 @@ export class McpServer {
     this.resolver = options.resolver;
     this.projectDir = options.projectDir;
     this.serverName = options.serverName || 'docorbit-mcp';
-    this.serverVersion = options.serverVersion || '0.5.0';
+    this.serverVersion = options.serverVersion || DOCORBIT_VERSION;
 
     this.tools = options.tools || createDefaultTools();
     this.resourceManager = new McpResourceManager(this.repo, {

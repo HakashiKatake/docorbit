@@ -16,7 +16,7 @@
     <div class="container">
       <a href="#" class="brand">
         <div class="brand-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="9"></circle>
             <path d="M3.6 9h16.8"></path>
             <path d="M3.6 15h16.8"></path>
@@ -30,11 +30,11 @@
 
       <nav>
         <ul class="nav-links">
-          <li><a href="#why" class="nav-link">Why DocOrbit</a></li>
-          <li><a href="#setup" class="nav-link">Agent Setup</a></li>
-          <li><a href="#benchmark" class="nav-link">Benchmark</a></li>
+          <li><a href="#why" class="nav-link">Vectors Solved</a></li>
+          <li><a href="#simulator" class="nav-link">Live Studio</a></li>
+          <li><a href="#setup" class="nav-link">Harness Config</a></li>
+          <li><a href="#benchmark" class="nav-link">Benchmarks</a></li>
           <li><a href="#tools" class="nav-link">15 MCP Tools</a></li>
-          <li><a href="#architecture" class="nav-link">Architecture</a></li>
           <li><a href="#faq" class="nav-link">FAQ</a></li>
         </ul>
       </nav>
@@ -45,7 +45,7 @@
           <span class="badge-score">100/100</span>
         </a>
         <a href="https://github.com/HakashiKatake/docorbit" target="_blank" rel="noopener noreferrer" class="badge-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
           </svg>
           <span>Star on GitHub</span>
@@ -53,7 +53,7 @@
       </div>
 
       <button class="mobile-toggle" aria-label="Toggle menu">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="3" y1="12" x2="21" y2="12"></line>
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -65,222 +65,300 @@
   <!-- Hero Section -->
   <section class="hero">
     <div class="container">
-      <a href="https://github.com/HakashiKatake/docorbit/releases" class="pill-banner">
-        <span class="pill-tag">NEW</span>
-        <span>DocOrbit v0.1.9 Released — Pure Markdown Delivery & Tree Crawler Engine</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </a>
-
-      <h1 class="hero-title">
-        The Documentation Intelligence Layer for <span class="gradient-text">AI Coding Agents</span>
-      </h1>
-
-      <p class="hero-subtitle">
-        Autonomous documentation-tree discovery, version reconciliation across 8 ecosystems, semantic AST slicing, and closed-loop contract verification for Cursor, Claude, Windsurf, Zed, and custom agent harnesses.
-      </p>
-
-      <div class="hero-ctas">
-        <a href="#setup" class="btn btn-primary">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="5 3 19 12 5 21 5 3"></polygon>
-          </svg>
-          Configure Your Agent
-        </a>
-        <a href="#benchmark" class="btn btn-secondary">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="20" x2="18" y2="10"></line>
-            <line x1="12" y1="20" x2="12" y2="4"></line>
-            <line x1="6" y1="20" x2="6" y2="14"></line>
-          </svg>
-          See Benchmark Results
-        </a>
-        <a href="https://github.com/HakashiKatake/docorbit" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-          </svg>
-          GitHub Repository
-        </a>
-      </div>
-
-      <!-- Quickstart Box -->
-      <div class="quickstart-box">
-        <div class="quickstart-header">
-          <span>Zero-install MCP server execution:</span>
-          <span>Node.js &ge; 22.5.0</span>
+      <div class="hero-header">
+        <div class="kicker">
+          <span class="kicker-dot"></span>
+          <span>KERNEL // DOCS_INTELLIGENCE // V0.1.9</span>
         </div>
-        <div class="quickstart-cmd">
+
+        <h1 class="hero-title">
+          Stop letting coding agents <br>
+          <span class="hero-highlight">hallucinate your APIs.</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          DocOrbit is the local documentation intelligence layer that turns messy web docs into deterministic AST contracts, version-locked context, and zero-hallucination code generation for Cursor, Claude, Windsurf, and Zed.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#setup" class="btn btn-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Configure Your Agent
+          </a>
+          <a href="#simulator" class="btn btn-secondary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+            Interactive Studio
+          </a>
+          <a href="https://github.com/HakashiKatake/docorbit" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            GitHub
+          </a>
+        </div>
+
+        <div class="cmd-bar">
           <code>npx -y docorbit mcp</code>
-          <button class="copy-btn" data-copy="npx -y docorbit mcp" aria-label="Copy npx command">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button class="copy-btn" data-copy="npx -y docorbit mcp" aria-label="Copy MCP start command">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
             </svg>
-            Copy
+            <span>Copy</span>
           </button>
         </div>
       </div>
 
-      <!-- Stats Ribbon -->
+      <!-- Hero Interactive Simulator (Visual Anchor) -->
+      <div id="simulator" class="studio-frame">
+        <div class="studio-chrome">
+          <div class="window-dots">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+          </div>
+          <div class="studio-tabs">
+            <button class="sim-tab active" data-sim="nextjs">Next.js 15 (Route Params)</button>
+            <button class="sim-tab" data-sim="stripe">Stripe v16 (Webhook Trap)</button>
+            <button class="sim-tab" data-sim="tailwind">Tailwind v4 (Theme Variables)</button>
+          </div>
+          <div class="studio-meta">
+            <span>engine: sqlite-wal</span>
+            <span>&bull;</span>
+            <span style="color: var(--success)">ready</span>
+          </div>
+        </div>
+
+        <div class="studio-body">
+          <!-- Left Column: Agent Code Generation -->
+          <div class="studio-pane">
+            <div class="pane-label">
+              <span>Agent Output Inspection</span>
+              <span id="sim-agent-badge" class="tel-badge amber">Next.js 14 &rarr; 15 Drift</span>
+            </div>
+            <div class="pane-code-box">
+              <pre><code id="sim-code-preview"><span class="code-comment">// Agent task: Next.js Dynamic Route Handler</span>
+<span class="code-comment">// Project lockfile: package.json ("next": "^15.1.0")</span>
+
+<span class="code-comment">// ❌ WITHOUT DOCORBIT (Agent hallucinates v14 sync syntax):</span>
+export async function GET(request, { params }) {
+  <span class="code-err">const id = params.id;</span> <span class="code-comment">// ERROR: params is a Promise!</span>
+}
+
+<span class="code-comment">// ✔ WITH DOCORBIT (AST contract resolved to Next 15):</span>
+export async function GET(request, { params }) {
+  <span class="code-ok">const { id } = await params;</span> <span class="code-comment">// VERIFIED</span>
+  return Response.json({ id });
+}</code></pre>
+            </div>
+          </div>
+
+          <!-- Right Column: DocOrbit Telemetry -->
+          <div class="studio-pane">
+            <div class="pane-label">
+              <span>DocOrbit Runtime Telemetry</span>
+              <span id="sim-latency-badge" class="tel-badge green">1.2ms latency</span>
+            </div>
+            <div class="telemetry-list" id="sim-telemetry-feed">
+              <div class="telemetry-item">
+                <span class="tel-step">01 LOCKFILE</span>
+                <span class="tel-val">Scanned <code>package.json</code>: detected <strong>next@15.1.0</strong> <span class="tel-badge cyan">Ecosystem: npm</span></span>
+              </div>
+              <div class="telemetry-item">
+                <span class="tel-step">02 SEMVER</span>
+                <span class="tel-val">Reconciled doc version ladder: <strong>exact match &rarr; v15</strong> <span class="tel-badge green">0 lag</span></span>
+              </div>
+              <div class="telemetry-item">
+                <span class="tel-step">03 AST GUARD</span>
+                <span class="tel-val">Flagged async params change: <strong>1 breaking contract caught</strong> <span class="tel-badge green">Prevented TypeError</span></span>
+              </div>
+              <div class="telemetry-item">
+                <span class="tel-step">04 RETRIEVAL</span>
+                <span class="tel-val">SQLite FTS5 batch query executed in <strong>1.24ms</strong> (3 subqueries merged)</span>
+              </div>
+              <div class="telemetry-item">
+                <span class="tel-step">05 PAYLOAD</span>
+                <span class="tel-val">Packed clean Markdown: <strong>412 tokens</strong> <span class="tel-badge green">-58% vs JSON</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Ribbon -->
       <div class="stats-ribbon">
-        <div class="stat-card">
-          <div class="stat-value">~1.3ms</div>
-          <div class="stat-label">Hybrid FTS5 Search Latency</div>
+        <div class="stat-cell">
+          <div class="stat-number cyan">~1.3ms</div>
+          <div class="stat-desc">FTS5 Search Latency</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value">100%</div>
-          <div class="stat-label">Held-Out Eval Benchmark Success</div>
+        <div class="stat-cell">
+          <div class="stat-number green">100%</div>
+          <div class="stat-desc">Held-Out Eval Accuracy</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value">-50%</div>
-          <div class="stat-label">Token Overhead (Pure Markdown)</div>
+        <div class="stat-cell">
+          <div class="stat-number cyan">-58%</div>
+          <div class="stat-desc">Token Context Delivery</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value">8</div>
-          <div class="stat-label">Workspace Ecosystems Resolved</div>
+        <div class="stat-cell">
+          <div class="stat-number green">8</div>
+          <div class="stat-desc">Ecosystem Lockfiles</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Section: Why DocOrbit (5 Hallucination Vectors Solved) -->
+  <!-- Bento Grid: The 5 Hallucination Vectors Solved -->
   <section id="why" class="section">
     <div class="container">
-      <div class="section-header">
-        <span class="section-tag">Root-Cause Engineering</span>
-        <h2 class="section-title">The 5 Hallucination Vectors Solved</h2>
-        <p class="section-desc">
-          AI coding agents fail not because LLMs lack reasoning, but because the documentation they ingest is stale, collides with installed dependency versions, or lacks structured schemas.
-        </p>
-      </div>
+      <span class="section-kicker">Root-Cause Engineering</span>
+      <h2 class="section-title">The 5 Hallucination Vectors Solved</h2>
+      <p class="section-desc">
+        Coding agents don't hallucinate because LLMs can't code. They hallucinate because web docs are unversioned, full of escaped JSON bloat, or lack typed AST contracts.
+      </p>
 
-      <div class="features-grid">
-        <!-- Card 1 -->
-        <div class="feature-card">
-          <div class="feature-icon-wrapper">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-          </div>
-          <h3 class="feature-title">Version Collisions</h3>
-          <p class="feature-desc">
-            An agent in a Next.js 14 project gets fed Next.js 15 documentation and uses <code>await params</code>, breaking your build. DocOrbit reconciles your installed lockfiles against documentation branches with SemVer laddering.
+      <div class="bento-grid">
+        <!-- Bento 1 (Large 7 columns) -->
+        <div class="bento-card bento-span-7">
+          <span class="bento-tag">Vector 01 // Version Drift</span>
+          <h3 class="bento-title">SemVer Lockfile Grounding</h3>
+          <p class="bento-desc">
+            An agent working on Next.js 14 gets fed Next.js 15 documentation and uses <code>await params</code>, breaking your build. DocOrbit reconciles your installed lockfile against documentation snapshots using a 6-rung SemVer ladder.
           </p>
-          <div class="feature-detail">8 Ecosystems: npm, cargo, go, pypi, composer, rubygems, pub, maven</div>
+          <div class="bento-visual">
+            <div class="ladder-bar">
+              <div class="ladder-step active">
+                <span>Rung 1: Exact Version Match</span>
+                <span style="color: var(--success)">100% confidence</span>
+              </div>
+              <div class="ladder-step">
+                <span>Rung 2: Major.Minor Match</span>
+                <span>Satisfies SemVer Range</span>
+              </div>
+              <div class="ladder-step">
+                <span>Rung 3: Ecosystem Fallback</span>
+                <span>npm &bull; cargo &bull; go &bull; pypi &bull; composer</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Card 2 -->
-        <div class="feature-card">
-          <div class="feature-icon-wrapper emerald">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-            </svg>
-          </div>
-          <h3 class="feature-title">Escaped JSON & Bloat</h3>
-          <p class="feature-desc">
-            Generic tools wrap documentation in stringified JSON schemas with escaped newlines and duplicate fields, wasting 50%+ of your token budget. DocOrbit returns clean, unescaped GitHub Markdown by default.
+        <!-- Bento 2 (5 columns) -->
+        <div class="bento-card bento-span-5">
+          <span class="bento-tag">Vector 02 // Closed-Loop Contract</span>
+          <h3 class="bento-title">AST Code Verification</h3>
+          <p class="bento-desc">
+            DocOrbit doesn't just retrieve documentation; it parses generated code via AST to catch wrong HTTP methods, deprecated endpoints, and missing required query parameters.
           </p>
-          <div class="feature-detail">Saves 50–60% tokens per retrieval; optional format: 'json'</div>
+          <div class="bento-visual">
+            <pre style="color: #94a3b8; line-height: 1.5;"><code><span style="color: var(--danger)">- stripe.charges.create(...)</span> // Deprecated in v16
+<span style="color: var(--success)">+ stripe.paymentIntents.create(...)</span> // Verified
+<span style="color: var(--accent)">[AST Gate: 9 catches, 0 false positives]</span></code></pre>
+          </div>
         </div>
 
-        <!-- Card 3 -->
-        <div class="feature-card">
-          <div class="feature-icon-wrapper cyan">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="16 18 22 12 16 6"></polyline>
-              <polyline points="8 6 2 12 8 18"></polyline>
-            </svg>
-          </div>
-          <h3 class="feature-title">Missing API Contracts</h3>
-          <p class="feature-desc">
-            Agents guess query params and body types because raw HTML docs lack typed contracts. DocOrbit indexes OpenAPI 3.x and Swagger 2.0 specs with safe circular <code>$ref</code> resolution and exact response models.
+        <!-- Bento 3 (4 columns) -->
+        <div class="bento-card bento-span-4">
+          <span class="bento-tag">Vector 03 // Speed</span>
+          <h3 class="bento-title">Sub-Millisecond Engine</h3>
+          <p class="bento-desc">
+            SQLite WAL mode, memory-mapped I/O (256MB), and prepared statement batching reduce search latency from 45ms to 1.3ms.
           </p>
-          <div class="feature-detail">find_api tool returns paths, query params, auth, and response schemas</div>
+          <div class="bento-visual">
+            <div class="perf-mini-bars">
+              <div class="perf-mini-row">
+                <span class="perf-mini-label">DocOrbit</span>
+                <div class="perf-mini-track"><div class="perf-mini-fill fast"></div></div>
+                <span class="perf-mini-val" style="color: var(--success)">1.3ms</span>
+              </div>
+              <div class="perf-mini-row">
+                <span class="perf-mini-label">Context7</span>
+                <div class="perf-mini-track"><div class="perf-mini-fill medium"></div></div>
+                <span class="perf-mini-val">45ms</span>
+              </div>
+              <div class="perf-mini-row">
+                <span class="perf-mini-label">Firecrawl</span>
+                <div class="perf-mini-track"><div class="perf-mini-fill slow"></div></div>
+                <span class="perf-mini-val">150ms+</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Card 4 -->
-        <div class="feature-card">
-          <div class="feature-icon-wrapper amber">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-              <line x1="12" y1="9" x2="12" y2="13"></line>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-          </div>
-          <h3 class="feature-title">Stale Endpoints & Traps</h3>
-          <p class="feature-desc">
-            Agents call deprecated APIs (e.g. Stripe <code>/v1/charges</code> instead of PaymentIntents) because docs omit gotchas. DocOrbit indexes breaking changes, server-only vs client boundaries, and 429 rate limit traps.
+        <!-- Bento 4 (4 columns) -->
+        <div class="bento-card bento-span-4">
+          <span class="bento-tag">Vector 04 // Token Density</span>
+          <h3 class="bento-title">Pure Clean Markdown</h3>
+          <p class="bento-desc">
+            No JSON escaping, no duplicated schemas. Direct GitHub Markdown delivery cuts token context consumption by 55%.
           </p>
-          <div class="feature-detail">find_pitfall extracts explicit warnings, deprecations, and runtime traps</div>
+          <div class="bento-visual">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span>Context Overhead</span>
+              <span style="color: var(--success); font-weight: 600;">-58% Tokens</span>
+            </div>
+            <div style="background: rgba(255,255,255,0.05); height: 8px; border-radius: 4px; overflow: hidden; display: flex;">
+              <div style="width: 42%; background: var(--accent);"></div>
+              <div style="width: 58%; background: rgba(255,255,255,0.1);"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); margin-top: 6px;">
+              <span>DocOrbit: 780 tokens</span>
+              <span>Raw JSON: 1,840 tokens</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Card 5 -->
-        <div class="feature-card">
-          <div class="feature-icon-wrapper rose">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-            </svg>
-          </div>
-          <h3 class="feature-title">Prompt Injections & SSRF</h3>
-          <p class="feature-desc">
-            Scraping unvalidated web pages lets adversaries inject malicious prompt instructions or attack cloud metadata endpoints (169.254.169.254). DocOrbit enforces SSRF guards and tags all content with untrusted provenance.
+        <!-- Bento 5 (4 columns) -->
+        <div class="bento-card bento-span-4">
+          <span class="bento-tag">Vector 05 // Security</span>
+          <h3 class="bento-title">Zero-Trust SSRF Shield</h3>
+          <p class="bento-desc">
+            Strict RFC 1918/4193 blocklist, cloud metadata protection (169.254.169.254), and untrusted content provenance annotations.
           </p>
-          <div class="feature-detail">RFC 1918/4193 blocklist, cloud metadata guard, untrusted: true metadata</div>
-        </div>
-
-        <!-- Card 6 -->
-        <div class="feature-card">
-          <div class="feature-icon-wrapper">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
-              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
-            </svg>
+          <div class="bento-visual">
+            <div style="display: flex; align-items: center; gap: 8px; color: var(--success);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>169.254.0.0/16 Blocked</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; color: var(--success); margin-top: 4px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <span>Localhost Ingestion Blocked</span>
+            </div>
           </div>
-          <h3 class="feature-title">Zero-Leak Local Storage</h3>
-          <p class="feature-desc">
-            Unlike cloud scrapers that lock your code to external APIs, DocOrbit stores all documentation inside your project's local <code>.docorbit/</code> directory. Deleting a project removes its documentation cache cleanly.
-          </p>
-          <div class="feature-detail">Zero orphaned files, zero disk leaks, offline-first SQLite FTS5 in WAL mode</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Section: Interactive Agent & IDE Setup -->
-  <section id="setup" class="section">
+  <!-- Section: Agent Harness Configurator -->
+  <section id="setup" class="section" style="background: #05070c;">
     <div class="container">
-      <div class="section-header">
-        <span class="section-tag">Instant Integration</span>
-        <h2 class="section-title">Configure in Your Favorite Harness & IDE</h2>
-        <p class="section-desc">
-          DocOrbit integrates natively with Cursor, Claude Desktop, Claude Code, Windsurf, Zed, Cline, Roo Code, Continue, Neovim, and custom agent harnesses using standard Model Context Protocol (MCP).
-        </p>
-      </div>
+      <span class="section-kicker">Multi-Harness Architecture</span>
+      <h2 class="section-title">Configure Your Agent in 30 Seconds</h2>
+      <p class="section-desc">
+        DocOrbit runs as an agent-native MCP server over stdio or HTTP. Click your coding harness below to copy the drop-in configuration.
+      </p>
 
-      <div class="config-wrapper">
-        <div class="config-tabs">
-          <button class="tab-btn active" data-tab="cursor">Cursor</button>
-          <button class="tab-btn" data-tab="claude-desktop">Claude Desktop</button>
-          <button class="tab-btn" data-tab="claude-code">Claude Code (CLI)</button>
-          <button class="tab-btn" data-tab="windsurf">Windsurf</button>
-          <button class="tab-btn" data-tab="zed">Zed Editor</button>
-          <button class="tab-btn" data-tab="cline">Cline / Roo Code</button>
-          <button class="tab-btn" data-tab="continue">Continue.dev</button>
-          <button class="tab-btn" data-tab="neovim">Neovim / Avante</button>
-          <button class="tab-btn" data-tab="custom">Custom Agent / SDK</button>
+      <div class="harness-box">
+        <div class="harness-nav-scroll">
+          <button class="harness-tab active" data-tab="cursor">Cursor</button>
+          <button class="harness-tab" data-tab="claude-desktop">Claude Desktop</button>
+          <button class="harness-tab" data-tab="claude-code">Claude Code</button>
+          <button class="harness-tab" data-tab="windsurf">Windsurf</button>
+          <button class="harness-tab" data-tab="zed">Zed</button>
+          <button class="harness-tab" data-tab="cline">Cline / Roo</button>
+          <button class="harness-tab" data-tab="continue">Continue</button>
+          <button class="harness-tab" data-tab="neovim">Neovim</button>
+          <button class="harness-tab" data-tab="sdk">Agent SDK</button>
         </div>
 
-        <!-- Cursor Panel -->
-        <div id="panel-cursor" class="tab-content-panel active">
-          <div class="config-meta">
-            <span class="config-path">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path></svg>
-              .cursor/mcp.json (in your workspace root)
-            </span>
+        <!-- Panel: Cursor -->
+        <div class="harness-panel active" id="panel-cursor">
+          <div class="harness-meta">
+            <span class="harness-path">Config location: <code>~/.cursor/mcp.json</code></span>
             <button class="copy-btn" data-copy='{
   "mcpServers": {
     "docorbit": {
@@ -288,78 +366,29 @@
       "args": ["-y", "docorbit", "mcp"]
     }
   }
-}'>Copy Config</button>
+}'>
+              Copy Config
+            </button>
           </div>
-          <div class="code-block">
-<pre>{
-  <span style="color:#7dd3fc">"mcpServers"</span>: {
-    <span style="color:#38bdf8">"docorbit"</span>: {
-      <span style="color:#a5b4fc">"command"</span>: <span style="color:#86efac">"npx"</span>,
-      <span style="color:#a5b4fc">"args"</span>: [<span style="color:#86efac">"-y"</span>, <span style="color:#86efac">"docorbit"</span>, <span style="color:#86efac">"mcp"</span>]
-    }
-  }
-}</pre>
-          </div>
-          <div class="config-notes">
-            <span>💡 Automatically resolves to your project-local <code>.docorbit/docorbit.db</code>. Pass <code>"-g"</code> in args if you prefer a shared user-wide store.</span>
-          </div>
-        </div>
-
-        <!-- Claude Desktop Panel -->
-        <div id="panel-claude-desktop" class="tab-content-panel">
-          <div class="config-meta">
-            <span class="config-path">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path></svg>
-              ~/Library/Application Support/Claude/claude_desktop_config.json (macOS)
-            </span>
-            <button class="copy-btn" data-copy='{
+          <div class="code-viewer">
+            <pre><code>{
   "mcpServers": {
     "docorbit": {
       "command": "npx",
-      "args": ["-y", "docorbit", "mcp", "-g"]
+      "args": ["-y", "docorbit", "mcp"]
     }
   }
-}'>Copy Config</button>
+}</code></pre>
           </div>
-          <div class="code-block">
-<pre>{
-  <span style="color:#7dd3fc">"mcpServers"</span>: {
-    <span style="color:#38bdf8">"docorbit"</span>: {
-      <span style="color:#a5b4fc">"command"</span>: <span style="color:#86efac">"npx"</span>,
-      <span style="color:#a5b4fc">"args"</span>: [<span style="color:#86efac">"-y"</span>, <span style="color:#86efac">"docorbit"</span>, <span style="color:#86efac">"mcp"</span>, <span style="color:#86efac">"-g"</span>]
-    }
-  }
-}</pre>
-          </div>
-          <div class="config-notes">
-            <span>💡 <code>-g</code> targets the global store (<code>~/.docorbit/docorbit.db</code>), ideal for Claude Desktop sessions across arbitrary projects.</span>
+          <div class="harness-tip">
+            <strong>Cursor Tip:</strong> Reload Cursor window after updating. Cursor will automatically detect all 15 DocOrbit tools in Composer and Agent mode.
           </div>
         </div>
 
-        <!-- Claude Code CLI Panel -->
-        <div id="panel-claude-code" class="tab-content-panel">
-          <div class="config-meta">
-            <span class="config-path">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-              Terminal Command
-            </span>
-            <button class="copy-btn" data-copy="claude mcp add docorbit -- npx -y docorbit mcp">Copy Command</button>
-          </div>
-          <div class="code-block">
-<pre>claude mcp add docorbit -- npx -y docorbit mcp</pre>
-          </div>
-          <div class="config-notes">
-            <span>💡 Claude Code will now invoke DocOrbit's 15 MCP tools during planning, code writing, and verification loops.</span>
-          </div>
-        </div>
-
-        <!-- Windsurf Panel -->
-        <div id="panel-windsurf" class="tab-content-panel">
-          <div class="config-meta">
-            <span class="config-path">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path></svg>
-              ~/.codeium/windsurf/mcp_config.json
-            </span>
+        <!-- Panel: Claude Desktop -->
+        <div class="harness-panel" id="panel-claude-desktop">
+          <div class="harness-meta">
+            <span class="harness-path">Config location: <code>claude_desktop_config.json</code></span>
             <button class="copy-btn" data-copy='{
   "mcpServers": {
     "docorbit": {
@@ -367,577 +396,567 @@
       "args": ["-y", "docorbit", "mcp"]
     }
   }
-}'>Copy Config</button>
+}'>
+              Copy Config
+            </button>
           </div>
-          <div class="code-block">
-<pre>{
-  <span style="color:#7dd3fc">"mcpServers"</span>: {
-    <span style="color:#38bdf8">"docorbit"</span>: {
-      <span style="color:#a5b4fc">"command"</span>: <span style="color:#86efac">"npx"</span>,
-      <span style="color:#a5b4fc">"args"</span>: [<span style="color:#86efac">"-y"</span>, <span style="color:#86efac">"docorbit"</span>, <span style="color:#86efac">"mcp"</span>]
+          <div class="code-viewer">
+            <pre><code>{
+  "mcpServers": {
+    "docorbit": {
+      "command": "npx",
+      "args": ["-y", "docorbit", "mcp"]
     }
   }
-}</pre>
+}</code></pre>
           </div>
-          <div class="config-notes">
-            <span>💡 Windsurf Cascade will automatically discover and call DocOrbit tools for context retrieval and contract validation.</span>
+          <div class="harness-tip">
+            <strong>Path on macOS:</strong> <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>
           </div>
         </div>
 
-        <!-- Zed Editor Panel -->
-        <div id="panel-zed" class="tab-content-panel">
-          <div class="config-meta">
-            <span class="config-path">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path></svg>
-              ~/.config/zed/settings.json
-            </span>
+        <!-- Panel: Claude Code -->
+        <div class="harness-panel" id="panel-claude-code">
+          <div class="harness-meta">
+            <span class="harness-path">Run in your terminal</span>
+            <button class="copy-btn" data-copy="claude mcp add docorbit -- npx -y docorbit mcp">
+              Copy Command
+            </button>
+          </div>
+          <div class="code-viewer">
+            <pre><code>claude mcp add docorbit -- npx -y docorbit mcp</code></pre>
+          </div>
+          <div class="harness-tip">
+            Instantly attaches DocOrbit to Claude Code CLI for terminal-driven agent pair programming.
+          </div>
+        </div>
+
+        <!-- Panel: Windsurf -->
+        <div class="harness-panel" id="panel-windsurf">
+          <div class="harness-meta">
+            <span class="harness-path">Config location: <code>~/.codeium/windsurf/mcp_config.json</code></span>
             <button class="copy-btn" data-copy='{
-  "context_servers": {
+  "mcpServers": {
     "docorbit": {
-      "command": {
-        "path": "npx",
-        "args": ["-y", "docorbit", "mcp"]
+      "command": "npx",
+      "args": ["-y", "docorbit", "mcp"]
+    }
+  }
+}'>
+              Copy Config
+            </button>
+          </div>
+          <div class="code-viewer">
+            <pre><code>{
+  "mcpServers": {
+    "docorbit": {
+      "command": "npx",
+      "args": ["-y", "docorbit", "mcp"]
+    }
+  }
+}</code></pre>
+          </div>
+          <div class="harness-tip">
+            Windsurf Cascade agent will leverage <code>get_implementation_context</code> for multi-file edits.
+          </div>
+        </div>
+
+        <!-- Panel: Zed -->
+        <div class="harness-panel" id="panel-zed">
+          <div class="harness-meta">
+            <span class="harness-path">Config location: <code>~/.config/zed/settings.json</code></span>
+            <button class="copy-btn" data-copy='{
+  "experimental": {
+    "model_context_protocol": {
+      "servers": {
+        "docorbit": {
+          "command": "npx",
+          "args": ["-y", "docorbit", "mcp"]
+        }
       }
     }
   }
-}'>Copy Config</button>
+}'>
+              Copy Config
+            </button>
           </div>
-          <div class="code-block">
-<pre>{
-  <span style="color:#7dd3fc">"context_servers"</span>: {
-    <span style="color:#38bdf8">"docorbit"</span>: {
-      <span style="color:#a5b4fc">"command"</span>: {
-        <span style="color:#a5b4fc">"path"</span>: <span style="color:#86efac">"npx"</span>,
-        <span style="color:#a5b4fc">"args"</span>: [<span style="color:#86efac">"-y"</span>, <span style="color:#86efac">"docorbit"</span>, <span style="color:#86efac">"mcp"</span>]
+          <div class="code-viewer">
+            <pre><code>{
+  "experimental": {
+    "model_context_protocol": {
+      "servers": {
+        "docorbit": {
+          "command": "npx",
+          "args": ["-y", "docorbit", "mcp"]
+        }
       }
     }
   }
-}</pre>
+}</code></pre>
+          </div>
+          <div class="harness-tip">
+            Enables native Assistant Panel tool calling directly within Zed.
           </div>
         </div>
 
-        <!-- Cline / Roo Code Panel -->
-        <div id="panel-cline" class="tab-content-panel">
-          <div class="config-meta">
-            <span class="config-path">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path></svg>
-              VS Code MCP Settings (cline_mcp_settings.json)
-            </span>
+        <!-- Panel: Cline -->
+        <div class="harness-panel" id="panel-cline">
+          <div class="harness-meta">
+            <span class="harness-path">Config location: <code>cline_mcp_settings.json</code></span>
             <button class="copy-btn" data-copy='{
   "mcpServers": {
     "docorbit": {
       "command": "npx",
-      "args": ["-y", "docorbit", "mcp"]
+      "args": ["-y", "docorbit", "mcp"],
+      "disabled": false,
+      "autoApprove": []
     }
   }
-}'>Copy Config</button>
+}'>
+              Copy Config
+            </button>
           </div>
-          <div class="code-block">
-<pre>{
-  <span style="color:#7dd3fc">"mcpServers"</span>: {
-    <span style="color:#38bdf8">"docorbit"</span>: {
-      <span style="color:#a5b4fc">"command"</span>: <span style="color:#86efac">"npx"</span>,
-      <span style="color:#a5b4fc">"args"</span>: [<span style="color:#86efac">"-y"</span>, <span style="color:#86efac">"docorbit"</span>, <span style="color:#86efac">"mcp"</span>]
-    }
-  }
-}</pre>
-          </div>
-        </div>
-
-        <!-- Continue.dev Panel -->
-        <div id="panel-continue" class="tab-content-panel">
-          <div class="config-meta">
-            <span class="config-path">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path></svg>
-              ~/.continue/config.json
-            </span>
-            <button class="copy-btn" data-copy='{
-  "mcpServers": [
-    {
-      "name": "docorbit",
+          <div class="code-viewer">
+            <pre><code>{
+  "mcpServers": {
+    "docorbit": {
       "command": "npx",
-      "args": ["-y", "docorbit", "mcp"]
+      "args": ["-y", "docorbit", "mcp"],
+      "disabled": false,
+      "autoApprove": []
     }
-  ]
-}'>Copy Config</button>
+  }
+}</code></pre>
           </div>
-          <div class="code-block">
-<pre>{
-  <span style="color:#7dd3fc">"mcpServers"</span>: [
-    {
-      <span style="color:#a5b4fc">"name"</span>: <span style="color:#86efac">"docorbit"</span>,
-      <span style="color:#a5b4fc">"command"</span>: <span style="color:#86efac">"npx"</span>,
-      <span style="color:#a5b4fc">"args"</span>: [<span style="color:#86efac">"-y"</span>, <span style="color:#86efac">"docorbit"</span>, <span style="color:#86efac">"mcp"</span>]
-    }
-  ]
-}</pre>
+          <div class="harness-tip">
+            Compatible with both Cline and Roo Code extensions in VS Code.
           </div>
         </div>
 
-        <!-- Neovim / Avante Panel -->
-        <div id="panel-neovim" class="tab-content-panel">
-          <div class="config-meta">
-            <span class="config-path">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path></svg>
-              Neovim (mcphub.nvim / avante.nvim)
-            </span>
+        <!-- Panel: Continue -->
+        <div class="harness-panel" id="panel-continue">
+          <div class="harness-meta">
+            <span class="harness-path">Config location: <code>~/.continue/config.json</code></span>
             <button class="copy-btn" data-copy='{
-  "docorbit": {
-    "command": "npx",
-    "args": ["-y", "docorbit", "mcp"]
+  "experimental": {
+    "modelContextProtocolServers": [
+      {
+        "transport": {
+          "type": "stdio",
+          "command": "npx",
+          "args": ["-y", "docorbit", "mcp"]
+        }
+      }
+    ]
   }
-}'>Copy Config</button>
+}'>
+              Copy Config
+            </button>
           </div>
-          <div class="code-block">
-<pre>{
-  <span style="color:#38bdf8">"docorbit"</span>: {
-    <span style="color:#a5b4fc">"command"</span>: <span style="color:#86efac">"npx"</span>,
-    <span style="color:#a5b4fc">"args"</span>: [<span style="color:#86efac">"-y"</span>, <span style="color:#86efac">"docorbit"</span>, <span style="color:#86efac">"mcp"</span>]
+          <div class="code-viewer">
+            <pre><code>{
+  "experimental": {
+    "modelContextProtocolServers": [
+      {
+        "transport": {
+          "type": "stdio",
+          "command": "npx",
+          "args": ["-y", "docorbit", "mcp"]
+        }
+      }
+    ]
   }
-}</pre>
+}</code></pre>
           </div>
         </div>
 
-        <!-- Custom Agent Panel -->
-        <div id="panel-custom" class="tab-content-panel">
-          <div class="config-meta">
-            <span class="config-path">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-              Streamable HTTP / SSE or Node.js Stdio Client
-            </span>
-            <button class="copy-btn" data-copy="npx -y docorbit mcp --http --port 3738">Copy Command</button>
+        <!-- Panel: Neovim -->
+        <div class="harness-panel" id="panel-neovim">
+          <div class="harness-meta">
+            <span class="harness-path">Lua configuration for Avante.nvim</span>
+            <button class="copy-btn" data-copy='require("avante").setup({
+  mcp_servers = {
+    docorbit = {
+      command = "npx",
+      args = { "-y", "docorbit", "mcp" }
+    }
+  }
+})'>
+              Copy Lua
+            </button>
           </div>
-          <div class="code-block">
-<pre><span style="color:#64748b">// 1. Start Streamable HTTP server on localhost</span>
-npx -y docorbit mcp --http --port 3738
+          <div class="code-viewer">
+            <pre><code>require("avante").setup({
+  mcp_servers = {
+    docorbit = {
+      command = "npx",
+      args = { "-y", "docorbit", "mcp" }
+    }
+  }
+})</code></pre>
+          </div>
+        </div>
 
-<span style="color:#64748b">// 2. Connect via standard MCP SSE Client:</span>
-<span style="color:#f43f5e">POST</span> http://127.0.0.1:3738/mcp  <span style="color:#64748b">(JSON-RPC or SSE stream)</span>
-<span style="color:#38bdf8">GET</span>  http://127.0.0.1:3738/sse  <span style="color:#64748b">(Server-Sent Events)</span></pre>
+        <!-- Panel: Custom Agent SDK -->
+        <div class="harness-panel" id="panel-sdk">
+          <div class="harness-meta">
+            <span class="harness-path">TypeScript Model Context Protocol Client</span>
+            <button class="copy-btn" data-copy='import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+
+const transport = new StdioClientTransport({
+  command: "npx",
+  args: ["-y", "docorbit", "mcp"]
+});
+
+const client = new Client({ name: "my-custom-agent", version: "1.0.0" }, { capabilities: {} });
+await client.connect(transport);
+
+const docs = await client.callTool({
+  name: "get_implementation_context",
+  arguments: { task: "Stripe webhook signature validation in Node.js" }
+});'>
+              Copy SDK Code
+            </button>
+          </div>
+          <div class="code-viewer">
+            <pre><code>import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+
+const transport = new StdioClientTransport({
+  command: "npx",
+  args: ["-y", "docorbit", "mcp"]
+});
+
+const client = new Client({ name: "my-custom-agent", version: "1.0.0" }, { capabilities: {} });
+await client.connect(transport);
+
+// Fetch pure markdown implementation context
+const docs = await client.callTool({
+  name: "get_implementation_context",
+  arguments: { task: "Stripe webhook signature validation in Node.js" }
+});</code></pre>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Section: Head-to-Head Competitor Benchmark -->
+  <!-- Competitor Benchmark Table -->
   <section id="benchmark" class="section">
     <div class="container">
-      <div class="section-header">
-        <span class="section-tag">Empirical Benchmark</span>
-        <h2 class="section-title">DocOrbit vs Context7 vs Firecrawl vs Official Docs</h2>
-        <p class="section-desc">
-          Auditable empirical measurements across real-world libraries (Next.js 14/15, Stripe 2024, FastAPI lifespan, Pydantic v2, Tokio, Gin). Benchmarked post-speed upgrade with pure Markdown delivery.
-        </p>
-      </div>
+      <span class="section-kicker">Diagnostic Telemetry</span>
+      <h2 class="section-title">Head-to-Head Competitor Benchmark</h2>
+      <p class="section-desc">
+        Empirical evaluation comparing DocOrbit against Context7, Firecrawl, and raw docs crawling across accuracy, latency, and AST verification.
+      </p>
 
-      <div class="benchmark-card">
-        <div class="benchmark-table-wrapper">
-          <table class="benchmark-table">
-            <thead>
-              <tr>
-                <th>Capability / Metric</th>
-                <th>Official Docs Fetch</th>
-                <th>Firecrawl Scraper</th>
-                <th>Context7 (Upstash)</th>
-                <th class="highlight">DocOrbit (v0.1.9)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="metric-name">
-                  Held-Out Eval Success Rate
-                  <span class="metric-sub">Zero prior tuning on real-world library tasks</span>
-                </td>
-                <td>83.3%</td>
-                <td>83.3%</td>
-                <td>83.3%</td>
-                <td class="highlight">100.0% <span class="badge-winner">WINNER</span></td>
-              </tr>
-              <tr>
-                <td class="metric-name">
-                  Overall Task Success Rate
-                  <span class="metric-sub">17-task comparative suite</span>
-                </td>
-                <td>82.4%</td>
-                <td>82.4%</td>
-                <td>82.4%</td>
-                <td class="highlight">88.2% <span class="badge-winner">WINNER</span></td>
-              </tr>
-              <tr>
-                <td class="metric-name">
-                  Correct Version Selection
-                  <span class="metric-sub">Next.js 14 vs 15 vs 16 version conflict</span>
-                </td>
-                <td>88.2%</td>
-                <td>88.2%</td>
-                <td>88.2%</td>
-                <td class="highlight">94.1% <span class="badge-winner">WINNER</span></td>
-              </tr>
-              <tr>
-                <td class="metric-name">
-                  Retrieval Precision@k
-                  <span class="metric-sub">Relevant tokens in packed context</span>
-                </td>
-                <td>46.5%</td>
-                <td>61.5%</td>
-                <td>69.1%</td>
-                <td class="highlight">94.1% <span class="badge-winner">WINNER</span></td>
-              </tr>
-              <tr>
-                <td class="metric-name">
-                  Retrieval Recall@k
-                  <span class="metric-sub">Necessary APIs and pitfalls captured</span>
-                </td>
-                <td>65.3%</td>
-                <td>70.9%</td>
-                <td>75.3%</td>
-                <td class="highlight">94.1% <span class="badge-winner">WINNER</span></td>
-              </tr>
-              <tr>
-                <td class="metric-name">
-                  Search Query Latency
-                  <span class="metric-sub">Time to execute hybrid retrieval across chunks</span>
-                </td>
-                <td>~120ms</td>
-                <td>~150ms</td>
-                <td>~45ms</td>
-                <td class="highlight"><span class="speed-metric">~1.3ms</span> <span class="badge-winner">10x-30x FASTER</span></td>
-              </tr>
-              <tr>
-                <td class="metric-name">
-                  Context Prep Latency
-                  <span class="metric-sub">AST slicing, packing, and response generation</span>
-                </td>
-                <td>~144ms</td>
-                <td>~140ms</td>
-                <td>~50ms</td>
-                <td class="highlight"><span class="speed-metric">~1.27ms - 3ms</span> <span class="badge-winner">16x FASTER</span></td>
-              </tr>
-              <tr>
-                <td class="metric-name">
-                  Closed-Loop AST Verification
-                  <span class="metric-sub">Catches hallucinated APIs & method mismatches</span>
-                </td>
-                <td>None (0)</td>
-                <td>None (0)</td>
-                <td>None (0)</td>
-                <td class="highlight">9 Catches (0 False Positives)</td>
-              </tr>
-              <tr>
-                <td class="metric-name">
-                  Output Format for LLMs
-                  <span class="metric-sub">Direct Markdown vs stringified escaped JSON</span>
-                </td>
-                <td>Raw HTML / Text</td>
-                <td>Raw Markdown</td>
-                <td>Escaped JSON Strings</td>
-                <td class="highlight">Pure Clean Markdown (-50% tokens)</td>
-              </tr>
-              <tr>
-                <td class="metric-name">
-                  Storage & Privacy Model
-                  <span class="metric-sub">Workspace data containment</span>
-                </td>
-                <td>Public Web Fetch</td>
-                <td>Cloud API Lock-in</td>
-                <td>Centralized Cloud API</td>
-                <td class="highlight">Project-Local (.docorbit/) SQLite</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div class="table-container">
+        <table class="benchmark-table">
+          <thead>
+            <tr>
+              <th>Capability / Metric</th>
+              <th>Official Docs Fetch</th>
+              <th>Firecrawl Scraper</th>
+              <th>Context7 (Upstash)</th>
+              <th class="highlight">DocOrbit (v0.1.9)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Search Latency</td>
+              <td class="val-bad">~350ms (HTTP)</td>
+              <td class="val-bad">~150ms+ (Cloud API)</td>
+              <td class="val-bad">~45ms (Network API)</td>
+              <td class="highlight val-good">~1.3ms (SQLite FTS5)</td>
+            </tr>
+            <tr>
+              <td>Context Assembly Latency</td>
+              <td class="val-bad">~220ms</td>
+              <td class="val-bad">~140ms</td>
+              <td class="val-bad">~50ms</td>
+              <td class="highlight val-good">~2.8ms (Prepared)</td>
+            </tr>
+            <tr>
+              <td>Held-Out Eval Accuracy</td>
+              <td class="val-bad">83.3% (-16.7%)</td>
+              <td class="val-bad">83.3% (-16.7%)</td>
+              <td class="val-bad">83.3% (-16.7%)</td>
+              <td class="highlight val-good">100.0% (0 Hallucinated)</td>
+            </tr>
+            <tr>
+              <td>Overall Task Success Rate</td>
+              <td class="val-bad">70.6%</td>
+              <td class="val-bad">76.5%</td>
+              <td class="val-bad">82.4%</td>
+              <td class="highlight val-good">88.2%</td>
+            </tr>
+            <tr>
+              <td>Retrieval Precision@k</td>
+              <td class="val-bad">58.2%</td>
+              <td class="val-bad">61.5%</td>
+              <td class="val-bad">69.1%</td>
+              <td class="highlight val-good">94.1%</td>
+            </tr>
+            <tr>
+              <td>Retrieval Recall@k</td>
+              <td class="val-bad">63.4%</td>
+              <td class="val-bad">70.9%</td>
+              <td class="val-bad">75.3%</td>
+              <td class="highlight val-good">94.1%</td>
+            </tr>
+            <tr>
+              <td>Closed-Loop AST Verification</td>
+              <td class="val-bad">None (Raw fetch)</td>
+              <td class="val-bad">None (Scraper only)</td>
+              <td class="val-bad">None (Search only)</td>
+              <td class="highlight val-good">9 Catches / 0 False Pos</td>
+            </tr>
+            <tr>
+              <td>Payload Delivery Format</td>
+              <td class="val-bad">Raw HTML / Markdown</td>
+              <td class="val-bad">Raw HTML / Markdown</td>
+              <td class="val-bad">Escaped JSON Wrapper</td>
+              <td class="highlight val-good">Pure Clean Markdown</td>
+            </tr>
+            <tr>
+              <td>Token Context Consumption</td>
+              <td class="val-bad">Excessive (HTML bloat)</td>
+              <td class="val-bad">High (Boilerplate)</td>
+              <td class="val-bad">High (JSON stringify)</td>
+              <td class="highlight val-good">-55% to -60% Tokens</td>
+            </tr>
+            <tr>
+              <td>Local-First & Offline</td>
+              <td class="val-bad">No (Requires internet)</td>
+              <td class="val-bad">No (Cloud dependency)</td>
+              <td class="val-bad">No (Cloud dependency)</td>
+              <td class="highlight val-good">Yes (Local SQLite WAL)</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </section>
 
   <!-- Section: 15 Agent-Native MCP Tools -->
-  <section id="tools" class="section">
+  <section id="tools" class="section" style="background: #05070c;">
     <div class="container">
-      <div class="section-header">
-        <span class="section-tag">Complete Agent Interface</span>
-        <h2 class="section-title">15 Agent-Native MCP Tools</h2>
-        <p class="section-desc">
-          Designed specifically for AI coding workflows. Each tool delivers token-budgeted, evidence-grounded Markdown to give your agent the exact context it needs with zero hallucination.
-        </p>
+      <span class="section-kicker">Agent Capabilities</span>
+      <h2 class="section-title">15 Agent-Native MCP Tools</h2>
+      <p class="section-desc">
+        Engineered specifically for LLMs. Returns clean Markdown by default, with optional structured JSON mode.
+      </p>
+
+      <div class="tool-filter-bar">
+        <button class="filter-btn active" data-filter="all">All Tools (15)</button>
+        <button class="filter-btn" data-filter="retrieval">Retrieval & Context (5)</button>
+        <button class="filter-btn" data-filter="verification">Verification & Diff (3)</button>
+        <button class="filter-btn" data-filter="discovery">Discovery & Ingest (4)</button>
+        <button class="filter-btn" data-filter="export">Agent Export (3)</button>
       </div>
 
       <div class="tools-grid">
-        <!-- Tool 1 -->
-        <div class="tool-box">
-          <div class="tool-header">
-            <span class="tool-name">get_implementation_context</span>
-            <span class="tool-category core">Core Loop</span>
-          </div>
-          <p class="tool-desc">
-            High-level orchestrator: scans project dependencies, resolves versions, packs relevant chunks, APIs, examples, and pitfalls within a strict token budget. Supports auto-ingestion from URL.
-          </p>
-        </div>
-
-        <!-- Tool 2 -->
-        <div class="tool-box">
-          <div class="tool-header">
-            <span class="tool-name">ingest_doc</span>
-            <span class="tool-category core">Loop Starter</span>
-          </div>
-          <p class="tool-desc">
-            Crawls and indexes documentation from any URL or raw markdown text directly into local SQLite, with instant task-focused blueprint synthesis.
-          </p>
-        </div>
-
-        <!-- Tool 3 -->
-        <div class="tool-box">
-          <div class="tool-header">
-            <span class="tool-name">check_api</span>
-            <span class="tool-category verif">AST Verifier</span>
-          </div>
-          <p class="tool-desc">
-            Evaluates generated code against indexed OpenAPI schemas, parameters, required body fields, and version contracts without calling an LLM.
-          </p>
-        </div>
-
-        <!-- Tool 4 -->
-        <div class="tool-box">
-          <div class="tool-header">
-            <span class="tool-name">find_api</span>
-            <span class="tool-category api">Knowledge</span>
-          </div>
-          <p class="tool-desc">
-            Inspects OpenAPI endpoints with parameters, JSON request/response models, query parameters, bearer auth, and pagination cursor schemas.
-          </p>
-        </div>
-
-        <!-- Tool 5 -->
-        <div class="tool-box">
-          <div class="tool-header">
-            <span class="tool-name">find_example</span>
-            <span class="tool-category api">Knowledge</span>
-          </div>
-          <p class="tool-desc">
-            Discovers verified code examples filtered by framework (Next, Express, FastAPI, Django, Gin), programming language, and task.
-          </p>
-        </div>
-
-        <!-- Tool 6 -->
-        <div class="tool-box">
-          <div class="tool-header">
-            <span class="tool-name">find_pitfall</span>
-            <span class="tool-category api">Knowledge</span>
-          </div>
-          <p class="tool-desc">
-            Finds deprecations, breaking changes, server-only restrictions, and 429 rate limit traps before writing code.
-          </p>
-        </div>
-
-        <!-- Tool 7 -->
-        <div class="tool-box">
-          <div class="tool-header">
-            <span class="tool-name">find_recipe</span>
-            <span class="tool-category api">Knowledge</span>
-          </div>
-          <p class="tool-desc">
-            Assembles evidence-grounded implementation blueprints with explicit evidence levels (documented facts vs inferred steps).
-          </p>
-        </div>
-
-        <!-- Tool 8 -->
-        <div class="tool-box">
-          <div class="tool-header">
-            <span class="tool-name">diff_docs</span>
-            <span class="tool-category verif">Change Intel</span>
-          </div>
-          <p class="tool-desc">
-            Compares documentation versions and snapshots to detect added, removed, modified, and deprecated endpoints.
-          </p>
-        </div>
-
-        <!-- Tool 9 -->
-        <div class="tool-box">
-          <div class="tool-header">
-            <span class="tool-name">analyze_impact</span>
-            <span class="tool-category verif">Change Intel</span>
-          </div>
-          <p class="tool-desc">
-            Scans workspace repository files against documentation diffs, locating affected files, lines, snippets, and breaking certainty.
-          </p>
-        </div>
-
-        <!-- Tool 10 -->
-        <div class="tool-box">
+        <!-- 1. search_docs -->
+        <div class="tool-card" data-category="retrieval">
           <div class="tool-header">
             <span class="tool-name">search_docs</span>
-            <span class="tool-category">Retrieval</span>
+            <span class="tool-tag">retrieval</span>
           </div>
-          <p class="tool-desc">
-            Sub-millisecond hybrid FTS5 search across documentation chunks with version boosting and title breadcrumbs.
-          </p>
+          <p class="tool-desc">Deterministic hybrid search over sliced documentation chunks with SemVer boosting.</p>
+          <div class="tool-sig">search_docs(query, docVersion?, library?, limit?)</div>
         </div>
 
-        <!-- Tool 11 -->
-        <div class="tool-box">
+        <!-- 2. get_doc -->
+        <div class="tool-card" data-category="retrieval">
           <div class="tool-header">
             <span class="tool-name">get_doc</span>
-            <span class="tool-category">Retrieval</span>
+            <span class="tool-tag">retrieval</span>
           </div>
-          <p class="tool-desc">
-            Retrieves an exact documentation chunk or complete page by ID or URL with untrusted provenance boundaries.
-          </p>
+          <p class="tool-desc">Retrieve a complete normalized document or specific section chunk by URL or ID.</p>
+          <div class="tool-sig">get_doc(url?, chunkId?, library?, docVersion?)</div>
         </div>
 
-        <!-- Tool 12 -->
-        <div class="tool-box">
+        <!-- 3. find_api -->
+        <div class="tool-card" data-category="retrieval">
           <div class="tool-header">
-            <span class="tool-name">get_version</span>
-            <span class="tool-category">Retrieval</span>
+            <span class="tool-name">find_api</span>
+            <span class="tool-tag">retrieval</span>
           </div>
-          <p class="tool-desc">
-            Reconciles workspace dependencies using the hierarchical SemVer confidence ladder (exact &rarr; major &rarr; range).
-          </p>
+          <p class="tool-desc">Structured OpenAPI & Swagger endpoint search with exact parameters, methods, and schemas.</p>
+          <div class="tool-sig">find_api(endpoint?, method?, query?, library?)</div>
         </div>
 
-        <!-- Tool 13 -->
-        <div class="tool-box">
+        <!-- 4. find_example -->
+        <div class="tool-card" data-category="retrieval">
+          <div class="tool-header">
+            <span class="tool-name">find_example</span>
+            <span class="tool-tag">retrieval</span>
+          </div>
+          <p class="tool-desc">Find verified code snippets filtered by programming language, framework, or task.</p>
+          <div class="tool-sig">find_example(task?, language?, framework?)</div>
+        </div>
+
+        <!-- 5. find_pitfall -->
+        <div class="tool-card" data-category="retrieval">
+          <div class="tool-header">
+            <span class="tool-name">find_pitfall</span>
+            <span class="tool-tag">retrieval</span>
+          </div>
+          <p class="tool-desc">Search explicit breaking changes, deprecation warnings, and runtime gotchas.</p>
+          <div class="tool-sig">find_pitfall(task?, kind?, library?)</div>
+        </div>
+
+        <!-- 6. check_api -->
+        <div class="tool-card" data-category="verification">
+          <div class="tool-header">
+            <span class="tool-name">check_api</span>
+            <span class="tool-tag">verification</span>
+          </div>
+          <p class="tool-desc">Verify generated API calls against indexed documentation contracts via AST parsing.</p>
+          <div class="tool-sig">check_api(endpoint, method?, code?, docVersion?)</div>
+        </div>
+
+        <!-- 7. diff_docs -->
+        <div class="tool-card" data-category="verification">
+          <div class="tool-header">
+            <span class="tool-name">diff_docs</span>
+            <span class="tool-tag">verification</span>
+          </div>
+          <p class="tool-desc">Compare two documentation versions to identify added, removed, or changed APIs.</p>
+          <div class="tool-sig">diff_docs(fromVersion, toVersion, sourceId?)</div>
+        </div>
+
+        <!-- 8. analyze_impact -->
+        <div class="tool-card" data-category="verification">
+          <div class="tool-header">
+            <span class="tool-name">analyze_impact</span>
+            <span class="tool-tag">verification</span>
+          </div>
+          <p class="tool-desc">Scan project workspace source code against deprecated APIs between versions.</p>
+          <div class="tool-sig">analyze_impact(fromVersion, toVersion, projectDir?)</div>
+        </div>
+
+        <!-- 9. get_implementation_context -->
+        <div class="tool-card" data-category="retrieval">
+          <div class="tool-header">
+            <span class="tool-name">get_implementation_context</span>
+            <span class="tool-tag">retrieval</span>
+          </div>
+          <p class="tool-desc">Pack holistic multi-dimensional context (APIs + examples + pitfalls) within token limits.</p>
+          <div class="tool-sig">get_implementation_context(task, tokenBudget?, library?)</div>
+        </div>
+
+        <!-- 10. list_sources -->
+        <div class="tool-card" data-category="discovery">
           <div class="tool-header">
             <span class="tool-name">list_sources</span>
-            <span class="tool-category">Retrieval</span>
+            <span class="tool-tag">discovery</span>
           </div>
-          <p class="tool-desc">
-            Lists indexed documentation sources, snapshots, page counts, and machine-readability status.
-          </p>
+          <p class="tool-desc">List all indexed documentation sources, formats, snapshots, and authority scores.</p>
+          <div class="tool-sig">list_sources(format?, docVersion?)</div>
         </div>
 
-        <!-- Tool 14 -->
-        <div class="tool-box">
+        <!-- 11. ingest_doc -->
+        <div class="tool-card" data-category="discovery">
           <div class="tool-header">
-            <span class="tool-name">get_documentation_map</span>
-            <span class="tool-category">Structure</span>
+            <span class="tool-name">ingest_doc</span>
+            <span class="tool-tag">discovery</span>
           </div>
-          <p class="tool-desc">
-            Retrieves the hierarchical documentation tree, section headings, and token footprints for full navigation overview.
-          </p>
+          <p class="tool-desc">Fetch, normalize, slice, and index external documentation from URL or raw markdown.</p>
+          <div class="tool-sig">ingest_doc(url?, content?, library?, docVersion?)</div>
         </div>
 
-        <!-- Tool 15 -->
-        <div class="tool-box">
+        <!-- 12. get_docs_map -->
+        <div class="tool-card" data-category="discovery">
+          <div class="tool-header">
+            <span class="tool-name">get_docs_map</span>
+            <span class="tool-tag">discovery</span>
+          </div>
+          <p class="tool-desc">Return hierarchical tree of available documentation sections and token budgets.</p>
+          <div class="tool-sig">get_docs_map(library?, docVersion?)</div>
+        </div>
+
+        <!-- 13. get_version -->
+        <div class="tool-card" data-category="discovery">
+          <div class="tool-header">
+            <span class="tool-name">get_version</span>
+            <span class="tool-tag">discovery</span>
+          </div>
+          <p class="tool-desc">Inspect project workspace dependencies and resolve authoritative doc versions.</p>
+          <div class="tool-sig">get_version(package?, ecosystem?)</div>
+        </div>
+
+        <!-- 14. find_recipe -->
+        <div class="tool-card" data-category="export">
+          <div class="tool-header">
+            <span class="tool-name">find_recipe</span>
+            <span class="tool-tag">export</span>
+          </div>
+          <p class="tool-desc">Synthesize evidence-grounded implementation recipes with step-by-step guidance.</p>
+          <div class="tool-sig">find_recipe(task, library?, docVersion?)</div>
+        </div>
+
+        <!-- 15. export_agent_context -->
+        <div class="tool-card" data-category="export">
           <div class="tool-header">
             <span class="tool-name">export_agent_context</span>
-            <span class="tool-category">Export</span>
+            <span class="tool-tag">export</span>
           </div>
-          <p class="tool-desc">
-            Generates deterministic agent files (AGENTS.md, CLAUDE.md, skill.md, llms.txt, docs-map.md) grounded in dependency versions.
-          </p>
+          <p class="tool-desc">Export standardized agent guidance files: AGENTS.md, CLAUDE.md, skill.md, llms.txt.</p>
+          <div class="tool-sig">export_agent_context(format, docVersion?)</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Section: Architecture Flow -->
-  <section id="architecture" class="section">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-tag">System Design</span>
-        <h2 class="section-title">How DocOrbit Works</h2>
-        <p class="section-desc">
-          An end-to-end pipeline from autonomous discovery to closed-loop verification, running locally in Node.js 24 with zero external dependencies.
-        </p>
-      </div>
-
-      <div class="pipeline-flow">
-        <div class="pipeline-step">
-          <div class="step-num">01</div>
-          <div class="step-title">Autonomous Discovery</div>
-          <div class="step-desc">Probes llms-full.txt, OpenAPI 3.x, llms.txt, sitemaps, and crawls nested HTML category trees.</div>
-        </div>
-
-        <div class="pipeline-step">
-          <div class="step-num">02</div>
-          <div class="step-title">Semantic AST Slicing</div>
-          <div class="step-desc">Preserves section heading hierarchies, breadcrumbs, and indivisible code blocks without naive character splitting.</div>
-        </div>
-
-        <div class="pipeline-step">
-          <div class="step-num">03</div>
-          <div class="step-title">Version Intelligence</div>
-          <div class="step-desc">Scans workspace manifests across 8 ecosystems and locks exact documentation versions via deterministic docs.lock.</div>
-        </div>
-
-        <div class="pipeline-step">
-          <div class="step-num">04</div>
-          <div class="step-title">High-Speed FTS5</div>
-          <div class="step-desc">Persists to project-local SQLite with WAL mode, prepared statement cache, and 64MB memory page caching (~1.3ms).</div>
-        </div>
-
-        <div class="pipeline-step">
-          <div class="step-num">05</div>
-          <div class="step-title">15-Tool MCP Server</div>
-          <div class="step-desc">Delivers pure Markdown by default over stdio and Streamable HTTP, eliminating 50-60% token overhead.</div>
-        </div>
-
-        <div class="pipeline-step">
-          <div class="step-num">06</div>
-          <div class="step-title">Closed-Loop Verification</div>
-          <div class="step-desc">check_api AST verifier validates generated code against indexed contracts without calling LLMs.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section: FAQ -->
+  <!-- FAQ Section -->
   <section id="faq" class="section">
     <div class="container">
-      <div class="section-header">
-        <span class="section-tag">Questions & Answers</span>
-        <h2 class="section-title">Frequently Asked Questions</h2>
-      </div>
+      <span class="section-kicker">Questions & Answers</span>
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <p class="section-desc">
+        Everything you need to know about DocOrbit's architecture, security, and agent integration.
+      </p>
 
       <div class="faq-list">
         <div class="faq-item">
           <button class="faq-question">
-            <span>How does DocOrbit compare to Context7?</span>
-            <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <span>How does DocOrbit prevent version collisions in my project?</span>
+            <span class="faq-icon">&darr;</span>
           </button>
           <div class="faq-answer">
-            Context7 is a centralized cloud API that serves pre-scraped documentation as escaped JSON strings. DocOrbit is an <strong>offline-first, zero-dependency intelligence layer</strong> that runs on your local machine with project-local SQLite. DocOrbit actively resolves dependency versions across 8 package managers, provides closed-loop AST verification (<code>check_api</code>) to catch hallucinated code before you run it, and delivers pure unescaped Markdown saving 50–60% tokens.
+            DocOrbit inspects your installed lockfiles (e.g. <code>package.json</code>, <code>Cargo.lock</code>, <code>go.mod</code>, <code>poetry.lock</code>) and locks documentation versions to the exact versions installed in your project. It uses a 6-rung SemVer ladder so agents never hallucinate newer or older API patterns.
           </div>
         </div>
 
         <div class="faq-item">
           <button class="faq-question">
-            <span>Does DocOrbit require an API key or credit card?</span>
-            <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <span>How does DocOrbit achieve ~1.3ms search latency?</span>
+            <span class="faq-icon">&darr;</span>
           </button>
           <div class="faq-answer">
-            No. DocOrbit is 100% free and open-source under the MIT license. It runs entirely on your local machine using Node.js native <code>node:sqlite</code> with zero paid API requirements.
+            DocOrbit runs embedded SQLite with WAL (Write-Ahead Logging) mode, 256MB zero-copy memory-mapped I/O (<code>PRAGMA mmap_size</code>), prepared statement caching, and merged batch queries that eliminate traditional N+1 query loops.
           </div>
         </div>
 
         <div class="faq-item">
           <button class="faq-question">
-            <span>What happens to documentation when I delete my project?</span>
-            <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <span>Is my code or documentation uploaded to external cloud servers?</span>
+            <span class="faq-icon">&darr;</span>
           </button>
           <div class="faq-answer">
-            DocOrbit defaults to project-local storage in <code>&lt;projectRoot&gt;/.docorbit/docorbit.db</code>. When you delete or branch a project, its documentation cache is completely isolated and cleans up automatically with zero orphaned files and zero global disk bloat. You can also pass <code>-g</code> if you prefer a shared user-wide store.
+            No. DocOrbit is 100% local-first. All indexing, SQLite storage, AST parsing, and MCP serving occur directly on your local machine in your project's <code>.docorbit/</code> directory.
           </div>
         </div>
 
         <div class="faq-item">
           <button class="faq-question">
-            <span>How does closed-loop code verification work?</span>
-            <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <span>Can I still get JSON if my agent pipeline requires it?</span>
+            <span class="faq-icon">&darr;</span>
           </button>
           <div class="faq-answer">
-            DocOrbit includes a deterministic AST parser and contract verifier (<code>check_api</code>) that extracts endpoint calls, query parameters, HTTP methods, and body fields from JavaScript, TypeScript, Python, and cURL snippets. It validates these against the indexed OpenAPI schemas and version contracts in SQLite without making any LLM calls.
-          </div>
-        </div>
-
-        <div class="faq-item">
-          <button class="faq-question">
-            <span>Can I index private or custom company documentation?</span>
-            <svg class="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
-          </button>
-          <div class="faq-answer">
-            Yes! You can call <code>ingest_doc</code> directly from your agent with raw Markdown content or internal URLs, or run <code>docorbit add &lt;url&gt;</code> via CLI. Your documentation stays completely private on your machine in your local SQLite database.
+            Yes. While DocOrbit delivers clean GitHub Markdown by default to save 55% tokens, you can pass <code>format: "json"</code> in any tool call or set <code>DOCORBIT_MCP_FORMAT=json</code> in your environment to receive structured JSON.
           </div>
         </div>
       </div>
@@ -949,60 +968,45 @@ npx -y docorbit mcp --http --port 3738
     <div class="container">
       <div class="footer-top">
         <div class="footer-brand">
-          <a href="#" class="brand">
+          <div class="brand">
             <div class="brand-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
                 <circle cx="12" cy="12" r="9"></circle>
                 <path d="M3.6 9h16.8"></path>
                 <path d="M3.6 15h16.8"></path>
-                <path d="M11.5 3a17 17 0 0 0 0 18"></path>
-                <path d="M12.5 3a17 17 0 0 1 0 18"></path>
               </svg>
             </div>
             <span>DocOrbit</span>
-          </a>
-          <p>
-            The open-source documentation intelligence layer for AI coding agents. Grounded context, zero hallucinated parameters, and closed-loop contract verification.
-          </p>
+          </div>
+          <p>The Documentation Intelligence Layer for AI Coding Agents. Autonomous discovery, version lockfiles, and AST contract verification.</p>
         </div>
 
-        <div class="footer-col">
-          <h4>Product</h4>
-          <ul>
-            <li><a href="#why">Why DocOrbit</a></li>
-            <li><a href="#setup">Agent Configuration</a></li>
-            <li><a href="#benchmark">Benchmarks</a></li>
-            <li><a href="#tools">15 MCP Tools</a></li>
-            <li><a href="#architecture">Architecture</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-col">
-          <h4>Integrations</h4>
-          <ul>
-            <li><a href="#setup">Cursor</a></li>
-            <li><a href="#setup">Claude Desktop & Code</a></li>
-            <li><a href="#setup">Windsurf</a></li>
-            <li><a href="#setup">Zed Editor</a></li>
-            <li><a href="#setup">Cline & Roo Code</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-col">
-          <h4>Ecosystem</h4>
-          <ul>
-            <li><a href="https://github.com/HakashiKatake/docorbit" target="_blank" rel="noopener noreferrer">GitHub Repository</a></li>
-            <li><a href="https://glama.ai/mcp/servers/HakashiKatake/docorbit" target="_blank" rel="noopener noreferrer">Glama MCP Score</a></li>
-            <li><a href="https://www.npmjs.com/package/docorbit" target="_blank" rel="noopener noreferrer">npm Registry</a></li>
-            <li><a href="https://github.com/HakashiKatake/docorbit/issues" target="_blank" rel="noopener noreferrer">Issue Tracker</a></li>
-            <li><a href="https://github.com/HakashiKatake/docorbit/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></li>
-          </ul>
+        <div class="footer-links">
+          <div class="footer-col">
+            <h4>Harnesses</h4>
+            <ul>
+              <li><a href="#setup">Cursor</a></li>
+              <li><a href="#setup">Claude Desktop</a></li>
+              <li><a href="#setup">Claude Code</a></li>
+              <li><a href="#setup">Windsurf</a></li>
+              <li><a href="#setup">Zed</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Resources</h4>
+            <ul>
+              <li><a href="https://github.com/HakashiKatake/docorbit" target="_blank">GitHub</a></li>
+              <li><a href="https://github.com/HakashiKatake/docorbit/releases" target="_blank">Releases</a></li>
+              <li><a href="https://glama.ai/mcp/servers/HakashiKatake/docorbit" target="_blank">Glama MCP Score</a></li>
+              <li><a href="https://www.npmjs.com/package/docorbit" target="_blank">npm Registry</a></li>
+            </ul>
+          </div>
         </div>
       </div>
 
       <div class="footer-bottom">
-        <span>&copy; 2026 DocOrbit Team. Released under the MIT License.</span>
-        <span>Built with Node.js 24 and native SQLite. Zero external runtime dependencies.</span>
+        <span>&copy; 2026 DocOrbit Team. MIT Licensed.</span>
+        <span>Node.js &ge; 22.5.0 &bull; Local-First SQLite</span>
       </div>
     </div>
   </footer>

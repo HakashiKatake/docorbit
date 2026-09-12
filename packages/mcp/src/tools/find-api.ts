@@ -1,5 +1,5 @@
 import type { CallToolResult, McpTool } from '../types.ts';
-import type { McpContext, McpToolHandler } from './types.ts';
+import { type McpContext, type McpToolHandler, formatToolResponse, formatToolError } from './types.ts';
 
 export class FindApiTool implements McpToolHandler {
   readonly definition: McpTool = {
@@ -25,6 +25,11 @@ export class FindApiTool implements McpToolHandler {
           type: 'number',
           description: 'Maximum number of endpoints to return (default: 5).',
         },
+        format: {
+          type: 'string',
+          description: 'Response format: "markdown" (default, human/agent-readable documentation) or "json" (structured raw machine data).',
+          enum: ['markdown', 'json'],
+        },
       },
       required: ['query'],
     },
@@ -42,10 +47,7 @@ export class FindApiTool implements McpToolHandler {
     ).trim();
 
     if (!query) {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: query (or symbol, path, endpoint)' }) }],
-      };
+      return formatToolError('Missing required parameter: query (or symbol, path, endpoint)', args);
     }
 
     const method = typeof args.method === 'string' ? args.method.toLowerCase() : undefined;
@@ -61,17 +63,11 @@ export class FindApiTool implements McpToolHandler {
     });
 
     if (endpoints.length === 0) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              markdown: `### API Search for "${query}"\n\nNo matching API endpoints found.\n\n> [!TIP]\n> Try searching documentation text with **\`search_docs(query: "${query}")\`**, or call **\`list_sources\`** to verify indexed documentation.`,
-              data: { query, count: 0, endpoints: [] },
-            }, null, 2),
-          },
-        ],
-      };
+      return formatToolResponse(
+        `### API Search for "${query}"\n\nNo matching API endpoints found.\n\n> [!TIP]\n> Try searching documentation text with **\`search_docs(query: "${query}")\`**, or call **\`list_sources\`** to verify indexed documentation.`,
+        { query, count: 0, endpoints: [] },
+        args
+      );
     }
 
     const lines: string[] = [`### API Intelligence for "${query}" (${endpoints.length} found)\n`];
@@ -91,20 +87,14 @@ export class FindApiTool implements McpToolHandler {
       lines.push('');
     }
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            markdown: lines.join('\n'),
-            data: {
-              query,
-              count: endpoints.length,
-              endpoints,
-            },
-          }, null, 2),
-        },
-      ],
-    };
+    return formatToolResponse(
+      lines.join('\n'),
+      {
+        query,
+        count: endpoints.length,
+        endpoints,
+      },
+      args
+    );
   }
 }

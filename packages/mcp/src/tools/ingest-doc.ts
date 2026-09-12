@@ -1,5 +1,5 @@
 import type { CallToolResult, McpTool } from '../types.ts';
-import type { McpContext, McpToolHandler } from './types.ts';
+import { type McpContext, type McpToolHandler, formatToolResponse, formatToolError } from './types.ts';
 import { IngestionPipeline } from '../../../core/src/index.ts';
 import { buildNormalizedPage, slicePageIntoChunks } from '../../../normalizer/src/index.ts';
 
@@ -35,6 +35,11 @@ export class IngestDocTool implements McpToolHandler {
           type: 'boolean',
           description: 'Allow crawling localhost endpoints for testing (default: false).',
         },
+        format: {
+          type: 'string',
+          description: 'Response format: "markdown" (default, human/agent-readable documentation) or "json" (structured raw machine data).',
+          enum: ['markdown', 'json'],
+        },
       },
     },
   };
@@ -50,17 +55,7 @@ export class IngestDocTool implements McpToolHandler {
       : 20;
 
     if (!rawUrl && !rawContent) {
-      return {
-        isError: true,
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              error: 'Missing required parameter: provide either "url" to crawl documentation from the web or "content" to index raw documentation.',
-            }),
-          },
-        ],
-      };
+      return formatToolError('Missing required parameter: provide either "url" to crawl documentation from the web or "content" to index raw documentation.', args);
     }
 
     try {
@@ -171,33 +166,23 @@ export class IngestDocTool implements McpToolHandler {
           implResult.markdown,
         ];
 
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(
-                {
-                  markdown: lines.join('\n'),
-                  data: {
-                    targetUrl,
-                    snapshotId,
-                    taskContext,
-                    stats: {
-                      pagesCount,
-                      chunksCount,
-                      codeExamplesCount,
-                      estimatedTokens,
-                      durationMs,
-                    },
-                    implementationContext: implResult,
-                  },
-                },
-                null,
-                2
-              ),
+        return formatToolResponse(
+          lines.join('\n'),
+          {
+            targetUrl,
+            snapshotId,
+            taskContext,
+            stats: {
+              pagesCount,
+              chunksCount,
+              codeExamplesCount,
+              estimatedTokens,
+              durationMs,
             },
-          ],
-        };
+            implementationContext: implResult,
+          },
+          args
+        );
       }
 
       // Query any extracted APIs, examples, and pitfalls from the new documentation
@@ -256,47 +241,27 @@ export class IngestDocTool implements McpToolHandler {
         `- **Check Constraints**: Call \`find_pitfall(query: "...")\` to avoid deprecations or runtime traps.`
       );
 
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify(
-              {
-                markdown: lines.join('\n'),
-                data: {
-                  targetUrl,
-                  snapshotId,
-                  stats: {
-                    pagesCount,
-                    chunksCount,
-                    codeExamplesCount,
-                    estimatedTokens,
-                    durationMs,
-                  },
-                  pages: pagesSummary,
-                  apiEndpoints,
-                  codeExamples,
-                  pitfalls,
-                },
-              },
-              null,
-              2
-            ),
+      return formatToolResponse(
+        lines.join('\n'),
+        {
+          targetUrl,
+          snapshotId,
+          stats: {
+            pagesCount,
+            chunksCount,
+            codeExamplesCount,
+            estimatedTokens,
+            durationMs,
           },
-        ],
-      };
+          pages: pagesSummary,
+          apiEndpoints,
+          codeExamples,
+          pitfalls,
+        },
+        args
+      );
     } catch (err: unknown) {
-      return {
-        isError: true,
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              error: `DocOrbit Ingestion Failed: ${err instanceof Error ? err.message : String(err)}`,
-            }),
-          },
-        ],
-      };
+      return formatToolError(`DocOrbit Ingestion Failed: ${err instanceof Error ? err.message : String(err)}`, args);
     }
   }
 }

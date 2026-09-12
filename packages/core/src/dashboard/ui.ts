@@ -224,6 +224,7 @@ export function renderDashboardHtml(): string {
       </div>
     </div>
     <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <a href="/site" target="_blank" class="badge badge-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem;">Landing Page ↗</a>
       <span class="badge badge-untrusted">Untrusted Docs Boundary</span>
       <span id="conn-badge" class="badge badge-success">Connected</span>
     </div>

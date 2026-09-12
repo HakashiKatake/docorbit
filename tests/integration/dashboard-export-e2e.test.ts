@@ -108,11 +108,23 @@ test('Integration E2E: CLI Export and MCP Agent Context Tools', async () => {
 
     assert.ok(mapRes && mapRes.result);
     const mapContent = (mapRes.result as any).content[0].text;
-    const mapParsed = JSON.parse(mapContent);
+    assert.ok(!mapContent.startsWith('{'), 'Should return direct markdown tree');
+    assert.ok(mapContent.includes('Documentation Map'));
+
+    // Also verify get_documentation_map with format: 'json'
+    const mapJsonRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 1011,
+      method: 'tools/call',
+      params: {
+        name: 'get_documentation_map',
+        arguments: { format: 'json' },
+      },
+    });
+    const mapParsed = JSON.parse((mapJsonRes!.result as any).content[0].text);
     assert.strictEqual(mapParsed.data.totalSources, 1);
     assert.strictEqual(mapParsed.data.totalPages, 1);
     assert.strictEqual(mapParsed.data.untrusted, true);
-    assert.ok(mapParsed.markdown.includes('Documentation Map'));
 
     // 3. Test MCP tool: export_agent_context (CLAUDE.md)
     const exportRes = await server.handleMessage({
@@ -130,12 +142,10 @@ test('Integration E2E: CLI Export and MCP Agent Context Tools', async () => {
 
     assert.ok(exportRes && exportRes.result);
     const expText = (exportRes.result as any).content[0].text;
-    const expParsed = JSON.parse(expText);
-    assert.strictEqual(expParsed.data.format, 'claude.md');
-    assert.ok(expParsed.markdown.includes('# CLAUDE.md — Agent Working Rules & Documentation Contracts'));
-    assert.ok(expParsed.markdown.includes('docorbit verify'));
-    assert.ok(expParsed.markdown.includes('Raw Body Buffer Required'));
-    assert.strictEqual(expParsed.data.untrusted, true);
+    assert.ok(!expText.startsWith('{'), 'Should return raw CLAUDE.md markdown content directly');
+    assert.ok(expText.includes('# CLAUDE.md — Agent Working Rules & Documentation Contracts'));
+    assert.ok(expText.includes('docorbit verify'));
+    assert.ok(expText.includes('Raw Body Buffer Required'));
 
     // 4. Test MCP tool: export_agent_context (skill.md)
     const skillRes = await server.handleMessage({
@@ -152,10 +162,9 @@ test('Integration E2E: CLI Export and MCP Agent Context Tools', async () => {
 
     assert.ok(skillRes && skillRes.result);
     const skillText = (skillRes.result as any).content[0].text;
-    const skillParsed = JSON.parse(skillText);
-    assert.strictEqual(skillParsed.data.format, 'skill.md');
-    assert.ok(skillParsed.markdown.startsWith('---'));
-    assert.ok(skillParsed.markdown.includes('untrusted_documentation: true'));
+    assert.ok(!skillText.startsWith('{'), 'Should return raw skill.md markdown directly');
+    assert.ok(skillText.startsWith('---'));
+    assert.ok(skillText.includes('untrusted_documentation: true'));
   } finally {
     db.close();
     fs.rmSync(tmpDir, { recursive: true, force: true });

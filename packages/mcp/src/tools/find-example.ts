@@ -1,5 +1,5 @@
 import type { CallToolResult, McpTool } from '../types.ts';
-import type { McpContext, McpToolHandler } from './types.ts';
+import { type McpContext, type McpToolHandler, formatToolResponse, formatToolError } from './types.ts';
 
 export class FindExampleTool implements McpToolHandler {
   readonly definition: McpTool = {
@@ -28,6 +28,11 @@ export class FindExampleTool implements McpToolHandler {
           type: 'number',
           description: 'Maximum number of examples to return (default: 5).',
         },
+        format: {
+          type: 'string',
+          description: 'Response format: "markdown" (default, human/agent-readable documentation) or "json" (structured raw machine data).',
+          enum: ['markdown', 'json'],
+        },
       },
       required: ['query'],
     },
@@ -44,10 +49,7 @@ export class FindExampleTool implements McpToolHandler {
     ).trim();
 
     if (!query) {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: query (or task, topic, symbol)' }) }],
-      };
+      return formatToolError('Missing required parameter: query (or task, topic, symbol)', args);
     }
 
     const language = typeof args.language === 'string' ? args.language : undefined;
@@ -65,17 +67,11 @@ export class FindExampleTool implements McpToolHandler {
     });
 
     if (examples.length === 0) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              markdown: `### Code Examples for "${query}"\n\nNo verified code examples found.\n\n> [!TIP]\n> Try searching documentation text directly with **\`search_docs(query: "${query}")\`** or generate an implementation blueprint with **\`find_recipe(goal: "${query}")\`**.`,
-              data: { query, count: 0, examples: [] },
-            }, null, 2),
-          },
-        ],
-      };
+      return formatToolResponse(
+        `### Code Examples for "${query}"\n\nNo verified code examples found.\n\n> [!TIP]\n> Try searching documentation text directly with **\`search_docs(query: "${query}")\`** or generate an implementation blueprint with **\`find_recipe(goal: "${query}")\`**.`,
+        { query, count: 0, examples: [] },
+        args
+      );
     }
 
     const lines: string[] = [`### Verified Code Examples for "${query}" (${examples.length} found)\n`];
@@ -87,20 +83,14 @@ export class FindExampleTool implements McpToolHandler {
       lines.push('```\n');
     }
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            markdown: lines.join('\n'),
-            data: {
-              query,
-              count: examples.length,
-              examples,
-            },
-          }, null, 2),
-        },
-      ],
-    };
+    return formatToolResponse(
+      lines.join('\n'),
+      {
+        query,
+        count: examples.length,
+        examples,
+      },
+      args
+    );
   }
 }

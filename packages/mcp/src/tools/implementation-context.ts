@@ -1,5 +1,5 @@
 import type { CallToolResult, McpTool } from '../types.ts';
-import type { McpContext, McpToolHandler } from './types.ts';
+import { type McpContext, type McpToolHandler, formatToolResponse, formatToolError } from './types.ts';
 import { IngestionPipeline } from '../../../core/src/index.ts';
 
 export class ImplementationContextTool implements McpToolHandler {
@@ -33,6 +33,11 @@ export class ImplementationContextTool implements McpToolHandler {
           type: 'number',
           description: 'Maximum token budget for packed context (default: 4000).',
         },
+        format: {
+          type: 'string',
+          description: 'Response format: "markdown" (default, human/agent-readable documentation) or "json" (structured raw machine data).',
+          enum: ['markdown', 'json'],
+        },
         goal: {
           type: 'string',
           description: 'Alias for task.',
@@ -54,10 +59,7 @@ export class ImplementationContextTool implements McpToolHandler {
       (typeof args.description === 'string' ? args.description.trim() : '');
 
     if (!task) {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: task (or goal/query)' }) }],
-      };
+      return formatToolError('Missing required parameter: task (or goal/query)', args);
     }
 
     const projectPath =
@@ -98,29 +100,9 @@ export class ImplementationContextTool implements McpToolHandler {
         tokenBudget,
       });
 
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              markdown: result.markdown,
-              data: result,
-            }, null, 2),
-          },
-        ],
-      };
+      return formatToolResponse(result.markdown, result, args);
     } catch (err: unknown) {
-      return {
-        isError: true,
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              error: `Failed to compile implementation context: ${err instanceof Error ? err.message : String(err)}`,
-            }),
-          },
-        ],
-      };
+      return formatToolError(`Failed to compile implementation context: ${err instanceof Error ? err.message : String(err)}`, args);
     }
   }
 }

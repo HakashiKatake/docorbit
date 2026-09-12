@@ -1,6 +1,6 @@
 import { RetrievalEngine } from '../../../retrieval/src/index.ts';
 import type { CallToolResult, McpTool } from '../types.ts';
-import type { McpContext, McpToolHandler } from './types.ts';
+import { type McpContext, type McpToolHandler, formatToolResponse, formatToolError } from './types.ts';
 
 export class SearchDocsTool implements McpToolHandler {
   readonly definition: McpTool = {
@@ -25,6 +25,11 @@ export class SearchDocsTool implements McpToolHandler {
           type: 'number',
           description: 'Maximum number of results to return (default: 10).',
         },
+        format: {
+          type: 'string',
+          description: 'Response format: "markdown" (default, human/agent-readable documentation) or "json" (structured raw machine data).',
+          enum: ['markdown', 'json'],
+        },
       },
       required: ['query'],
     },
@@ -41,10 +46,7 @@ export class SearchDocsTool implements McpToolHandler {
     ).trim();
 
     if (!query) {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: query (or search)' }) }],
-      };
+      return formatToolError('Missing required parameter: query (or search)', args);
     }
 
     const version = typeof args.docVersion === 'string'
@@ -81,17 +83,7 @@ export class SearchDocsTool implements McpToolHandler {
         results: [],
         message,
       };
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              markdown,
-              data: emptyPayload,
-            }, null, 2),
-          },
-        ],
-      };
+      return formatToolResponse(markdown, emptyPayload, args);
     }
 
     const formattedChunks = results.map(r => ({
@@ -124,23 +116,17 @@ export class SearchDocsTool implements McpToolHandler {
       lines.push(`${i + 1}. **${path}** [${c.chunkType}] (score: ${c.score})`);
       lines.push(`   *ID*: \`${c.id}\`${c.docVersion ? ` | *Version*: \`${c.docVersion}\`` : ''}`);
       if (c.symbols.length > 0) lines.push(`   *Symbols*: ${c.symbols.join(', ')}`);
-      lines.push(`   \`\`\`\n   ${c.content.split('\n').slice(0, 5).join('\n   ')}\n   \`\`\`\n`);
+      lines.push(`   \`\`\`${c.language || ''}\n   ${c.content.split('\n').slice(0, 8).join('\n   ')}\n   \`\`\`\n`);
     }
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            markdown: lines.join('\n'),
-            data: {
-              query,
-              count: results.length,
-              results: formattedChunks,
-            },
-          }, null, 2),
-        },
-      ],
-    };
+    return formatToolResponse(
+      lines.join('\n'),
+      {
+        query,
+        count: results.length,
+        results: formattedChunks,
+      },
+      args
+    );
   }
 }

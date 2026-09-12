@@ -1,5 +1,5 @@
 import type { CallToolResult, McpTool } from '../types.ts';
-import type { McpContext, McpToolHandler } from './types.ts';
+import { type McpContext, type McpToolHandler, formatToolResponse } from './types.ts';
 import { ImpactAnalysisService } from '../../../verification/src/index.ts';
 
 export class AnalyzeImpactTool implements McpToolHandler {
@@ -45,6 +45,11 @@ export class AnalyzeImpactTool implements McpToolHandler {
           type: 'string',
           description: 'Alias for toVersion.',
         },
+        format: {
+          type: 'string',
+          description: 'Response format: "markdown" (default, human/agent-readable documentation) or "json" (structured raw machine data).',
+          enum: ['markdown', 'json'],
+        },
       },
     },
   };
@@ -85,20 +90,6 @@ export class AnalyzeImpactTool implements McpToolHandler {
       sourceId,
     });
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(
-            {
-              markdown,
-              data: result,
-            },
-            null,
-            2
-          ),
-        },
-      ],
-    };
+    return formatToolResponse(markdown, result, args);
   }
 }

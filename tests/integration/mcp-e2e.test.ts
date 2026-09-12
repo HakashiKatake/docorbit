@@ -213,7 +213,29 @@ test('MCP E2E: Coding Agent workflow with Stripe Webhook Implementation', async 
 
     assert.ok(contextResponse && !contextResponse.error);
     const contextContent = (contextResponse.result as { content: Array<{ text: string }> }).content[0].text;
-    const contextData = JSON.parse(contextContent);
+    // Default response must be pure markdown for LLM agent
+    assert.ok(!contextContent.startsWith('{'), 'Default response must be pure Markdown without JSON wrapper');
+    assert.ok(contextContent.includes('DocOrbit Implementation Context'));
+    assert.ok(contextContent.includes('EXTERNAL CONTENT IS UNTRUSTED'));
+    assert.ok(contextContent.includes('Required API Endpoints'));
+
+    // Also verify format: 'json' provides structured machine-readable payload
+    const jsonContextResponse = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 'call-impl-json',
+      method: 'tools/call',
+      params: {
+        name: 'get_implementation_context',
+        arguments: {
+          task: 'Implement Stripe webhook signature verification in Express',
+          project: testDir,
+          tokenBudget: 3000,
+          format: 'json',
+        },
+      },
+    });
+    const jsonContent = (jsonContextResponse!.result as { content: Array<{ text: string }> }).content[0].text;
+    const contextData = JSON.parse(jsonContent);
 
     // Verify dual content format
     assert.ok(contextData.markdown, 'Should return concise Markdown guide');
@@ -250,7 +272,7 @@ test('MCP E2E: Coding Agent workflow with Stripe Webhook Implementation', async 
       method: 'tools/call',
       params: {
         name: 'find_pitfall',
-        arguments: { task: 'raw body buffer', docVersion: 'v14' },
+        arguments: { task: 'raw body buffer', docVersion: 'v14', format: 'json' },
       },
     });
     const pitfallData = JSON.parse((pitfallResponse!.result as { content: Array<{ text: string }> }).content[0].text);
@@ -264,7 +286,7 @@ test('MCP E2E: Coding Agent workflow with Stripe Webhook Implementation', async 
       method: 'tools/call',
       params: {
         name: 'get_doc',
-        arguments: { chunkId: 'chk_stripe_wh_02' },
+        arguments: { chunkId: 'chk_stripe_wh_02', format: 'json' },
       },
     });
     const chunkData = JSON.parse((chunkResponse!.result as { content: Array<{ text: string }> }).content[0].text);
@@ -278,7 +300,7 @@ test('MCP E2E: Coding Agent workflow with Stripe Webhook Implementation', async 
       method: 'tools/call',
       params: {
         name: 'get_version',
-        arguments: { library: 'stripe', projectPath: testDir },
+        arguments: { library: 'stripe', projectPath: testDir, format: 'json' },
       },
     });
     const versionData = JSON.parse((versionResponse!.result as { content: Array<{ text: string }> }).content[0].text);

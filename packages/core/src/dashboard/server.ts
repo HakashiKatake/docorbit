@@ -1,5 +1,7 @@
 import http from 'node:http';
-import { URL } from 'node:url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { URL, fileURLToPath } from 'node:url';
 import type {
   DocOrbitRepository,
 } from '../../../storage/src/index.ts';
@@ -85,6 +87,28 @@ export class DashboardServer {
     });
   }
 
+  /**
+   * Resolves a static site file across local development and distributed package locations.
+   */
+  private resolveSiteFile(relPath: string): string | null {
+    try {
+      const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+      const candidates = [
+        path.resolve(this.projectDir || process.cwd(), relPath),
+        path.resolve(moduleDir, '../../../../', relPath),
+        path.resolve(moduleDir, '../../../../../', relPath),
+        path.resolve(moduleDir, '../../../', relPath),
+      ];
+      for (const p of candidates) {
+        if (fs.existsSync(p)) return p;
+      }
+    } catch {
+      const fallback = path.resolve(this.projectDir || process.cwd(), relPath);
+      if (fs.existsSync(fallback)) return fallback;
+    }
+    return null;
+  }
+
   async handleRequest(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
     const parsedUrl = new URL(req.url || '/', `http://${req.headers.host || '127.0.0.1'}`);
     const pathname = parsedUrl.pathname;
@@ -106,6 +130,34 @@ export class DashboardServer {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       res.end(renderDashboardHtml());
       return;
+    }
+
+    // Static Landing Page
+    if (pathname === '/site' || pathname === '/site/' || pathname === '/site/index.html') {
+      const siteHtmlPath = this.resolveSiteFile('site/index.html');
+      if (siteHtmlPath) {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(fs.readFileSync(siteHtmlPath, 'utf-8'));
+        return;
+      }
+    }
+
+    if (pathname === '/site/styles.css' || (pathname === '/styles.css' && req.headers.referer?.includes('/site'))) {
+      const cssPath = this.resolveSiteFile('site/styles.css');
+      if (cssPath) {
+        res.writeHead(200, { 'Content-Type': 'text/css; charset=utf-8' });
+        res.end(fs.readFileSync(cssPath, 'utf-8'));
+        return;
+      }
+    }
+
+    if (pathname === '/site/app.js' || (pathname === '/app.js' && req.headers.referer?.includes('/site'))) {
+      const jsPath = this.resolveSiteFile('site/app.js');
+      if (jsPath) {
+        res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });
+        res.end(fs.readFileSync(jsPath, 'utf-8'));
+        return;
+      }
     }
 
     // JSON REST API

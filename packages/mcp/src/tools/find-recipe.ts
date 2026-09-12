@@ -1,6 +1,6 @@
 import { RecipeEngine } from '../../../retrieval/src/index.ts';
 import type { CallToolResult, McpTool } from '../types.ts';
-import type { McpContext, McpToolHandler } from './types.ts';
+import { type McpContext, type McpToolHandler, formatToolResponse, formatToolError } from './types.ts';
 
 export class FindRecipeTool implements McpToolHandler {
   readonly definition: McpTool = {
@@ -21,6 +21,11 @@ export class FindRecipeTool implements McpToolHandler {
           type: 'string',
           description: 'Workspace root for project-aware dependency detection.',
         },
+        format: {
+          type: 'string',
+          description: 'Response format: "markdown" (default, human/agent-readable documentation) or "json" (structured raw machine data).',
+          enum: ['markdown', 'json'],
+        },
       },
       required: ['goal'],
     },
@@ -37,10 +42,7 @@ export class FindRecipeTool implements McpToolHandler {
     ).trim();
 
     if (!goal) {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: goal (or task, query, workflow)' }) }],
-      };
+      return formatToolError('Missing required parameter: goal (or task, query, workflow)', args);
     }
 
     const version = typeof args.docVersion === 'string'
@@ -89,16 +91,6 @@ export class FindRecipeTool implements McpToolHandler {
       lines.push('');
     }
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            markdown: lines.join('\n'),
-            data: recipe,
-          }, null, 2),
-        },
-      ],
-    };
+    return formatToolResponse(lines.join('\n'), recipe, args);
   }
 }

@@ -1,6 +1,6 @@
 import type { PitfallKind } from '../../../shared/src/index.ts';
 import type { CallToolResult, McpTool } from '../types.ts';
-import type { McpContext, McpToolHandler } from './types.ts';
+import { type McpContext, type McpToolHandler, formatToolResponse, formatToolError } from './types.ts';
 
 export class FindPitfallTool implements McpToolHandler {
   readonly definition: McpTool = {
@@ -26,6 +26,11 @@ export class FindPitfallTool implements McpToolHandler {
           type: 'number',
           description: 'Maximum number of pitfalls to return (default: 5).',
         },
+        format: {
+          type: 'string',
+          description: 'Response format: "markdown" (default, human/agent-readable documentation) or "json" (structured raw machine data).',
+          enum: ['markdown', 'json'],
+        },
       },
       required: ['query'],
     },
@@ -42,10 +47,7 @@ export class FindPitfallTool implements McpToolHandler {
     ).trim();
 
     if (!query) {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required parameter: query (or topic, symbol, task)' }) }],
-      };
+      return formatToolError('Missing required parameter: query (or topic, symbol, task)', args);
     }
 
     const kind = typeof args.kind === 'string' ? (args.kind as PitfallKind) : undefined;
@@ -61,17 +63,11 @@ export class FindPitfallTool implements McpToolHandler {
     });
 
     if (pitfalls.length === 0) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              markdown: `### Pitfalls & Warnings for "${query}"\n\nNo matching pitfalls or warnings found.\n\n> [!TIP]\n> Try searching documentation text with **\`search_docs(query: "${query}")\`** or verify code syntax with **\`check_api\`**.`,
-              data: { query, count: 0, pitfalls: [] },
-            }, null, 2),
-          },
-        ],
-      };
+      return formatToolResponse(
+        `### Pitfalls & Warnings for "${query}"\n\nNo matching pitfalls or warnings found.\n\n> [!TIP]\n> Try searching documentation text with **\`search_docs(query: "${query}")\`** or verify code syntax with **\`check_api\`**.`,
+        { query, count: 0, pitfalls: [] },
+        args
+      );
     }
 
     const lines: string[] = [`### Pitfalls & Warnings for "${query}" (${pitfalls.length} found)\n`];
@@ -81,20 +77,14 @@ export class FindPitfallTool implements McpToolHandler {
       lines.push(`  ${pf.content}\n`);
     }
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            markdown: lines.join('\n'),
-            data: {
-              query,
-              count: pitfalls.length,
-              pitfalls,
-            },
-          }, null, 2),
-        },
-      ],
-    };
+    return formatToolResponse(
+      lines.join('\n'),
+      {
+        query,
+        count: pitfalls.length,
+        pitfalls,
+      },
+      args
+    );
   }
 }

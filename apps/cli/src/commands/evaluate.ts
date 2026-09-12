@@ -69,6 +69,7 @@ export async function handleEvaluateCommand(options: EvaluateCommandOptions = {}
 
   const sDocs = report.byStrategy.agent_official_docs_fetch || report.byStrategy.agent_web_search;
   const sFC = report.byStrategy.agent_firecrawl;
+  const sC7 = report.byStrategy.agent_context7;
   const sDR = report.byStrategy.agent_docorbit;
 
   if (sDocs && sC7 && sDR) {

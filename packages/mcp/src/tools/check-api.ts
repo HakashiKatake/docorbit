@@ -1,5 +1,5 @@
 import type { CallToolResult, McpTool } from '../types.ts';
-import type { McpContext, McpToolHandler } from './types.ts';
+import { type McpContext, type McpToolHandler, formatToolResponse, formatToolError } from './types.ts';
 import { VerificationService } from '../../../verification/src/index.ts';
 
 export class CheckApiTool implements McpToolHandler {
@@ -37,6 +37,11 @@ export class CheckApiTool implements McpToolHandler {
           type: 'string',
           description: 'Alternative alias for code snippet.',
         },
+        format: {
+          type: 'string',
+          description: 'Response format: "markdown" (default, human/agent-readable documentation) or "json" (structured raw machine data).',
+          enum: ['markdown', 'json'],
+        },
       },
     },
   };
@@ -50,10 +55,7 @@ export class CheckApiTool implements McpToolHandler {
       (typeof args.query === 'string' ? args.query.trim() : '');
 
     if (!code) {
-      return {
-        isError: true,
-        content: [{ type: 'text', text: JSON.stringify({ error: 'Missing required argument: code (or snippet)' }) }],
-      };
+      return formatToolError('Missing required argument: code (or snippet)', args);
     }
 
     const language = typeof args.language === 'string' ? args.language : undefined;
@@ -76,20 +78,6 @@ export class CheckApiTool implements McpToolHandler {
       filePath,
     });
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(
-            {
-              markdown,
-              data: result,
-            },
-            null,
-            2
-          ),
-        },
-      ],
-    };
+    return formatToolResponse(markdown, result, args);
   }
 }

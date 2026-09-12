@@ -3,7 +3,7 @@ import {
   WorkspaceResolver,
 } from '../../../workspace/src/index.ts';
 import type { CallToolResult, McpTool } from '../types.ts';
-import type { McpContext, McpToolHandler } from './types.ts';
+import { type McpContext, type McpToolHandler, formatToolResponse, formatToolError } from './types.ts';
 
 export class GetVersionTool implements McpToolHandler {
   readonly definition: McpTool = {
@@ -19,6 +19,11 @@ export class GetVersionTool implements McpToolHandler {
         projectPath: {
           type: 'string',
           description: 'Workspace root directory containing package manifests (default: current directory).',
+        },
+        format: {
+          type: 'string',
+          description: 'Response format: "markdown" (default, human/agent-readable documentation) or "json" (structured raw machine data).',
+          enum: ['markdown', 'json'],
         },
       },
       required: ['library'],
@@ -41,15 +46,7 @@ export class GetVersionTool implements McpToolHandler {
     try {
       scan = detectWorkspaceDependencies(projectPath);
     } catch (err: unknown) {
-      return {
-        isError: true,
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({ error: `Failed to inspect workspace manifests at ${projectPath}: ${err instanceof Error ? err.message : String(err)}` }),
-          },
-        ],
-      };
+      return formatToolError(`Failed to inspect workspace manifests at ${projectPath}: ${err instanceof Error ? err.message : String(err)}`, args);
     }
 
     // If no specific library is requested, return version intelligence for all workspace dependencies
@@ -73,43 +70,31 @@ export class GetVersionTool implements McpToolHandler {
         }
       }
 
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              markdown: lines.join('\n'),
-              data: {
-                ecosystems: scan.ecosystems,
-                dependenciesCount: scan.dependencies.length,
-                dependencies: scan.dependencies,
-                resolutionMatches: resolution.matches,
-              },
-            }, null, 2),
-          },
-        ],
-      };
+      return formatToolResponse(
+        lines.join('\n'),
+        {
+          ecosystems: scan.ecosystems,
+          dependenciesCount: scan.dependencies.length,
+          dependencies: scan.dependencies,
+          resolutionMatches: resolution.matches,
+        },
+        args
+      );
     }
 
     const libLower = library.toLowerCase();
     const matchedDep = scan.dependencies.find(d => d.name.toLowerCase() === libLower);
 
     if (!matchedDep) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              markdown: `### Version Resolution for "${library}"\n\nNo installed dependency named \`${library}\` was found in workspace manifests.`,
-              data: {
-                library,
-                foundInWorkspace: false,
-                ecosystemsScanned: scan.ecosystems,
-              },
-            }, null, 2),
-          },
-        ],
-      };
+      return formatToolResponse(
+        `### Version Resolution for "${library}"\n\nNo installed dependency named \`${library}\` was found in workspace manifests.`,
+        {
+          library,
+          foundInWorkspace: false,
+          ecosystemsScanned: scan.ecosystems,
+        },
+        args
+      );
     }
 
     const resolver = new WorkspaceResolver(ctx.repo);
@@ -143,16 +128,6 @@ export class GetVersionTool implements McpToolHandler {
         : `- **Recommended Doc Version**: \`unresolved\` (No compatible indexed documentation found)`,
     ].filter(Boolean);
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            markdown: lines.join('\n'),
-            data,
-          }, null, 2),
-        },
-      ],
-    };
+    return formatToolResponse(lines.join('\n'), data, args);
   }
 }

@@ -246,13 +246,29 @@ test('MCP Protocol: tools/list returns all 15 tools with complete schemas', asyn
 test('MCP Tool: list_sources returns indexed sources and snapshot details', async () => {
   const { db, server } = setupMockDb();
   try {
-    const res = await server.handleMessage({
+    // Default format: pure markdown
+    const mdRes = await server.handleMessage({
       jsonrpc: '2.0',
       id: 3,
       method: 'tools/call',
       params: {
         name: 'list_sources',
         arguments: {},
+      },
+    });
+    assert.ok(mdRes && mdRes.result);
+    const mdText = (mdRes.result as { content: Array<{ text: string }> }).content[0].text;
+    assert.ok(mdText.includes('Indexed Documentation Sources'));
+    assert.ok(!mdText.startsWith('{'));
+
+    // Explicit format: json
+    const res = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 31,
+      method: 'tools/call',
+      params: {
+        name: 'list_sources',
+        arguments: { format: 'json' },
       },
     });
 
@@ -270,6 +286,26 @@ test('MCP Tool: list_sources returns indexed sources and snapshot details', asyn
 test('MCP Tool: search_docs returns hybrid search matches with version boosting', async () => {
   const { db, server } = setupMockDb();
   try {
+    // Default format: pure markdown
+    const mdRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 40,
+      method: 'tools/call',
+      params: {
+        name: 'search_docs',
+        arguments: {
+          query: 'constructEvent webhook',
+          docVersion: 'v14',
+        },
+      },
+    });
+    assert.ok(mdRes && mdRes.result);
+    const mdText = (mdRes.result as { content: Array<{ text: string }> }).content[0].text;
+    assert.ok(mdText.includes('Search Results for'));
+    assert.ok(mdText.includes('chk_wh_01'));
+    assert.ok(!mdText.startsWith('{'));
+
+    // Explicit format: json
     const res = await server.handleMessage({
       jsonrpc: '2.0',
       id: 4,
@@ -279,6 +315,7 @@ test('MCP Tool: search_docs returns hybrid search matches with version boosting'
         arguments: {
           query: 'constructEvent webhook',
           docVersion: 'v14',
+          format: 'json',
         },
       },
     });
@@ -296,14 +333,29 @@ test('MCP Tool: search_docs returns hybrid search matches with version boosting'
 test('MCP Tool: get_doc retrieves chunk or page with untrusted flag', async () => {
   const { db, server } = setupMockDb();
   try {
-    // Get chunk
+    // Get chunk default markdown
+    const chunkMdRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 50,
+      method: 'tools/call',
+      params: {
+        name: 'get_doc',
+        arguments: { chunkId: 'chk_wh_01' },
+      },
+    });
+    assert.ok(chunkMdRes && chunkMdRes.result);
+    const chunkMdText = (chunkMdRes.result as { content: Array<{ text: string }> }).content[0].text;
+    assert.ok(!chunkMdText.startsWith('{'));
+    assert.ok(chunkMdText.includes('chk_wh_01'));
+
+    // Get chunk format: json
     const chunkRes = await server.handleMessage({
       jsonrpc: '2.0',
       id: 5,
       method: 'tools/call',
       params: {
         name: 'get_doc',
-        arguments: { chunkId: 'chk_wh_01' },
+        arguments: { chunkId: 'chk_wh_01', format: 'json' },
       },
     });
     assert.ok(chunkRes && chunkRes.result);
@@ -311,14 +363,29 @@ test('MCP Tool: get_doc retrieves chunk or page with untrusted flag', async () =
     assert.strictEqual(chunkParsed.data.chunk.id, 'chk_wh_01');
     assert.strictEqual(chunkParsed.data.untrusted, true);
 
-    // Get page
+    // Get page default markdown
+    const pageMdRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 60,
+      method: 'tools/call',
+      params: {
+        name: 'get_doc',
+        arguments: { pageId: 'page_wh' },
+      },
+    });
+    assert.ok(pageMdRes && pageMdRes.result);
+    const pageMdText = (pageMdRes.result as { content: Array<{ text: string }> }).content[0].text;
+    assert.ok(!pageMdText.startsWith('{'));
+    assert.ok(pageMdText.includes('Stripe Webhook Signatures'));
+
+    // Get page format: json
     const pageRes = await server.handleMessage({
       jsonrpc: '2.0',
       id: 6,
       method: 'tools/call',
       params: {
         name: 'get_doc',
-        arguments: { pageId: 'page_wh' },
+        arguments: { pageId: 'page_wh', format: 'json' },
       },
     });
     assert.ok(pageRes && pageRes.result);
@@ -334,42 +401,84 @@ test('MCP Tool: get_doc retrieves chunk or page with untrusted flag', async () =
 test('MCP Tool: find_api, find_example, find_pitfall retrieve structured knowledge', async () => {
   const { db, server } = setupMockDb();
   try {
-    // API
-    const apiRes = await server.handleMessage({
+    // API default markdown
+    const apiMdRes = await server.handleMessage({
       jsonrpc: '2.0',
-      id: 7,
+      id: 70,
       method: 'tools/call',
       params: {
         name: 'find_api',
         arguments: { query: 'webhook_endpoints', method: 'post' },
       },
     });
+    const apiMdText = (apiMdRes!.result as { content: Array<{ text: string }> }).content[0].text;
+    assert.ok(!apiMdText.startsWith('{'));
+    assert.ok(apiMdText.includes('/v1/webhook_endpoints'));
+
+    // API JSON
+    const apiRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 7,
+      method: 'tools/call',
+      params: {
+        name: 'find_api',
+        arguments: { query: 'webhook_endpoints', method: 'post', format: 'json' },
+      },
+    });
     const apiData = JSON.parse((apiRes!.result as { content: Array<{ text: string }> }).content[0].text);
     assert.strictEqual(apiData.data.count, 1);
     assert.strictEqual(apiData.data.endpoints[0].path, '/v1/webhook_endpoints');
 
-    // Example
-    const exRes = await server.handleMessage({
+    // Example default markdown
+    const exMdRes = await server.handleMessage({
       jsonrpc: '2.0',
-      id: 8,
+      id: 80,
       method: 'tools/call',
       params: {
         name: 'find_example',
         arguments: { task: 'verify signature', language: 'typescript' },
       },
     });
+    const exMdText = (exMdRes!.result as { content: Array<{ text: string }> }).content[0].text;
+    assert.ok(!exMdText.startsWith('{'));
+    assert.ok(exMdText.includes('express'));
+
+    // Example JSON
+    const exRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 8,
+      method: 'tools/call',
+      params: {
+        name: 'find_example',
+        arguments: { task: 'verify signature', language: 'typescript', format: 'json' },
+      },
+    });
     const exData = JSON.parse((exRes!.result as { content: Array<{ text: string }> }).content[0].text);
     assert.strictEqual(exData.data.count, 1);
     assert.strictEqual(exData.data.examples[0].framework, 'express');
 
-    // Pitfall
+    // Pitfall default markdown
+    const pitMdRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 90,
+      method: 'tools/call',
+      params: {
+        name: 'find_pitfall',
+        arguments: { query: 'raw body' },
+      },
+    });
+    const pitMdText = (pitMdRes!.result as { content: Array<{ text: string }> }).content[0].text;
+    assert.ok(!pitMdText.startsWith('{'));
+    assert.ok(pitMdText.includes('Raw Body Required'));
+
+    // Pitfall JSON
     const pitRes = await server.handleMessage({
       jsonrpc: '2.0',
       id: 9,
       method: 'tools/call',
       params: {
         name: 'find_pitfall',
-        arguments: { query: 'raw body' },
+        arguments: { query: 'raw body', format: 'json' },
       },
     });
     const pitData = JSON.parse((pitRes!.result as { content: Array<{ text: string }> }).content[0].text);
@@ -383,6 +492,26 @@ test('MCP Tool: find_api, find_example, find_pitfall retrieve structured knowled
 test('MCP Tool: get_implementation_context delivers multi-dimensional agent context', async () => {
   const { db, server } = setupMockDb();
   try {
+    // Default markdown
+    const mdRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 100,
+      method: 'tools/call',
+      params: {
+        name: 'get_implementation_context',
+        arguments: {
+          task: 'Implement Stripe webhook signature verification in Express',
+          version: 'v14',
+          tokenBudget: 3500,
+        },
+      },
+    });
+    assert.ok(mdRes && mdRes.result);
+    const mdText = (mdRes.result as { content: Array<{ text: string }> }).content[0].text;
+    assert.ok(!mdText.startsWith('{'));
+    assert.ok(mdText.includes('Implementation Context'));
+
+    // JSON format
     const res = await server.handleMessage({
       jsonrpc: '2.0',
       id: 10,
@@ -393,6 +522,7 @@ test('MCP Tool: get_implementation_context delivers multi-dimensional agent cont
           task: 'Implement Stripe webhook signature verification in Express',
           version: 'v14',
           tokenBudget: 3500,
+          format: 'json',
         },
       },
     });
@@ -491,6 +621,26 @@ const client = new Client({ url: "https://mcp.atlassian.com/v2/mcp" });
 ⚠️ Breaking Change: v1 endpoints are deprecated.
 `;
 
+    // Default: pure markdown
+    const mdRes = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 501,
+      method: 'tools/call',
+      params: {
+        name: 'ingest_doc',
+        arguments: {
+          content: rawContent,
+          title: 'Atlassian Remote MCP Docs',
+          taskContext: 'Connect Atlassian Remote MCP',
+        },
+      },
+    });
+    assert.ok(mdRes && mdRes.result);
+    const mdText = (mdRes.result as { content: Array<{ text: string }> }).content[0].text;
+    assert.ok(!mdText.startsWith('{'));
+    assert.ok(mdText.includes('DocOrbit: Ingested & Context Compiled'));
+
+    // Explicit format: json
     const res = await server.handleMessage({
       jsonrpc: '2.0',
       id: 50,
@@ -501,6 +651,7 @@ const client = new Client({ url: "https://mcp.atlassian.com/v2/mcp" });
           content: rawContent,
           title: 'Atlassian Remote MCP Docs',
           taskContext: 'Connect Atlassian Remote MCP',
+          format: 'json',
         },
       },
     });
@@ -532,7 +683,7 @@ test('MCP Tools: parameter aliases and fallback-resistant execution', async () =
       jsonrpc: '2.0',
       id: 60,
       method: 'tools/call',
-      params: { name: 'search_docs', arguments: { q: 'webhook' } },
+      params: { name: 'search_docs', arguments: { q: 'webhook', format: 'json' } },
     });
     assert.ok(searchRes && searchRes.result);
     const searchData = JSON.parse((searchRes.result as any).content[0].text);
@@ -543,7 +694,7 @@ test('MCP Tools: parameter aliases and fallback-resistant execution', async () =
       jsonrpc: '2.0',
       id: 61,
       method: 'tools/call',
-      params: { name: 'find_api', arguments: { endpoint: '/v1/webhook_endpoints' } },
+      params: { name: 'find_api', arguments: { endpoint: '/v1/webhook_endpoints', format: 'json' } },
     });
     assert.ok(apiRes && apiRes.result);
     const apiData = JSON.parse((apiRes.result as any).content[0].text);
@@ -554,7 +705,7 @@ test('MCP Tools: parameter aliases and fallback-resistant execution', async () =
       jsonrpc: '2.0',
       id: 62,
       method: 'tools/call',
-      params: { name: 'get_doc', arguments: { id: 'page_wh' } },
+      params: { name: 'get_doc', arguments: { id: 'page_wh', format: 'json' } },
     });
     assert.ok(docRes && docRes.result);
     const docData = JSON.parse((docRes.result as any).content[0].text);
@@ -565,7 +716,7 @@ test('MCP Tools: parameter aliases and fallback-resistant execution', async () =
       jsonrpc: '2.0',
       id: 621,
       method: 'tools/call',
-      params: { name: 'get_doc', arguments: { id: 'chk_wh_01' } },
+      params: { name: 'get_doc', arguments: { id: 'chk_wh_01', format: 'json' } },
     });
     assert.ok(chunkRes && chunkRes.result);
     const chunkData = JSON.parse((chunkRes.result as any).content[0].text);
@@ -576,7 +727,7 @@ test('MCP Tools: parameter aliases and fallback-resistant execution', async () =
       jsonrpc: '2.0',
       id: 63,
       method: 'tools/call',
-      params: { name: 'find_example', arguments: { topic: 'verify webhook' } },
+      params: { name: 'find_example', arguments: { topic: 'verify webhook', format: 'json' } },
     });
     assert.ok(exRes && exRes.result);
     const exData = JSON.parse((exRes.result as any).content[0].text);
@@ -587,7 +738,7 @@ test('MCP Tools: parameter aliases and fallback-resistant execution', async () =
       jsonrpc: '2.0',
       id: 64,
       method: 'tools/call',
-      params: { name: 'find_pitfall', arguments: { topic: 'raw body' } },
+      params: { name: 'find_pitfall', arguments: { topic: 'raw body', format: 'json' } },
     });
     assert.ok(pitfallRes && pitfallRes.result);
     const pitfallData = JSON.parse((pitfallRes.result as any).content[0].text);
@@ -598,7 +749,7 @@ test('MCP Tools: parameter aliases and fallback-resistant execution', async () =
       jsonrpc: '2.0',
       id: 65,
       method: 'tools/call',
-      params: { name: 'find_recipe', arguments: { goal: 'verify signatures' } },
+      params: { name: 'find_recipe', arguments: { goal: 'verify signatures', format: 'json' } },
     });
     assert.ok(recipeRes && recipeRes.result);
     const recipeData = JSON.parse((recipeRes.result as any).content[0].text);
@@ -614,6 +765,7 @@ test('MCP Tools: parameter aliases and fallback-resistant execution', async () =
         arguments: {
           snippet: 'const event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);',
           library: 'stripe',
+          format: 'json',
         },
       },
     });
@@ -628,7 +780,7 @@ test('MCP Tools: parameter aliases and fallback-resistant execution', async () =
       method: 'tools/call',
       params: {
         name: 'diff_docs',
-        arguments: { from: 'v14', to: 'v15' },
+        arguments: { from: 'v14', to: 'v15', format: 'json' },
       },
     });
     assert.ok(diffRes && diffRes.result);
@@ -642,7 +794,7 @@ test('MCP Tools: parameter aliases and fallback-resistant execution', async () =
       method: 'tools/call',
       params: {
         name: 'get_implementation_context',
-        arguments: { goal: 'handle webhook signature verification' },
+        arguments: { goal: 'handle webhook signature verification', format: 'json' },
       },
     });
     assert.ok(implRes && implRes.result);
@@ -654,13 +806,13 @@ test('MCP Tools: parameter aliases and fallback-resistant execution', async () =
       jsonrpc: '2.0',
       id: 69,
       method: 'tools/call',
-      params: { name: 'export_agent_context', arguments: {} },
+      params: { name: 'export_agent_context', arguments: { responseFormat: 'json' } },
     });
     assert.ok(exportRes && exportRes.result);
     const exportData = JSON.parse((exportRes.result as any).content[0].text);
     assert.strictEqual(exportData.data.format, 'agents.md');
 
-    // 11. get_version with no library lists workspace dependencies
+    // 11. get_version with no library lists workspace dependencies (default is markdown)
     const versionRes = await server.handleMessage({
       jsonrpc: '2.0',
       id: 70,
@@ -668,10 +820,10 @@ test('MCP Tools: parameter aliases and fallback-resistant execution', async () =
       params: { name: 'get_version', arguments: {} },
     });
     assert.ok(versionRes && versionRes.result);
-    const versionData = JSON.parse((versionRes.result as any).content[0].text);
-    assert.ok(versionData.markdown.includes('Workspace Version Intelligence'));
+    const versionText = (versionRes.result as any).content[0].text;
+    assert.ok(versionText.includes('Workspace Version Intelligence'));
 
-    // 12. list_sources on empty DB does not suggest CLI command
+    // 12. list_sources on empty DB does not suggest CLI command (default is markdown)
     const emptyDb = new DocOrbitDb(':memory:');
     const emptyRepo = new DocOrbitRepository(emptyDb);
     const emptyServer = new McpServer({ repo: emptyRepo });
@@ -682,9 +834,9 @@ test('MCP Tools: parameter aliases and fallback-resistant execution', async () =
       params: { name: 'list_sources', arguments: {} },
     });
     assert.ok(listRes && listRes.result);
-    const listData = JSON.parse((listRes.result as any).content[0].text);
-    assert.ok(!listData.markdown.includes('docorbit add'));
-    assert.ok(listData.markdown.includes('ingest_doc'));
+    const listText = (listRes.result as any).content[0].text;
+    assert.ok(!listText.includes('docorbit add'));
+    assert.ok(listText.includes('ingest_doc'));
     emptyDb.close();
   } finally {
     db.close();

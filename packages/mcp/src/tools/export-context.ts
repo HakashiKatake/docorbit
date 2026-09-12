@@ -1,5 +1,5 @@
 import type { CallToolResult, McpTool } from '../types.ts';
-import type { McpContext, McpToolHandler } from './types.ts';
+import { type McpContext, type McpToolHandler, formatToolResponse } from './types.ts';
 import { ExportService } from '../../../export/src/index.ts';
 import type { ExportFormat } from '../../../shared/src/index.ts';
 
@@ -27,6 +27,11 @@ export class ExportAgentContextTool implements McpToolHandler {
           type: 'string',
           description: 'Optional library or skill name label.',
         },
+        responseFormat: {
+          type: 'string',
+          enum: ['markdown', 'json'],
+          description: 'Response output format: "markdown" (default, raw exported content) or "json" (structured metadata).',
+        },
       },
     },
   };
@@ -51,25 +56,15 @@ export class ExportAgentContextTool implements McpToolHandler {
       targetSource,
     });
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(
-            {
-              markdown: result.content,
-              data: {
-                format: result.format,
-                metadata: result.metadata,
-                tokenEstimate: result.metadata.tokenEstimate,
-                untrusted: true,
-              },
-            },
-            null,
-            2
-          ),
-        },
-      ],
-    };
+    return formatToolResponse(
+      result.content,
+      {
+        format: result.format,
+        metadata: result.metadata,
+        tokenEstimate: result.metadata.tokenEstimate,
+        untrusted: true,
+      },
+      args
+    );
   }
 }

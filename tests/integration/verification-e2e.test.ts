@@ -226,7 +226,25 @@ export async function createLegacyCharge() {
         },
       },
     });
-    const implData = JSON.parse((implResponse!.result as { content: Array<{ text: string }> }).content[0].text);
+    const defaultMarkdown = (implResponse!.result as { content: Array<{ text: string }> }).content[0].text;
+    assert.ok(!defaultMarkdown.startsWith('{'), 'Should return pure markdown by default');
+    assert.ok(defaultMarkdown.includes('DocOrbit Implementation Context'));
+
+    const jsonImplResponse = await server.handleMessage({
+      jsonrpc: '2.0',
+      id: 'step-a-json',
+      method: 'tools/call',
+      params: {
+        name: 'get_implementation_context',
+        arguments: {
+          task: 'create webhook endpoint',
+          project: testDir,
+          library: 'stripe',
+          format: 'json',
+        },
+      },
+    });
+    const implData = JSON.parse((jsonImplResponse!.result as { content: Array<{ text: string }> }).content[0].text);
     assert.ok(implData.data);
     assert.ok(Array.isArray(implData.data.verificationHints), 'Must contain verification hints array');
     const hint = implData.data.verificationHints.find((h: any) => h.endpoint === '/v1/webhook_endpoints');
@@ -252,6 +270,7 @@ export async function createLegacyCharge() {
           code: invalidCodeMissingField,
           language: 'typescript',
           version: 'v14',
+          format: 'json',
         },
       },
     });
@@ -280,6 +299,7 @@ export async function createLegacyCharge() {
           code: invalidMethodCode,
           language: 'typescript',
           version: 'v14',
+          format: 'json',
         },
       },
     });
@@ -307,6 +327,7 @@ export async function createLegacyCharge() {
           code: dynamicCode,
           language: 'typescript',
           version: 'v14',
+          format: 'json',
         },
       },
     });
@@ -335,6 +356,7 @@ export async function createLegacyCharge() {
           code: validCode,
           language: 'typescript',
           version: 'v14',
+          format: 'json',
         },
       },
     });
@@ -352,6 +374,7 @@ export async function createLegacyCharge() {
         arguments: {
           fromVersion: 'v14',
           toVersion: 'v15',
+          format: 'json',
         },
       },
     });
@@ -373,6 +396,7 @@ export async function createLegacyCharge() {
           project: testDir,
           fromVersion: 'v14',
           toVersion: 'v15',
+          format: 'json',
         },
       },
     });

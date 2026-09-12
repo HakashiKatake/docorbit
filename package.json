@@ -1,16 +1,17 @@
 {
   "name": "docorbit",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "The Documentation Intelligence Layer for AI Coding Agents",
   "type": "module",
   "main": "./dist/packages/core/src/index.js",
   "types": "./dist/packages/core/src/index.d.ts",
   "bin": {
-    "docorbit": "./bin/docorbit.js"
+    "docorbit": "bin/docorbit.js"
   },
   "files": [
     "bin",
     "dist",
+    "site",
     "README.md",
     "LICENSE"
   ],
@@ -22,8 +23,7 @@
     "prepack": "npm run build && npm test",
     "test": "node --experimental-strip-types --test tests/unit/*.test.ts tests/integration/*.test.ts",
     "test:unit": "node --experimental-strip-types --test tests/unit/*.test.ts",
-    "test:integration": "node --experimental-strip-types --test tests/integration/*.test.ts",
-    "docorbit": "node bin/docorbit.js"
+    "test:integration": "node --experimental-strip-types --test tests/integration/*.test.ts"
   },
   "repository": {
     "type": "git",

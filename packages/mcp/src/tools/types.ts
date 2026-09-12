@@ -26,3 +26,58 @@ export interface McpToolHandler {
   readonly definition: McpTool;
   execute(args: Record<string, unknown>, ctx: McpContext): Promise<CallToolResult>;
 }
+
+export function formatToolResponse(
+  markdown: string,
+  data?: unknown,
+  args?: Record<string, unknown>
+): CallToolResult {
+  const envFormat = process.env.DOCORBIT_MCP_FORMAT?.toLowerCase();
+  const responseFormat = typeof args?.responseFormat === 'string' ? args.responseFormat.toLowerCase() : undefined;
+  const directFormat = typeof args?.format === 'string' ? args.format.toLowerCase() : undefined;
+  const formatArg = responseFormat ?? (directFormat === 'json' || directFormat === 'markdown' ? directFormat : undefined);
+
+  const isJson = (formatArg ?? envFormat) === 'json';
+
+  if (isJson) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(data !== undefined ? { markdown, data } : { markdown }, null, 2),
+        },
+      ],
+    };
+  }
+
+  return {
+    content: [
+      {
+        type: 'text',
+        text: markdown,
+      },
+    ],
+  };
+}
+
+export function formatToolError(
+  message: string,
+  args?: Record<string, unknown>
+): CallToolResult {
+  const envFormat = process.env.DOCORBIT_MCP_FORMAT?.toLowerCase();
+  const responseFormat = typeof args?.responseFormat === 'string' ? args.responseFormat.toLowerCase() : undefined;
+  const directFormat = typeof args?.format === 'string' ? args.format.toLowerCase() : undefined;
+  const formatArg = responseFormat ?? (directFormat === 'json' || directFormat === 'markdown' ? directFormat : undefined);
+
+  const isJson = (formatArg ?? envFormat) === 'json';
+
+  return {
+    isError: true,
+    content: [
+      {
+        type: 'text',
+        text: isJson ? JSON.stringify({ error: message }) : `Error: ${message}`,
+      },
+    ],
+  };
+}

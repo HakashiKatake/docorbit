@@ -133,7 +133,7 @@ export class DocOrbitRunner implements StrategyRunner {
         jsonrpc: '2.0',
         id: Math.floor(Math.random() * 10000),
         method: 'tools/call',
-        params: { name, arguments: args },
+        params: { name, arguments: { format: 'json', ...args } },
       });
       const text = (res as any)?.result?.content?.[0]?.text || '';
       let data: any;

@@ -1,5 +1,5 @@
 import type { CallToolResult, McpTool } from '../types.ts';
-import type { McpContext, McpToolHandler } from './types.ts';
+import { type McpContext, type McpToolHandler, formatToolResponse } from './types.ts';
 
 export class ListSourcesTool implements McpToolHandler {
   readonly definition: McpTool = {
@@ -12,6 +12,11 @@ export class ListSourcesTool implements McpToolHandler {
           type: 'number',
           description: 'Maximum number of sources to list (default: 50).',
         },
+        format: {
+          type: 'string',
+          description: 'Response format: "markdown" (default, human/agent-readable documentation) or "json" (structured raw machine data).',
+          enum: ['markdown', 'json'],
+        },
       },
     },
   };
@@ -23,17 +28,11 @@ export class ListSourcesTool implements McpToolHandler {
     const snapshots = ctx.repo.listSnapshots();
 
     if (sources.length === 0) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              markdown: '### Indexed Documentation Sources\n\nNo documentation sources have been indexed yet. Use the `ingest_doc` tool with a documentation URL (e.g. `ingest_doc(url: "https://...")`) to index documentation directly.',
-              data: { count: 0, sources: [] },
-            }, null, 2),
-          },
-        ],
-      };
+      return formatToolResponse(
+        '### Indexed Documentation Sources\n\nNo documentation sources have been indexed yet. Use the `ingest_doc` tool with a documentation URL (e.g. `ingest_doc(url: "https://...")`) to index documentation directly.',
+        { count: 0, sources: [] },
+        args
+      );
     }
 
     const formatted = sources.map(s => {
@@ -67,19 +66,13 @@ export class ListSourcesTool implements McpToolHandler {
       lines.push('');
     }
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            markdown: lines.join('\n'),
-            data: {
-              count: formatted.length,
-              sources: formatted,
-            },
-          }, null, 2),
-        },
-      ],
-    };
+    return formatToolResponse(
+      lines.join('\n'),
+      {
+        count: formatted.length,
+        sources: formatted,
+      },
+      args
+    );
   }
 }

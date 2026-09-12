@@ -1,5 +1,5 @@
 import type { CallToolResult, McpTool } from '../types.ts';
-import type { McpContext, McpToolHandler } from './types.ts';
+import { type McpContext, type McpToolHandler, formatToolResponse, formatToolError } from './types.ts';
 
 export class GetDocTool implements McpToolHandler {
   readonly definition: McpTool = {
@@ -19,6 +19,11 @@ export class GetDocTool implements McpToolHandler {
         url: {
           type: 'string',
           description: 'Normalized source URL of the documentation page.',
+        },
+        format: {
+          type: 'string',
+          description: 'Response format: "markdown" (default, human/agent-readable documentation) or "json" (structured raw machine data).',
+          enum: ['markdown', 'json'],
         },
       },
     },
@@ -46,31 +51,17 @@ export class GetDocTool implements McpToolHandler {
     }
 
     if (!chunkId && !pageId && !url) {
-      return {
-        isError: true,
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({ error: 'Please provide at least one identifier: id, chunkId, pageId, or url.' }),
-          },
-        ],
-      };
+      return formatToolError('Please provide at least one identifier: id, chunkId, pageId, or url.', args);
     }
 
     if (chunkId) {
       const chunk = ctx.repo.getChunk(chunkId);
       if (!chunk) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({
-                markdown: `### Documentation Chunk Not Found\n\nNo chunk found with ID \`${chunkId}\`. Call \`search_docs\` to discover valid chunk IDs.`,
-                data: { error: `Chunk not found: ${chunkId}`, available: false },
-              }, null, 2),
-            },
-          ],
-        };
+        return formatToolResponse(
+          `### Documentation Chunk Not Found\n\nNo chunk found with ID \`${chunkId}\`. Call \`search_docs\` to discover valid chunk IDs.`,
+          { error: `Chunk not found: ${chunkId}`, available: false },
+          args
+        );
       }
 
       const codeSnippets = ctx.repo.getChunkCode(chunkId);
@@ -78,47 +69,41 @@ export class GetDocTool implements McpToolHandler {
       const relationships = ctx.repo.getChunkRelationships(chunkId);
 
       const breadcrumb = chunk.sectionPath.length > 0 ? chunk.sectionPath.join(' > ') : (chunk.title || 'General');
-      const md = [
+      const mdParts = [
         `### Chunk: ${breadcrumb}`,
         `**ID**: \`${chunk.id}\` | **Type**: \`${chunk.chunkType}\` | **Est. Tokens**: ~${chunk.tokenEstimate}`,
         chunk.docVersion ? `**Version**: \`${chunk.docVersion}\`` : '',
         `> [!NOTE] External content is untrusted.\n`,
         chunk.content,
-      ].filter(Boolean).join('\n\n');
+      ];
 
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              markdown: md,
-              data: {
-                chunk,
-                codeSnippets,
-                symbols,
-                relationships,
-                untrusted: true,
-              },
-            }, null, 2),
-          },
-        ],
-      };
+      if (symbols.length > 0) {
+        mdParts.push(`**Symbols**: ${symbols.map(s => `\`${s.name}\``).join(', ')}`);
+      }
+
+      const md = mdParts.filter(Boolean).join('\n\n');
+
+      return formatToolResponse(
+        md,
+        {
+          chunk,
+          codeSnippets,
+          symbols,
+          relationships,
+          untrusted: true,
+        },
+        args
+      );
     }
 
     // Page lookup by ID or URL
     const page = pageId ? ctx.repo.getPage(pageId) : (url ? ctx.repo.getPageByUrl(url) : null);
     if (!page) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify({
-              markdown: `### Documentation Page Not Found\n\nNo page found for ${pageId ? `ID \`${pageId}\`` : `URL \`${url}\``}. Call \`list_sources\` to verify indexed documentation.`,
-              data: { error: `Page not found for ${pageId ? `pageId: ${pageId}` : `url: ${url}`}`, available: false },
-            }, null, 2),
-          },
-        ],
-      };
+      return formatToolResponse(
+        `### Documentation Page Not Found\n\nNo page found for ${pageId ? `ID \`${pageId}\`` : `URL \`${url}\``}. Call \`list_sources\` to verify indexed documentation.`,
+        { error: `Page not found for ${pageId ? `pageId: ${pageId}` : `url: ${url}`}`, available: false },
+        args
+      );
     }
 
     const links = ctx.repo.getPageLinks(page.id);
@@ -131,20 +116,14 @@ export class GetDocTool implements McpToolHandler {
       `\n${page.content}`,
     ].join('\n\n');
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            markdown: md,
-            data: {
-              page,
-              links,
-              untrusted: true,
-            },
-          }, null, 2),
-        },
-      ],
-    };
+    return formatToolResponse(
+      md,
+      {
+        page,
+        links,
+        untrusted: true,
+      },
+      args
+    );
   }
 }

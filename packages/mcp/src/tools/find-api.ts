@@ -75,8 +75,18 @@ export class FindApiTool implements McpToolHandler {
       lines.push(`#### \`${ep.method.toUpperCase()} ${ep.path}\`${ep.deprecated ? ' [DEPRECATED]' : ''}`);
       if (ep.summary) lines.push(`*${ep.summary}*`);
       if (ep.parameters.length > 0) {
-        const pList = ep.parameters.map(p => `${p.name}${p.required ? '*' : ''} (${p.in}:${p.type || 'any'})`).join(', ');
-        lines.push(`- **Parameters**: ${pList}`);
+        const requiredParams = ep.parameters.filter(p => p.required);
+        const optionalParams = ep.parameters.filter(p => !p.required);
+        if (requiredParams.length > 0) {
+          const reqList = requiredParams.map(p => `\`${p.name}\` (${p.in}:${p.type || 'any'})`).join(', ');
+          lines.push(`- **Required Parameters**: ${reqList}`);
+        }
+        if (optionalParams.length > 0) {
+          const optLimit = 15;
+          const optList = optionalParams.slice(0, optLimit).map(p => `\`${p.name}\` (${p.in}:${p.type || 'any'})`).join(', ');
+          const extra = optionalParams.length > optLimit ? ` *(+${optionalParams.length - optLimit} more)*` : '';
+          lines.push(`- **Optional Parameters**: ${optList}${extra}`);
+        }
       }
       if (ep.auth.length > 0) {
         lines.push(`- **Auth**: ${ep.auth.map(a => `${a.type}${a.scheme ? `:${a.scheme}` : ''}`).join(', ')}`);

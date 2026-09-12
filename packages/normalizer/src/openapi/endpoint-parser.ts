@@ -237,14 +237,41 @@ export function parseOpenApiEndpoints(
         }
         if (typeof rb.content === 'object' && rb.content !== null) {
           const content = rb.content as Record<string, unknown>;
-          // Prefer application/json, fallback to first media type
-          const mediaTypeObj = (content['application/json'] || Object.values(content)[0]) as Record<string, unknown> | undefined;
+          // Prefer application/json, then application/x-www-form-urlencoded, fallback to first media type
+          const mediaTypeObj = (content['application/json'] || content['application/x-www-form-urlencoded'] || Object.values(content)[0]) as Record<string, unknown> | undefined;
           if (mediaTypeObj && mediaTypeObj.schema) {
             requestSchema = normalizeSchema(mediaTypeObj.schema, root);
           }
         }
       } else if (isSwagger2 && swaggerBodySchema) {
         requestSchema = normalizeSchema(swaggerBodySchema, root);
+      }
+
+      // If request body schema defines properties, expose them as body parameters for discovery and indexing
+      if (requestSchema && typeof requestSchema.properties === 'object' && requestSchema.properties !== null) {
+        const reqFields = new Set(requestSchema.required || []);
+        for (const [propName, propValRaw] of Object.entries(requestSchema.properties)) {
+          if (parameters.some(p => p.name === propName)) continue;
+          const propVal = (typeof propValRaw === 'object' && propValRaw !== null)
+            ? (propValRaw as Record<string, unknown>)
+            : {};
+          const pType = typeof propVal.type === 'string'
+            ? propVal.type
+            : (Array.isArray(propVal.type) ? propVal.type.join(' | ') : undefined);
+          const pDesc = typeof propVal.description === 'string' ? propVal.description : undefined;
+          const pDefault = propVal.default;
+          const pExample = propVal.example;
+          parameters.push({
+            name: propName,
+            in: 'body',
+            required: reqFields.has(propName),
+            type: pType,
+            description: pDesc,
+            default: pDefault,
+            schema: propVal,
+            example: pExample,
+          });
+        }
       }
 
       // Responses & Errors

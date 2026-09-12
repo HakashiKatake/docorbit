@@ -71,6 +71,10 @@ export class DocumentationTreeCrawler {
     const rootOrigin = rootParsed.origin;
     // Base doc path without trailing slash
     const baseDocPath = rootParsed.pathname.replace(/\/$/, '');
+    const seedKeywords = docRootUrl
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter(w => w.length >= 4 && !['https', 'http', 'docs', 'html', 'com', 'org', 'net', 'io'].includes(w));
 
     const visited = new Set<string>();
     const queuedUrls = new Set<string>();
@@ -107,10 +111,33 @@ export class DocumentationTreeCrawler {
         return;
       }
 
-      // 2. Irrelevant marketing/auth/billing filter
-      if (IRRELEVANT_PATTERNS.some(p => p.test(parsedItemUrl.pathname))) {
-        pagesSkipped.push({ url, reason: 'irrelevant_page' });
-        return;
+      // 2. Irrelevant marketing/auth/billing filter (never skip the root page requested by user)
+      if (item.depth > 0) {
+        const isDocSite = parsedItemUrl.hostname.startsWith('docs.') ||
+                          parsedItemUrl.hostname.startsWith('api.') ||
+                          parsedItemUrl.pathname.startsWith('/docs') ||
+                          parsedItemUrl.pathname.startsWith('/api') ||
+                          parsedItemUrl.pathname.startsWith('/documentation') ||
+                          parsedItemUrl.pathname.startsWith('/guides');
+
+        if (isDocSite) {
+          // On documentation subdomains/paths, terms like checkout, billing, pricing, plans, subscribe
+          // are API documentation sections. Only filter auth and shopping cart pages.
+          const DOC_IRRELEVANT_PATTERNS = [
+            /\/(?:login|signin|sign-in|signup|register|auth\/login)(?:\/|$|\?)/i,
+            /\/(?:cart|order-summary|receipt)(?:\/|$|\?)/i,
+            /\/(?:terms|privacy|security|cookies|legal|gdpr)(?:\/|$|\?)/i,
+            /\/(?:careers|jobs|about-us|team|press|contact)(?:\/|$|\?)/i,
+            /\/(?:facebook|twitter|x\.com|linkedin|instagram|youtube)\.com/i,
+          ];
+          if (DOC_IRRELEVANT_PATTERNS.some(p => p.test(parsedItemUrl.pathname))) {
+            pagesSkipped.push({ url, reason: 'irrelevant_page' });
+            return;
+          }
+        } else if (IRRELEVANT_PATTERNS.some(p => p.test(parsedItemUrl.pathname))) {
+          pagesSkipped.push({ url, reason: 'irrelevant_page' });
+          return;
+        }
       }
 
       // 3. Documentation subpath scope check:
@@ -118,7 +145,8 @@ export class DocumentationTreeCrawler {
       if (baseDocPath && baseDocPath !== '/' && baseDocPath !== '') {
         const path = parsedItemUrl.pathname.toLowerCase();
         const base = baseDocPath.toLowerCase();
-        const isWithinDocRoot = path.startsWith(base) || path.startsWith(`${base}/`);
+        const isDocHost = parsedItemUrl.hostname.startsWith('docs.') || parsedItemUrl.hostname.startsWith('api.');
+        const isWithinDocRoot = isDocHost || path.startsWith(base) || path.startsWith(`${base}/`);
         const isDocSister = /\/(?:api|docs?|guides?|reference)(?:\/|$)/i.test(path);
         if (!isWithinDocRoot && !isDocSister) {
           pagesSkipped.push({ url, reason: 'out_of_doc_scope' });
@@ -134,8 +162,14 @@ export class DocumentationTreeCrawler {
 
       queuedUrls.add(url);
       queue.push(item);
-      // Keep queue sorted by priority score descending
-      queue.sort((a, b) => (PRIORITY_SCORES[b.priority] || 0) - (PRIORITY_SCORES[a.priority] || 0));
+      // Keep queue sorted by priority score descending, with relevance boost for seed keywords
+      queue.sort((a, b) => {
+        let scoreA = PRIORITY_SCORES[a.priority] || 0;
+        let scoreB = PRIORITY_SCORES[b.priority] || 0;
+        if (seedKeywords.some(k => a.url.toLowerCase().includes(k))) scoreA += 5;
+        if (seedKeywords.some(k => b.url.toLowerCase().includes(k))) scoreB += 5;
+        return scoreB - scoreA;
+      });
     };
 
     // Initial root enqueue
@@ -218,12 +252,31 @@ export class DocumentationTreeCrawler {
 
               totalBytesFetched += res.bytesRead;
 
+              let pageBody = res.body;
+              let pageContentType = res.contentType;
+              let finalUrl = res.finalUrl || current.url;
+
+              // If HTML body lacks code blocks or has client-side placeholders, probe for .md equivalent
+              if (!current.url.endsWith('.md') && !current.url.endsWith('.json') && res.contentType.includes('text/html')) {
+                if (!pageBody.includes('<pre') && !pageBody.includes('<code')) {
+                  try {
+                    const mdUrl = current.url.replace(/\/$/, '') + '.md';
+                    const mdRes = await this.fetcher.fetch(mdUrl, { timeoutMs: 3000 });
+                    if (mdRes.status >= 200 && mdRes.status < 300 && mdRes.body.length > 200) {
+                      pageBody = mdRes.body;
+                      pageContentType = 'text/markdown';
+                      finalUrl = mdRes.finalUrl || mdUrl;
+                    }
+                  } catch {}
+                }
+              }
+
               fetchedPages.push({
                 url: current.url,
-                finalUrl: res.finalUrl || current.url,
-                body: res.body,
-                contentType: res.contentType,
-                bytesRead: res.bytesRead,
+                finalUrl,
+                body: pageBody,
+                contentType: pageContentType,
+                bytesRead: Buffer.byteLength(pageBody),
                 status: res.status,
                 depth: current.depth,
                 parentUrl: current.parentUrl,

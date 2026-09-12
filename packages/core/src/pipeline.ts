@@ -256,7 +256,7 @@ export class IngestionPipeline {
       seenUrls.add(aux.url);
 
       try {
-        const res = await this.fetcher.fetch(aux.url, { timeoutMs: 5000 });
+        const res = await this.fetcher.fetch(aux.url, { timeoutMs: 12000 });
         if (res.status >= 200 && res.status < 300) {
           const page = buildNormalizedPage({
             sourceId: primarySourceId,
@@ -275,33 +275,50 @@ export class IngestionPipeline {
           // If llms.txt has links and policy permits subpage traversal
           if (isValidLlmsTxt(res.body) && this.policy.followLlmsReferences && this.policy.maxDepth > 0) {
             const llmsDoc = parseLlmsTxt(res.body, aux.url);
+            const targetKeywords = targetUrl
+              .toLowerCase()
+              .split(/[^a-z0-9]+/)
+              .filter(w => w.length >= 4 && !['https', 'http', 'docs', 'html', 'com', 'org', 'net', 'io'].includes(w));
+
+            // Flatten links and prioritize those matching target keywords
+            const allLlmsLinks: Array<{ url: string; title: string }> = [];
             for (const sec of llmsDoc.sections) {
               for (const lnk of sec.links) {
-                if (ingestedPages.length < this.policy.maxPages && !seenUrls.has(lnk.url)) {
-                  try {
-                    const lUrl = new URL(lnk.url, aux.url).href;
-                    if (!seenUrls.has(lUrl)) {
-                      seenUrls.add(lUrl);
-                      const subRes = await this.fetcher.fetch(lUrl, { timeoutMs: 5000 });
-                      if (subRes.status >= 200 && subRes.status < 300) {
-                        const subPage = buildNormalizedPage({
-                          sourceId: primarySourceId,
-                          url: subRes.finalUrl || lUrl,
-                          rawContent: subRes.body,
-                          contentType: subRes.contentType,
-                          sourceUrl: aux.url,
-                          targetUrl,
-                          discoveredBy: 'llms_link',
-                          fetchedAt: new Date().toISOString(),
-                          depth: 1,
-                        });
-                        this.repository.savePage(subPage);
-                        ingestedPages.push(subPage);
-                      }
-                    }
-                  } catch {}
-                }
+                allLlmsLinks.push(lnk);
               }
+            }
+
+            allLlmsLinks.sort((a, b) => {
+              const aMatches = targetKeywords.filter(k => a.url.toLowerCase().includes(k) || a.title.toLowerCase().includes(k)).length;
+              const bMatches = targetKeywords.filter(k => b.url.toLowerCase().includes(k) || b.title.toLowerCase().includes(k)).length;
+              return bMatches - aMatches;
+            });
+
+            for (const lnk of allLlmsLinks) {
+              if (ingestedPages.length >= this.policy.maxPages) break;
+              if (seenUrls.has(lnk.url)) continue;
+              try {
+                const lUrl = new URL(lnk.url, aux.url).href;
+                if (!seenUrls.has(lUrl)) {
+                  seenUrls.add(lUrl);
+                  const subRes = await this.fetcher.fetch(lUrl, { timeoutMs: 5000 });
+                  if (subRes.status >= 200 && subRes.status < 300) {
+                    const subPage = buildNormalizedPage({
+                      sourceId: primarySourceId,
+                      url: subRes.finalUrl || lUrl,
+                      rawContent: subRes.body,
+                      contentType: subRes.contentType,
+                      sourceUrl: aux.url,
+                      targetUrl,
+                      discoveredBy: 'llms_link',
+                      fetchedAt: new Date().toISOString(),
+                      depth: 1,
+                    });
+                    this.repository.savePage(subPage);
+                    ingestedPages.push(subPage);
+                  }
+                }
+              } catch {}
             }
           }
         }

@@ -48,7 +48,77 @@ export function normalizeHtmlToMarkdown(html: string, baseUrl: string): Extracte
     title = title.split(/\s+[|–—-]\s+/)[0].trim();
   }
 
-  // 2. Remove non-content / boilerplate tags
+  // 2. Extract embedded Markdoc / client-hydration code blocks before stripping scripts
+  const embeddedCodeBlocks: Array<{ language: string; filename?: string; code: string }> = [];
+
+  const unescapeUnicode = (str: string): string => {
+    return str
+      .replace(/\\u0028/g, '(')
+      .replace(/\\u0029/g, ')')
+      .replace(/\\u0022/g, '"')
+      .replace(/\\u0027/g, "'")
+      .replace(/\\u003c/g, '<')
+      .replace(/\\u003e/g, '>')
+      .replace(/\\u0026/g, '&')
+      .replace(/\\u002f/gi, '/')
+      .replace(/\\n/g, '\n')
+      .replace(/\\r/g, '')
+      .replace(/\\t/g, '  ')
+      .replace(/\\\\/g, '\\');
+  };
+
+  const fileRegex = /"name"\s*:\s*"File"\s*,\s*"attributes"\s*:\s*\{([^}]+)\}\s*,\s*"children"\s*:\s*\[([\s\S]*?)\]\s*\}\s*\]/gi;
+  let fMatch: RegExpExecArray | null;
+  while ((fMatch = fileRegex.exec(html)) !== null) {
+    const attrStr = fMatch[1];
+    const childrenStr = fMatch[2];
+    const langMatch = attrStr.match(/"language"\s*:\s*"([^"]+)"/);
+    const fileMatch = attrStr.match(/"filename"\s*:\s*"([^"]+)"/);
+    const lang = langMatch ? langMatch[1] : 'javascript';
+    const filename = fileMatch ? unescapeUnicode(fileMatch[1]) : undefined;
+
+    const chunkMatches = childrenStr.match(/"chunks"\s*:\s*\[\s*"([\s\S]*?)"\s*\]/g) || [];
+    let assembled = '';
+    for (const c of chunkMatches) {
+      const inner = c.replace(/^"chunks"\s*:\s*\[\s*"/, '').replace(/"\s*\]$/, '');
+      assembled += unescapeUnicode(inner) + '\n';
+    }
+    if (!assembled) {
+      const stringMatches = childrenStr.match(/"(?:chunks|children)"\s*:\s*\[\s*"([^"]+)"/g) || [];
+      for (const sm of stringMatches) {
+        const cleaned = sm.replace(/.*\[\s*"/, '');
+        assembled += unescapeUnicode(cleaned) + '\n';
+      }
+    }
+    if (assembled.trim().length > 20) {
+      embeddedCodeBlocks.push({
+        language: lang,
+        filename,
+        code: assembled.trim(),
+      });
+    }
+  }
+
+  // Fallback for single Chunk tags
+  if (embeddedCodeBlocks.length === 0 && html.includes('"$$mdtype":"Tag"')) {
+    const chunkRegex = /"name"\s*:\s*"Chunk"\s*,\s*"attributes"\s*:\s*\{[^}]*?"language"\s*:\s*"([^"]+)"[^}]*\}\s*,\s*"chunks"\s*:\s*\[\s*"([\s\S]*?)"\s*\]/gi;
+    let cm: RegExpExecArray | null;
+    const byLang = new Map<string, string[]>();
+    while ((cm = chunkRegex.exec(html)) !== null) {
+      const lang = cm[1];
+      const code = unescapeUnicode(cm[2]);
+      if (!byLang.has(lang)) byLang.set(lang, []);
+      byLang.get(lang)!.push(code);
+    }
+    for (const [lang, parts] of byLang.entries()) {
+      embeddedCodeBlocks.push({
+        language: lang,
+        code: parts.join('\n').trim(),
+      });
+    }
+  }
+
+  // Remove non-content / boilerplate tags
   let cleaned = html
     .replace(/<!--[\s\S]*?-->/g, '')
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
@@ -231,9 +301,24 @@ export function normalizeHtmlToMarkdown(html: string, baseUrl: string): Extracte
   // 10. Strip all remaining HTML tags
   cleaned = cleaned.replace(/<[^>]+>/g, '');
 
-  // 11. Restore preserved code blocks
+  // 11. Restore preserved code blocks and append embedded Markdoc code
   for (let i = 0; i < codeBlockPlaceholders.length; i++) {
     cleaned = cleaned.replace(`__DOCORBIT_CODE_BLOCK_${i}__`, codeBlockPlaceholders[i]);
+  }
+
+  if (embeddedCodeBlocks.length > 0) {
+    let embeddedMd = '\n\n## Verified Code Examples\n\n';
+    for (const ec of embeddedCodeBlocks) {
+      const exampleId = `code_${codeExamples.length + 1}`;
+      codeExamples.push({
+        id: exampleId,
+        language: ec.language || 'typescript',
+        code: ec.code,
+      });
+      const header = ec.filename ? `### ${ec.filename}\n` : '';
+      embeddedMd += `${header}\`\`\`${ec.language}\n${ec.code}\n\`\`\`\n\n`;
+    }
+    cleaned += embeddedMd;
   }
 
   // 12. Normalize whitespace

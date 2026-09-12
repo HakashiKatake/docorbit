@@ -54,7 +54,7 @@ export class ApiRepository implements IApiRepository {
       for (const ep of endpoints) {
         insertEp.run(
           ep.id,
-          ep.pageId,
+          ep.pageId || null,
           ep.snapshotId || 'snap_default',
           ep.method,
           ep.path,

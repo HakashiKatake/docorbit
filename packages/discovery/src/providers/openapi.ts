@@ -48,15 +48,26 @@ export class OpenApiProvider implements DiscoveryProvider {
     }
 
     const seenUrls = new Set<string>();
+    const candidateUrls: string[] = [];
+
+    // Official authoritative OpenAPI repositories for major developer platforms
+    if (baseUrl.hostname.includes('stripe.com')) {
+      candidateUrls.push('https://raw.githubusercontent.com/stripe/openapi/master/openapi/spec3.json');
+    } else if (baseUrl.hostname.includes('github.com')) {
+      candidateUrls.push('https://raw.githubusercontent.com/github/rest-api-description/main/descriptions/api.github.com/api.github.com.json');
+    }
 
     for (const path of candidatePaths) {
-      const probeUrl = new URL(path, baseUrl.origin).href;
+      candidateUrls.push(new URL(path, baseUrl.origin).href);
+    }
+
+    for (const probeUrl of candidateUrls) {
       if (seenUrls.has(probeUrl)) continue;
       seenUrls.add(probeUrl);
 
       try {
         const res = await fetcher.fetch(probeUrl, {
-          timeoutMs: 4000,
+          timeoutMs: 8000,
         });
 
         if (res.status >= 200 && res.status < 300) {

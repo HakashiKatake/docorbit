@@ -262,6 +262,24 @@ export class DocumentationLinkExtractor {
       }
     }
 
+    // 8. Extract Markdown Links [Text](url)
+    const mdLinkRegex = /\[([^\]]+)\]\(([^)"]+)(?:\s+"[^"]*")?\)/g;
+    let mdMatch: RegExpExecArray | null;
+    while ((mdMatch = mdLinkRegex.exec(html)) !== null) {
+      const rawHref = mdMatch[2].trim();
+      const text = mdMatch[1].trim();
+      const url = this.normalizeUrl(rawHref, currentUrl);
+      if (url) {
+        rawLinks.push({
+          url,
+          text,
+          priority: 'body',
+          parentUrl: currentUrl,
+          discoveryMethod: 'markdown_link',
+        });
+      }
+    }
+
     // Deduplicate links prioritizing higher priority tiers
     const PRIORITY_ORDER: Record<LinkPriority, number> = {
       nav_sidebar: 1,

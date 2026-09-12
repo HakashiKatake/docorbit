@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DocOrbit Documentation — Complete CLI & 15 MCP Tools Reference</title>
+  <meta name="description" content="Comprehensive documentation for DocOrbit: Zero-install MCP setup, complete CLI command reference, 15 agent-native MCP tools, AST verification, and ecosystem lockfiles.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛰️</text></svg>">
+  <style>
+    /* In-page docs specific refinements */
+    .docs-nav-group a {
+      color: #94a3b8;
+      text-decoration: none;
+      display: block;
+      padding: 5px 8px;
+      font-size: 0.85rem;
+      border-radius: 4px;
+      transition: all 0.15s ease;
+    }
+    .docs-nav-group a:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+    }
+    .docs-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.85rem;
+      background: #0d121a;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .docs-table th, .docs-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      text-align: left;
+    }
+    .docs-table th {
+      background: #080c12;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-subtle-glow"></div>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container">
+      <div class="nav-left">
+        <a href="index.html" class="brand">
+          <div class="brand-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M3.6 9h16.8"></path>
+              <path d="M3.6 15h16.8"></path>
+            </svg>
+          </div>
+          <span>DocOrbit Docs</span>
+          <span class="brand-badge">v0.1.9</span>
+        </a>
+
+        <ul class="nav-links">
+          <li><a href="index.html" class="nav-link">&larr; Back to Home</a></li>
+          <li><a href="#quickstart" class="nav-link">Quickstart</a></li>
+          <li><a href="#cli-reference" class="nav-link">CLI Commands</a></li>
+          <li><a href="#mcp-tools" class="nav-link">15 MCP Tools</a></li>
+          <li><a href="#ecosystems" class="nav-link">Lockfiles</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-right">
+        <a href="https://github.com/HakashiKatake/docorbit" target="_blank" rel="noopener noreferrer" class="nav-btn nav-btn-secondary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <span>Star on GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Documentation Layout -->
+  <div class="container">
+    <div class="docs-layout">
+      <!-- Sidebar Navigation -->
+      <aside class="docs-sidebar">
+        <div class="docs-nav-group">
+          <div class="docs-group-title">Getting Started</div>
+          <ul class="docs-nav-list">
+            <li><a href="#overview">Overview & Architecture</a></li>
+            <li><a href="#quickstart">Quickstart (30s)</a></li>
+            <li><a href="#harness-setup">Harness Configuration</a></li>
+          </ul>
+        </div>
+
+        <div class="docs-nav-group">
+          <div class="docs-group-title">CLI Reference</div>
+          <ul class="docs-nav-list">
+            <li><a href="#cli-init">init & update</a></li>
+            <li><a href="#cli-discover">discover & add</a></li>
+            <li><a href="#cli-search">search & context</a></li>
+            <li><a href="#cli-api">api, examples & pitfalls</a></li>
+            <li><a href="#cli-verify">verify, diff & impact</a></li>
+            <li><a href="#cli-dashboard">dashboard & export</a></li>
+            <li><a href="#cli-mcp">mcp server mode</a></li>
+          </ul>
+        </div>
+
+        <div class="docs-nav-group">
+          <div class="docs-group-title">15 MCP Tools Reference</div>
+          <ul class="docs-nav-list">
+            <li><a href="#tool-search_docs">search_docs</a></li>
+            <li><a href="#tool-get_doc">get_doc</a></li>
+            <li><a href="#tool-find_api">find_api</a></li>
+            <li><a href="#tool-find_example">find_example</a></li>
+            <li><a href="#tool-find_pitfall">find_pitfall</a></li>
+            <li><a href="#tool-get_implementation_context">get_implementation_context</a></li>
+            <li><a href="#tool-check_api">check_api</a></li>
+            <li><a href="#tool-diff_docs">diff_docs</a></li>
+            <li><a href="#tool-analyze_impact">analyze_impact</a></li>
+            <li><a href="#tool-list_sources">list_sources</a></li>
+            <li><a href="#tool-ingest_doc">ingest_doc</a></li>
+            <li><a href="#tool-get_docs_map">get_docs_map</a></li>
+            <li><a href="#tool-get_version">get_version</a></li>
+            <li><a href="#tool-find_recipe">find_recipe</a></li>
+            <li><a href="#tool-export_agent_context">export_agent_context</a></li>
+          </ul>
+        </div>
+
+        <div class="docs-nav-group">
+          <div class="docs-group-title">Ecosystems & Security</div>
+          <ul class="docs-nav-list">
+            <li><a href="#ecosystems">Supported Lockfiles</a></li>
+            <li><a href="#semver-ladder">SemVer Ladder</a></li>
+            <li><a href="#security">SSRF & Threat Model</a></li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Main Docs Content Area -->
+      <main class="docs-body">
+        <section id="overview">
+          <h1>DocOrbit Documentation</h1>
+          <p class="docs-lead">
+            DocOrbit is the local-first documentation intelligence layer designed specifically for AI coding agents (Cursor, Claude Desktop, Claude Code, Windsurf, Zed, Continue, and custom agent SDKs).
+          </p>
+
+          <div class="docs-callout">
+            <p><strong>Core Philosophy:</strong> LLMs do not fail because they cannot reason; they fail because raw web documentation is unversioned, polluted with HTML boilerplate, or formatted as escaped JSON bloat. DocOrbit provides local, version-locked AST contracts in clean Markdown.</p>
+          </div>
+
+          <h2>System Architecture</h2>
+          <p>DocOrbit operates across 5 deterministic layers:</p>
+          <ol style="margin-left: 1.5rem; color: var(--text-secondary); line-height: 1.8;">
+            <li><strong>Layer 1: Recursive Tree Discovery</strong> — Probes <code>llms.txt</code>, sitemaps, and HTML navigation trees to discover authoritative doc roots and crawl documentation hierarchies.</li>
+            <li><strong>Layer 2: Multi-Source Normalization</strong> — Ingests OpenAPI 3.x, Swagger 2.0, and Markdown, resolving circular <code>$ref</code> schemas into typed endpoints.</li>
+            <li><strong>Layer 3: AST Slicing & Storage</strong> — Slices documentation along header boundaries while preserving atomic code fences inside embedded SQLite FTS5 (WAL mode).</li>
+            <li><strong>Layer 4: Version Reconciliation & Lockfiles</strong> — Scans 8 ecosystems (npm, cargo, go, pypi, composer, rubygems, pub, maven) and writes bit-for-bit stable <code>docs.lock</code> files.</li>
+            <li><strong>Layer 5: Closed-Loop AST Verification</strong> — Parses agent-generated code with AST extractors to verify methods, parameters, and modern API contracts before saving.</li>
+          </ol>
+        </section>
+
+        <section id="quickstart" style="margin-top: 3rem;">
+          <h2>Quickstart (30 Seconds)</h2>
+          <p>DocOrbit requires zero pre-installation. You can launch the MCP server directly using <code>npx</code>:</p>
+
+          <pre><code>npx -y docorbit mcp</code></pre>
+
+          <p>To initialize documentation for an existing codebase and generate a <code>docs.lock</code> file:</p>
+          <pre><code># Inside your project directory
+npx -y docorbit init
+
+# Inspect and index external library docs
+npx -y docorbit add https://nextjs.org/docs
+npx -y docorbit add https://docs.stripe.com</code></pre>
+        </section>
+
+        <section id="harness-setup" style="margin-top: 3rem;">
+          <h2>Harness Configuration</h2>
+          <p>DocOrbit integrates with all major coding agents via the standard Model Context Protocol:</p>
+
+          <h3>1. Cursor</h3>
+          <p>Add to <code>~/.cursor/mcp.json</code>:</p>
+          <pre><code>{
+  "mcpServers": {
+    "docorbit": {
+      "command": "npx",
+      "args": ["-y", "docorbit", "mcp"]
+    }
+  }
+}</code></pre>
+
+          <h3>2. Claude Desktop</h3>
+          <p>Add to <code>claude_desktop_config.json</code>:</p>
+          <pre><code>{
+  "mcpServers": {
+    "docorbit": {
+      "command": "npx",
+      "args": ["-y", "docorbit", "mcp"]
+    }
+  }
+}</code></pre>
+
+          <h3>3. Claude Code CLI</h3>
+          <p>Run directly in your terminal:</p>
+          <pre><code>claude mcp add docorbit -- npx -y docorbit mcp</code></pre>
+        </section>
+
+        <section id="cli-reference" style="margin-top: 4rem;">
+          <h2>CLI Command Reference</h2>
+          <p>DocOrbit provides 18 subcommands for managing project documentation, indexing APIs, verifying code, and launching the dashboard:</p>
+
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>Command</th>
+                <th>Arguments</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="cli-init">
+                <td><code>init [dir]</code></td>
+                <td>Optional target directory</td>
+                <td>Scans workspace, detects project dependencies across 8 ecosystems, and writes <code>docs.lock</code>.</td>
+              </tr>
+              <tr>
+                <td><code>update [pkg]</code></td>
+                <td>Optional package name</td>
+                <td>Updates dependencies in <code>docs.lock</code> with selective or global refresh.</td>
+              </tr>
+              <tr>
+                <td><code>inspect &lt;url&gt;</code></td>
+                <td>Target documentation URL</td>
+                <td>Probes target domain for canonical machine-readable sources (llms.txt, openapi, sitemaps).</td>
+              </tr>
+              <tr id="cli-discover">
+                <td><code>discover &lt;url&gt;</code></td>
+                <td>Target domain or URL</td>
+                <td>Auto-detects documentation root and recursively crawls the entire documentation hierarchy.</td>
+              </tr>
+              <tr>
+                <td><code>add &lt;url&gt;</code></td>
+                <td>URL or raw source</td>
+                <td>Discovers, ranks, fetches, normalizes, slices, and stores documentation into local SQLite.</td>
+              </tr>
+              <tr id="cli-search">
+                <td><code>search "&lt;query&gt;"</code></td>
+                <td>Search query string</td>
+                <td>Performs deterministic hybrid FTS5 search across documentation chunks (~1.3ms).</td>
+              </tr>
+              <tr>
+                <td><code>context "&lt;task&gt;"</code></td>
+                <td>Agent task description</td>
+                <td>Packs relevant documentation context optimized for coding agent token limits.</td>
+              </tr>
+              <tr id="cli-api">
+                <td><code>api "&lt;query&gt;"</code></td>
+                <td>Endpoint / method query</td>
+                <td>Searches and inspects structured OpenAPI / Swagger endpoints with schema types.</td>
+              </tr>
+              <tr>
+                <td><code>examples "&lt;task&gt;"</code></td>
+                <td>Task query</td>
+                <td>Filters first-class code examples by language, framework, or task.</td>
+              </tr>
+              <tr>
+                <td><code>pitfalls "&lt;task&gt;"</code></td>
+                <td>Task or library name</td>
+                <td>Searches explicit warnings, deprecations, breaking changes, and runtime restrictions.</td>
+              </tr>
+              <tr>
+                <td><code>recipes "&lt;goal&gt;"</code></td>
+                <td>Implementation goal</td>
+                <td>Deterministically compiles evidence-grounded implementation recipes.</td>
+              </tr>
+              <tr id="cli-verify">
+                <td><code>verify &lt;code/file&gt;</code></td>
+                <td>Source code or file path</td>
+                <td>Verifies API calls against indexed contracts and detects parameter mismatches/deprecations.</td>
+              </tr>
+              <tr>
+                <td><code>diff [source]</code></td>
+                <td>Optional source ID</td>
+                <td>Compares documentation versions and snapshots to detect added, removed, or changed APIs.</td>
+              </tr>
+              <tr>
+                <td><code>impact [source]</code></td>
+                <td>Optional source ID</td>
+                <td>Analyzes impact of documentation changes on project workspace source files.</td>
+              </tr>
+              <tr id="cli-dashboard">
+                <td><code>dashboard</code></td>
+                <td>(alias: <code>ui</code>)</td>
+                <td>Launches local zero-dependency web inspection UI and verification playground at <code>http://127.0.0.1:3737</code>.</td>
+              </tr>
+              <tr>
+                <td><code>export [format]</code></td>
+                <td>Format name</td>
+                <td>Deterministically exports AGENTS.md, CLAUDE.md, skill.md, llms.txt, or docs-map.md.</td>
+              </tr>
+              <tr>
+                <td><code>eval</code></td>
+                <td><code>--simulation</code> flag</td>
+                <td>Runs empirical comparative benchmark (DocOrbit vs Context7 vs Firecrawl).</td>
+              </tr>
+              <tr id="cli-mcp">
+                <td><code>mcp</code></td>
+                <td><code>--http [port]</code> flag</td>
+                <td>Starts agent-native Model Context Protocol server over stdio or streamable HTTP.</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="mcp-tools" style="margin-top: 4rem;">
+          <h2>15 Agent-Native MCP Tools Reference</h2>
+          <p>
+            All 15 DocOrbit MCP tools deliver <strong>direct, clean GitHub-flavored Markdown by default</strong> in <code>content[0].text</code>, saving 50–60% token overhead compared to escaped JSON wrappers. Programmatic callers can pass <code>format: "json"</code> to receive structured JSON.
+          </p>
+
+          <!-- search_docs -->
+          <div id="tool-search_docs" style="margin-top: 2rem;">
+            <h3>1. search_docs</h3>
+            <p>Performs deterministic hybrid search over sliced documentation chunks with SemVer boosting.</p>
+            <table class="docs-table">
+              <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+              <tr><td><code>query</code></td><td>string (required)</td><td>The natural language search query.</td></tr>
+              <tr><td><code>docVersion</code></td><td>string (optional)</td><td>Target version filter (e.g. <code>v15</code>, <code>^16.0.0</code>).</td></tr>
+              <tr><td><code>library</code></td><td>string (optional)</td><td>Filter to specific library or package name.</td></tr>
+              <tr><td><code>limit</code></td><td>number (optional)</td><td>Maximum chunks to return (default: 5).</td></tr>
+              <tr><td><code>format</code></td><td>string (optional)</td><td><code>"markdown"</code> (default) or <code>"json"</code>.</td></tr>
+            </table>
+          </div>
+
+          <!-- get_doc -->
+          <div id="tool-get_doc" style="margin-top: 2rem;">
+            <h3>2. get_doc</h3>
+            <p>Retrieves a complete normalized document page or specific chunk by URL or chunk ID.</p>
+            <table class="docs-table">
+              <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+              <tr><td><code>url</code></td><td>string (optional)</td><td>The URL of the documentation page.</td></tr>
+              <tr><td><code>chunkId</code></td><td>string (optional)</td><td>The exact chunk ID to retrieve.</td></tr>
+              <tr><td><code>docVersion</code></td><td>string (optional)</td><td>Target documentation version.</td></tr>
+              <tr><td><code>format</code></td><td>string (optional)</td><td><code>"markdown"</code> (default) or <code>"json"</code>.</td></tr>
+            </table>
+          </div>
+
+          <!-- find_api -->
+          <div id="tool-find_api" style="margin-top: 2rem;">
+            <h3>3. find_api</h3>
+            <p>Inspects structured OpenAPI 3.x and Swagger 2.0 endpoints with exact parameter schemas, HTTP methods, and response models.</p>
+            <table class="docs-table">
+              <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+              <tr><td><code>endpoint</code></td><td>string (optional)</td><td>Path or partial endpoint string (e.g. <code>/v1/checkout/sessions</code>).</td></tr>
+              <tr><td><code>method</code></td><td>string (optional)</td><td>HTTP method filter (GET, POST, PUT, DELETE).</td></tr>
+              <tr><td><code>query</code></td><td>string (optional)</td><td>Fuzzy search over endpoint summary or operation ID.</td></tr>
+            </table>
+          </div>
+
+          <!-- find_example -->
+          <div id="tool-find_example" style="margin-top: 2rem;">
+            <h3>4. find_example</h3>
+            <p>Searches and retrieves verified code snippets filtered by programming language, framework, or task.</p>
+            <table class="docs-table">
+              <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+              <tr><td><code>task</code></td><td>string (optional)</td><td>The coding task (e.g. "webhook verification").</td></tr>
+              <tr><td><code>language</code></td><td>string (optional)</td><td>Language filter (javascript, typescript, python, rust, go).</td></tr>
+              <tr><td><code>framework</code></td><td>string (optional)</td><td>Framework filter (nextjs, express, fastapi, django).</td></tr>
+            </table>
+          </div>
+
+          <!-- find_pitfall -->
+          <div id="tool-find_pitfall" style="margin-top: 2rem;">
+            <h3>5. find_pitfall</h3>
+            <p>Searches explicit breaking changes, deprecation warnings, server-only restrictions, and runtime rate limit traps.</p>
+            <table class="docs-table">
+              <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+              <tr><td><code>task</code></td><td>string (optional)</td><td>Task or library context.</td></tr>
+              <tr><td><code>kind</code></td><td>string (optional)</td><td><code>"breaking_change"</code>, <code>"deprecation"</code>, <code>"runtime_trap"</code>, <code>"security"</code>.</td></tr>
+            </table>
+          </div>
+
+          <!-- check_api -->
+          <div id="tool-check_api" style="margin-top: 2rem;">
+            <h3>6. check_api</h3>
+            <p>Verifies generated code against indexed API contracts using an AST parser. Flags invalid paths, wrong methods, deprecated calls, and missing required parameters.</p>
+            <table class="docs-table">
+              <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+              <tr><td><code>endpoint</code></td><td>string (required)</td><td>API endpoint path being called.</td></tr>
+              <tr><td><code>method</code></td><td>string (optional)</td><td>HTTP method (default: GET).</td></tr>
+              <tr><td><code>code</code></td><td>string (optional)</td><td>Full code snippet to parse via AST.</td></tr>
+              <tr><td><code>docVersion</code></td><td>string (optional)</td><td>Target version to verify against.</td></tr>
+            </table>
+          </div>
+
+          <!-- get_implementation_context -->
+          <div id="tool-get_implementation_context" style="margin-top: 2rem;">
+            <h3>7. get_implementation_context</h3>
+            <p>Packs multi-dimensional context (relevant APIs, code examples, pitfalls, and navigation breadcrumbs) within a strict token budget.</p>
+            <table class="docs-table">
+              <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+              <tr><td><code>task</code></td><td>string (required)</td><td>Description of the agent implementation task.</td></tr>
+              <tr><td><code>tokenBudget</code></td><td>number (optional)</td><td>Token budget ceiling (default: 2000).</td></tr>
+            </table>
+          </div>
+
+          <!-- Additional 8 tools summary -->
+          <div style="margin-top: 2rem;">
+            <h3>Additional MCP Tools:</h3>
+            <ul style="margin-left: 1.5rem; color: var(--text-secondary); line-height: 1.8;">
+              <li><code>diff_docs</code> — Compares two documentation versions to detect API changes.</li>
+              <li><code>analyze_impact</code> — Scans local project source files against deprecated APIs.</li>
+              <li><code>list_sources</code> — Lists all indexed documentation sources and snapshots.</li>
+              <li><code>ingest_doc</code> — Dynamically indexes external documentation from a URL or raw markdown.</li>
+              <li><code>get_docs_map</code> — Returns hierarchical document tree with section token counts.</li>
+              <li><code>get_version</code> — Inspects project workspace dependencies and returns authoritative doc versions.</li>
+              <li><code>find_recipe</code> — Assembles evidence-grounded implementation recipes.</li>
+              <li><code>export_agent_context</code> — Exports standardized AGENTS.md, CLAUDE.md, skill.md, or llms.txt.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="ecosystems" style="margin-top: 4rem;">
+          <h2>Supported Ecosystems & SemVer Laddering</h2>
+          <p>DocOrbit scans and reconciles lockfiles across 8 major package managers:</p>
+          <table class="docs-table">
+            <thead>
+              <tr>
+                <th>Ecosystem</th>
+                <th>Manifest Files</th>
+                <th>Lockfiles</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>npm</strong></td><td><code>package.json</code></td><td><code>package-lock.json</code>, <code>yarn.lock</code>, <code>pnpm-lock.yaml</code></td></tr>
+              <tr><td><strong>cargo</strong></td><td><code>Cargo.toml</code></td><td><code>Cargo.lock</code></td></tr>
+              <tr><td><strong>go</strong></td><td><code>go.mod</code></td><td><code>go.sum</code></td></tr>
+              <tr><td><strong>pypi</strong></td><td><code>pyproject.toml</code>, <code>setup.py</code></td><td><code>poetry.lock</code>, <code>Pipfile.lock</code>, <code>requirements.txt</code></td></tr>
+              <tr><td><strong>composer</strong></td><td><code>composer.json</code></td><td><code>composer.lock</code></td></tr>
+              <tr><td><strong>pub</strong></td><td><code>pubspec.yaml</code></td><td><code>pubspec.lock</code></td></tr>
+              <tr><td><strong>rubygems</strong></td><td><code>Gemfile</code></td><td><code>Gemfile.lock</code></td></tr>
+              <tr><td><strong>maven</strong></td><td><code>pom.xml</code></td><td><code>pom.xml</code></td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="security" style="margin-top: 4rem;">
+          <h2>Security & Threat Model</h2>
+          <p>DocOrbit enforces strict security boundaries when crawling documentation domains:</p>
+          <ul style="margin-left: 1.5rem; color: var(--text-secondary); line-height: 1.8;">
+            <li><strong>SSRF Protection</strong>: Blocks RFC 1918 private IP ranges, loopback addresses (<code>127.0.0.1</code>), and cloud provider metadata IPs (<code>169.254.169.254</code>).</li>
+            <li><strong>Untrusted Provenance</strong>: All documentation retrieved from third-party websites is tagged with <code>untrusted: true</code> metadata to prevent prompt injection attacks.</li>
+            <li><strong>Local Isolation</strong>: All SQLite storage lives inside the local <code>.docorbit/</code> project directory. No code or telemetry leaves your machine.</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <span>&copy; 2026 DocOrbit Team. MIT Licensed.</span>
+        <span><a href="index.html" style="color: var(--emerald-bright); text-decoration: none;">&larr; Back to Landing Page</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

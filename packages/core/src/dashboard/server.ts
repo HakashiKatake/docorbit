@@ -142,7 +142,17 @@ export class DashboardServer {
       }
     }
 
-    if (pathname === '/site/styles.css' || (pathname === '/styles.css' && req.headers.referer?.includes('/site'))) {
+    // Static Documentation Page (/docs)
+    if (pathname === '/docs' || pathname === '/docs/' || pathname === '/docs.html' || pathname === '/site/docs' || pathname === '/site/docs/' || pathname === '/site/docs.html') {
+      const docsHtmlPath = this.resolveSiteFile('site/docs/index.html') || this.resolveSiteFile('site/docs.html');
+      if (docsHtmlPath) {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(fs.readFileSync(docsHtmlPath, 'utf-8'));
+        return;
+      }
+    }
+
+    if (pathname === '/site/styles.css' || pathname === '/docs/styles.css' || (pathname === '/styles.css' && (req.headers.referer?.includes('/site') || req.headers.referer?.includes('/docs')))) {
       const cssPath = this.resolveSiteFile('site/styles.css');
       if (cssPath) {
         res.writeHead(200, { 'Content-Type': 'text/css; charset=utf-8' });
@@ -151,7 +161,7 @@ export class DashboardServer {
       }
     }
 
-    if (pathname === '/site/app.js' || (pathname === '/app.js' && req.headers.referer?.includes('/site'))) {
+    if (pathname === '/site/app.js' || pathname === '/docs/app.js' || (pathname === '/app.js' && (req.headers.referer?.includes('/site') || req.headers.referer?.includes('/docs')))) {
       const jsPath = this.resolveSiteFile('site/app.js');
       if (jsPath) {
         res.writeHead(200, { 'Content-Type': 'application/javascript; charset=utf-8' });

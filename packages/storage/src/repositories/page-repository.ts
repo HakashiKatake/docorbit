@@ -5,6 +5,8 @@ import type {
   Heading,
   SecurityAnnotation,
   Provenance,
+  PageType,
+  DocumentationTreeNode,
 } from '../../../shared/src/index.ts';
 import type { DocOrbitDb } from '../db.ts';
 
@@ -22,8 +24,9 @@ export class PageRepository {
       INSERT INTO pages (
         id, source_id, title, url, content, content_hash,
         fetched_at, raw_bytes, estimated_tokens,
-        headings_json, security_annotations_json, provenance_json
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        headings_json, security_annotations_json, provenance_json,
+        page_type, parent_url, category, breadcrumb_json, depth, discovery_method
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(url) DO UPDATE SET
         title = excluded.title,
         content = excluded.content,
@@ -33,7 +36,13 @@ export class PageRepository {
         estimated_tokens = excluded.estimated_tokens,
         headings_json = excluded.headings_json,
         security_annotations_json = excluded.security_annotations_json,
-        provenance_json = excluded.provenance_json
+        provenance_json = excluded.provenance_json,
+        page_type = excluded.page_type,
+        parent_url = excluded.parent_url,
+        category = excluded.category,
+        breadcrumb_json = excluded.breadcrumb_json,
+        depth = excluded.depth,
+        discovery_method = excluded.discovery_method
     `);
 
     pageStmt.run(
@@ -48,7 +57,13 @@ export class PageRepository {
       page.estimatedTokens,
       JSON.stringify(page.headings),
       JSON.stringify(page.securityAnnotations),
-      page.provenance ? JSON.stringify(page.provenance) : null
+      page.provenance ? JSON.stringify(page.provenance) : null,
+      page.pageType || null,
+      page.parentUrl || null,
+      page.category || null,
+      page.breadcrumb ? JSON.stringify(page.breadcrumb) : null,
+      page.depth ?? null,
+      page.discoveryMethod || null
     );
 
     raw.prepare('DELETE FROM links WHERE page_id = ?').run(page.id);
@@ -162,28 +177,34 @@ export class PageRepository {
     }
   }
 
-  hydratePage(row: Record<string, unknown>): NormalizedPage {
+  hydratePage(row: Record<string, unknown>, shallow = false): NormalizedPage {
     const raw = this.db.getRawDb();
     const pageId = String(row.id);
 
-    const linkRows = raw.prepare('SELECT text, url, is_external FROM links WHERE page_id = ?').all(pageId) as Array<Record<string, unknown>>;
-    const links: Link[] = linkRows.map(lr => ({
-      text: String(lr.text),
-      url: String(lr.url),
-      isExternal: Number(lr.is_external) === 1,
-    }));
+    let links: Link[] = [];
+    let codeExamples: CodeExample[] = [];
 
-    const codeRows = raw.prepare('SELECT id, language, code, caption FROM code_examples WHERE page_id = ?').all(pageId) as Array<Record<string, unknown>>;
-    const codeExamples: CodeExample[] = codeRows.map(cr => ({
-      id: String(cr.id),
-      language: String(cr.language),
-      code: String(cr.code),
-      caption: cr.caption ? String(cr.caption) : undefined,
-    }));
+    if (!shallow) {
+      const linkRows = raw.prepare('SELECT text, url, is_external FROM links WHERE page_id = ?').all(pageId) as Array<Record<string, unknown>>;
+      links = linkRows.map(lr => ({
+        text: String(lr.text),
+        url: String(lr.url),
+        isExternal: Number(lr.is_external) === 1,
+      }));
+
+      const codeRows = raw.prepare('SELECT id, language, code, caption FROM code_examples WHERE page_id = ?').all(pageId) as Array<Record<string, unknown>>;
+      codeExamples = codeRows.map(cr => ({
+        id: String(cr.id),
+        language: String(cr.language),
+        code: String(cr.code),
+        caption: cr.caption ? String(cr.caption) : undefined,
+      }));
+    }
 
     const headings: Heading[] = row.headings_json ? JSON.parse(String(row.headings_json)) : [];
     const securityAnnotations: SecurityAnnotation[] = row.security_annotations_json ? JSON.parse(String(row.security_annotations_json)) : [];
     const provenance: Provenance | undefined = row.provenance_json ? JSON.parse(String(row.provenance_json)) : undefined;
+    const breadcrumb: string[] | undefined = row.breadcrumb_json ? JSON.parse(String(row.breadcrumb_json)) : undefined;
 
     return {
       id: pageId,
@@ -200,6 +221,60 @@ export class PageRepository {
       estimatedTokens: Number(row.estimated_tokens),
       securityAnnotations,
       provenance,
+      pageType: (row.page_type as PageType) || undefined,
+      parentUrl: row.parent_url ? String(row.parent_url) : undefined,
+      category: row.category ? String(row.category) : undefined,
+      breadcrumb,
+      depth: typeof row.depth === 'number' ? row.depth : undefined,
+      discoveryMethod: row.discovery_method ? String(row.discovery_method) : undefined,
     };
+  }
+
+  getDocumentTree(sourceId?: string): DocumentationTreeNode | null {
+    const raw = this.db.getRawDb();
+    const query = sourceId
+      ? 'SELECT * FROM pages WHERE source_id = ? ORDER BY depth ASC, fetched_at ASC'
+      : 'SELECT * FROM pages ORDER BY depth ASC, fetched_at ASC';
+    const rows = (sourceId ? raw.prepare(query).all(sourceId) : raw.prepare(query).all()) as Array<Record<string, unknown>>;
+
+    if (rows.length === 0) return null;
+
+    const pages = rows.map(r => this.hydratePage(r, true));
+    // Find root page: either depth === 0, or shortest URL
+    const rootPage = pages.find(p => p.depth === 0) || pages[0];
+
+    const nodeMap = new Map<string, DocumentationTreeNode>();
+    for (const p of pages) {
+      nodeMap.set(p.url, {
+        url: p.url,
+        title: p.title,
+        parentUrl: p.parentUrl,
+        category: p.category,
+        breadcrumb: p.breadcrumb || [],
+        depth: p.depth ?? 0,
+        pageType: p.pageType,
+        priority: 'nav_sidebar',
+        discoveryMethod: p.discoveryMethod || 'stored',
+        children: [],
+      });
+    }
+
+    const rootNode = nodeMap.get(rootPage.url)!;
+    for (const [url, node] of nodeMap.entries()) {
+      if (url === rootPage.url) continue;
+      const parentUrl = node.parentUrl;
+      if (parentUrl && nodeMap.has(parentUrl)) {
+        const parent = nodeMap.get(parentUrl)!;
+        if (!parent.children.some(c => c.url === node.url)) {
+          parent.children.push(node);
+        }
+      } else {
+        if (!rootNode.children.some(c => c.url === node.url)) {
+          rootNode.children.push(node);
+        }
+      }
+    }
+
+    return rootNode;
   }
 }

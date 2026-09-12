@@ -5,6 +5,7 @@ import type {
   SymbolReference,
   ChunkType,
   Provenance,
+  SourceAuthority,
 } from '../../../shared/src/index.ts';
 import type { DocOrbitDb } from '../db.ts';
 import type { IChunkRepository } from '../interfaces.ts';
@@ -219,7 +220,13 @@ export class ChunkRepository implements IChunkRepository {
   searchChunksFts(
     query: string,
     options: { limit?: number; snapshotId?: string; chunkType?: ChunkType; docVersion?: string } = {}
-  ): Array<{ chunk: DocumentChunk; ftsRank: number; symbols: SymbolReference[]; codeSnippets: ChunkCode[] }> {
+  ): Array<{
+    chunk: DocumentChunk;
+    ftsRank: number;
+    sourceAuthority?: SourceAuthority;
+    symbols: SymbolReference[];
+    codeSnippets: ChunkCode[];
+  }> {
     if (!this.db.isFtsAvailable()) {
       return [];
     }
@@ -243,9 +250,11 @@ export class ChunkRepository implements IChunkRepository {
 
     try {
       let sql = `
-        SELECT c.*, fts.rank as fts_rank
+        SELECT c.*, fts.rank as fts_rank, s.authority as source_authority
         FROM chunks c
         JOIN chunks_fts fts ON c.id = fts.chunk_id
+        LEFT JOIN pages p ON c.page_id = p.id
+        LEFT JOIN sources s ON p.source_id = s.id
         WHERE chunks_fts MATCH ?
       `;
       const params: unknown[] = [sanitizedFtsQuery];
@@ -269,14 +278,69 @@ export class ChunkRepository implements IChunkRepository {
       params.push(limit);
 
       const rows = raw.prepare(sql).all(...params) as Array<Record<string, unknown>>;
+      if (rows.length === 0) {
+        return [];
+      }
+
+      const chunkIds = rows.map(r => String(r.id));
+      const placeholders = chunkIds.map(() => '?').join(',');
+
+      // Batch query 1: Fetch all symbols for matched chunks in a single query
+      const symbolsByChunk = new Map<string, SymbolReference[]>();
+      try {
+        const symRows = raw.prepare(`
+          SELECT id, chunk_id, name, kind
+          FROM symbol_references
+          WHERE chunk_id IN (${placeholders})
+        `).all(...chunkIds) as Array<Record<string, unknown>>;
+        for (const sr of symRows) {
+          const cId = String(sr.chunk_id);
+          let list = symbolsByChunk.get(cId);
+          if (!list) {
+            list = [];
+            symbolsByChunk.set(cId, list);
+          }
+          list.push({
+            id: String(sr.id),
+            chunkId: cId,
+            name: String(sr.name),
+            kind: sr.kind as any,
+          });
+        }
+      } catch {}
+
+      // Batch query 2: Fetch all code snippets for matched chunks in a single query
+      const codeByChunk = new Map<string, ChunkCode[]>();
+      try {
+        const codeRows = raw.prepare(`
+          SELECT id, chunk_id, language, code
+          FROM chunk_code
+          WHERE chunk_id IN (${placeholders})
+        `).all(...chunkIds) as Array<Record<string, unknown>>;
+        for (const cr of codeRows) {
+          const cId = String(cr.chunk_id);
+          let list = codeByChunk.get(cId);
+          if (!list) {
+            list = [];
+            codeByChunk.set(cId, list);
+          }
+          list.push({
+            id: String(cr.id),
+            chunkId: cId,
+            language: cr.language ? String(cr.language) : undefined,
+            code: String(cr.code),
+          });
+        }
+      } catch {}
 
       return rows.map(r => {
         const chunk = this.hydrateChunk(r);
         return {
           chunk,
           ftsRank: Number(r.fts_rank),
-          symbols: this.getChunkSymbols(chunk.id),
-          codeSnippets: this.getChunkCode(chunk.id),
+          sourceAuthority: (r.source_authority as SourceAuthority) || undefined,
+          symbols: symbolsByChunk.get(chunk.id) || [],
+          codeSnippets: codeByChunk.get(chunk.id) || [],
         };
       });
     } catch {

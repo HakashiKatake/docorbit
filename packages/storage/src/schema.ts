@@ -26,6 +26,12 @@ CREATE TABLE IF NOT EXISTS pages (
   headings_json TEXT,
   security_annotations_json TEXT,
   provenance_json TEXT,
+  page_type TEXT,
+  parent_url TEXT,
+  category TEXT,
+  breadcrumb_json TEXT,
+  depth INTEGER,
+  discovery_method TEXT,
   FOREIGN KEY (source_id) REFERENCES sources(id) ON DELETE CASCADE
 );
 

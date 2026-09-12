@@ -133,6 +133,14 @@ export class DashboardServer {
         return;
       }
 
+      if (pathname === '/api/tree' && method === 'GET') {
+        const sourceId = parsedUrl.searchParams.get('sourceId') || undefined;
+        const tree = this.repo.getDocumentTree(sourceId);
+        res.writeHead(200);
+        res.end(JSON.stringify(tree));
+        return;
+      }
+
       if (pathname === '/api/apis' && method === 'GET') {
         const q = parsedUrl.searchParams.get('q') || '';
         const apiMethod = parsedUrl.searchParams.get('method') || undefined;

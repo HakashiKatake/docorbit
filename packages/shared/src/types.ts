@@ -88,6 +88,124 @@ export interface NormalizedPage {
   estimatedTokens: number;
   securityAnnotations: SecurityAnnotation[];
   provenance?: Provenance;
+  pageType?: PageType;
+  parentUrl?: string;
+  category?: string;
+  breadcrumb?: string[];
+  depth?: number;
+  discoveryMethod?: string;
+  documentationType?: string;
+  framework?: string;
+  docVersion?: string;
+}
+
+export type PageType =
+  | 'documentation_overview'
+  | 'guide'
+  | 'tutorial'
+  | 'api_reference'
+  | 'endpoint'
+  | 'authentication'
+  | 'webhook'
+  | 'schema'
+  | 'concept'
+  | 'troubleshooting'
+  | 'faq'
+  | 'changelog'
+  | 'release_notes'
+  | 'other_documentation';
+
+export type LinkPriority =
+  | 'nav_sidebar'
+  | 'breadcrumb'
+  | 'category'
+  | 'body'
+  | 'prev_next'
+  | 'related'
+  | 'footer'
+  | 'unknown';
+
+export interface DocumentationSiteDetection {
+  isDocumentation: boolean;
+  confidence: number; // 0.0 to 1.0
+  explanation: string;
+  framework?: string;
+  documentationType?: 'api_reference' | 'guide' | 'general' | 'sdk';
+  docVersion?: string;
+  signals: {
+    hasDocTitle: boolean;
+    hasNavOrSidebar: boolean;
+    hasBreadcrumbs: boolean;
+    hasApiTerminology: boolean;
+    hasCodeBlocks: boolean;
+    hasEndpointPatterns: boolean;
+    hasDocsFramework: boolean;
+    hasDocUrlPattern: boolean;
+    internalDocLinkDensity: number;
+  };
+}
+
+export interface DocumentationTreeNode {
+  url: string;
+  title: string;
+  parentUrl?: string;
+  category?: string;
+  breadcrumb: string[];
+  depth: number;
+  pageType?: PageType;
+  priority: LinkPriority;
+  discoveryMethod: string;
+  authority?: SourceAuthority;
+  framework?: string;
+  docVersion?: string;
+  children: DocumentationTreeNode[];
+}
+
+export interface ExtractedDocLink {
+  url: string;
+  text: string;
+  priority: LinkPriority;
+  parentUrl?: string;
+  category?: string;
+  breadcrumb?: string[];
+  discoveryMethod: string;
+  isCollapsed?: boolean;
+}
+
+export interface FetchedDocPage {
+  url: string;
+  finalUrl: string;
+  body: string;
+  contentType: string;
+  bytesRead: number;
+  status: number;
+  depth: number;
+  parentUrl?: string;
+  category?: string;
+  breadcrumb?: string[];
+  discoveryMethod: string;
+  isCollapsed?: boolean;
+}
+
+export interface DiscoveredDocTreeResult {
+  rootUrl: string;
+  candidateUrl: string;
+  siteDetection: DocumentationSiteDetection;
+  tree: DocumentationTreeNode;
+  pagesDiscovered: number;
+  pagesIndexed: number;
+  pagesSkipped: Array<{ url: string; reason: string }>;
+  failedUrls: Array<{ url: string; error: string }>;
+  duplicateUrls: string[];
+  fetchedPages?: FetchedDocPage[];
+  crawlLimits: {
+    maxPages: number;
+    maxDepth: number;
+    maxBytes: number;
+    timeoutMs: number;
+  };
+  bounded: boolean;
+  boundedReason?: string;
 }
 
 export interface LlmsLink {

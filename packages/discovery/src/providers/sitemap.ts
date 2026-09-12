@@ -21,6 +21,22 @@ export class SitemapProvider implements DiscoveryProvider {
       candidatePaths.unshift(`${cleanPath}/sitemap.xml`);
     }
 
+    // Check robots.txt for Sitemap directives
+    try {
+      const robotsUrl = new URL('/robots.txt', baseUrl.origin).href;
+      const robotsRes = await fetcher.fetch(robotsUrl, { timeoutMs: 3000 });
+      if (robotsRes.status >= 200 && robotsRes.status < 300 && robotsRes.body) {
+        const sitemapMatches = robotsRes.body.matchAll(/^[ \t]*Sitemap:[ \t]*([^\r\n#]+)/gim);
+        for (const m of sitemapMatches) {
+          const sitemapUrl = m[1].trim();
+          try {
+            const parsed = new URL(sitemapUrl, baseUrl.origin);
+            candidatePaths.unshift(parsed.pathname + parsed.search);
+          } catch {}
+        }
+      }
+    } catch {}
+
     const seenUrls = new Set<string>();
 
     for (const path of candidatePaths) {

@@ -5,10 +5,21 @@ import type {
   CrawlPolicy,
   Target,
   SourcePurpose,
+  DocumentationTreeNode,
+  DocumentationSiteDetection,
 } from '../../shared/src/index.ts';
 import { validateTargetUrl } from '../../security/src/index.ts';
-import { SecureFetcher, DEFAULT_CRAWLER_CONFIG } from '../../crawler/src/index.ts';
-import { createDefaultDiscoveryCoordinator, rankSources } from '../../discovery/src/index.ts';
+import {
+  SecureFetcher,
+  DEFAULT_CRAWLER_CONFIG,
+  DocumentationTreeCrawler,
+} from '../../crawler/src/index.ts';
+import {
+  createDefaultDiscoveryCoordinator,
+  rankSources,
+  DocumentationRootFinder,
+  DocumentationSiteDetector,
+} from '../../discovery/src/index.ts';
 import {
   buildNormalizedPage,
   parseLlmsTxt,
@@ -25,6 +36,7 @@ export interface IngestionOptions {
   crawlerConfig?: Partial<CrawlerConfig>;
   crawlPolicy?: Partial<CrawlPolicy>;
   allowLocalhostForTesting?: boolean;
+  dnsLookup?: (hostname: string) => Promise<Array<{ address: string; family: number }>>;
 }
 
 export interface IngestionResult {
@@ -55,6 +67,13 @@ export interface IngestionResult {
     machineReadableSources: number;
     totalChunks: number;
   };
+  docTree?: DocumentationTreeNode;
+  siteDetection?: DocumentationSiteDetection;
+  discoveredDocRoot?: string;
+  bounded?: boolean;
+  boundedReason?: string;
+  pagesSkipped?: Array<{ url: string; reason: string }>;
+  duplicateUrls?: string[];
 }
 
 
@@ -64,6 +83,7 @@ export class IngestionPipeline {
   private config: CrawlerConfig;
   private policy: CrawlPolicy;
   private allowLocalhostForTesting: boolean;
+  private dnsLookup?: (hostname: string) => Promise<Array<{ address: string; family: number }>>;
 
   constructor(repository: DocOrbitRepository, options: IngestionOptions = {}) {
     this.repository = repository;
@@ -72,6 +92,7 @@ export class IngestionPipeline {
       ...options.crawlerConfig,
     };
     this.allowLocalhostForTesting = options.allowLocalhostForTesting ?? false;
+    this.dnsLookup = options.dnsLookup;
     this.policy = {
       purpose: 'conceptual',
       maxPages: this.config.maxPages,
@@ -86,6 +107,7 @@ export class IngestionPipeline {
       maxRedirects: this.config.maxRedirects,
       userAgent: this.config.userAgent,
       allowLocalhostForTesting: this.allowLocalhostForTesting,
+      dnsLookup: this.dnsLookup,
     });
   }
 
@@ -93,12 +115,39 @@ export class IngestionPipeline {
     const startTime = Date.now();
 
     // 1. SSRF & Protocol validation before making any discovery probes
+    const activeDnsLookup = this.dnsLookup ?? (this.fetcher as any)?.dnsLookup;
     await validateTargetUrl(targetUrl, {
       allowLocalhostForTesting: this.allowLocalhostForTesting,
+      dnsLookup: activeDnsLookup,
     });
+
+    // 2. Discover canonical documentation root and machine-readable sources
+    const rootFinder = new DocumentationRootFinder();
+    const rootResult = await rootFinder.findDocumentationRoot(targetUrl, this.fetcher);
 
     const coordinator = createDefaultDiscoveryCoordinator();
     const discovered = await coordinator.discoverAll(targetUrl, this.fetcher);
+
+    if (rootResult.detection.isDocumentation && rootResult.rootUrl !== targetUrl) {
+      const alreadyHas = discovered.some(s => s.url.replace(/\/$/, '') === rootResult.rootUrl.replace(/\/$/, ''));
+      if (!alreadyHas) {
+        discovered.unshift({
+          url: rootResult.rootUrl,
+          type: 'web',
+          discoveredBy: rootResult.discoveredBy,
+          status: 'valid',
+          confidence: rootResult.detection.confidence,
+          authority: 'official',
+          machineReadable: false,
+          metadata: {
+            framework: rootResult.detection.framework,
+            documentationType: rootResult.detection.documentationType,
+            docVersion: rootResult.detection.docVersion,
+            explanation: rootResult.detection.explanation,
+          },
+        });
+      }
+    }
 
     const sourceIds: Record<string, string> = {};
     for (const s of discovered) {
@@ -109,18 +158,30 @@ export class IngestionPipeline {
     const conceptualRank = rankSources(discovered, 'conceptual');
     const apiRank = rankSources(discovered, 'api');
 
-    const primarySource = conceptualRank.recommended || discovered[0];
-    const primarySourceId = primarySource
-      ? (sourceIds[primarySource.url] || this.repository.saveSource(primarySource))
-      : this.repository.saveSource({
-          url: targetUrl,
-          type: 'web',
-          discoveredBy: 'direct',
-          status: 'valid',
-          confidence: 1.0,
-          authority: 'official',
-          machineReadable: false,
-        });
+    const effectiveDocRootUrl = (rootResult.detection.isDocumentation && rootResult.rootUrl)
+      ? rootResult.rootUrl
+      : targetUrl;
+
+    let primarySource = discovered.find(s => s.url.replace(/\/$/, '') === effectiveDocRootUrl.replace(/\/$/, ''));
+    let primarySourceId = primarySource ? (sourceIds[primarySource.url] || this.repository.saveSource(primarySource)) : undefined;
+
+    if (!primarySourceId) {
+      primarySourceId = this.repository.saveSource({
+        url: effectiveDocRootUrl,
+        type: 'web',
+        discoveredBy: rootResult.discoveredBy || 'direct',
+        status: 'valid',
+        confidence: rootResult.detection.confidence || 1.0,
+        authority: 'official',
+        machineReadable: false,
+        metadata: {
+          framework: rootResult.detection.framework,
+          documentationType: rootResult.detection.documentationType,
+          docVersion: rootResult.detection.docVersion,
+        },
+      });
+      sourceIds[effectiveDocRootUrl] = primarySourceId;
+    }
 
     const purposes: SourcePurpose[] = ['navigation', 'conceptual', 'api', 'examples', 'implementation'];
     const selectedSources = purposes.map(p => {
@@ -131,117 +192,121 @@ export class IngestionPipeline {
       };
     });
 
-    const queue: Array<{ url: string; depth: number }> = [];
-    const visited = new Set<string>();
+    // 3. Recursive Documentation Tree Crawling
+    const treeCrawler = new DocumentationTreeCrawler(this.fetcher);
+    const treeResult = await treeCrawler.crawlTree(effectiveDocRootUrl, {
+      maxPages: this.policy.maxPages,
+      maxDepth: this.policy.maxDepth,
+      allowExternalDocDomains: this.policy.followExternalDomains,
+    });
+
     const ingestedPages: NormalizedPage[] = [];
     const warnings: string[] = [];
-    const errors: Array<{ url: string; error: string }> = [];
-    let pagesDiscovered = 0;
+    const errors: Array<{ url: string; error: string }> = [...treeResult.failedUrls];
 
-    const enqueue = (url: string, depth: number) => {
+    if (treeResult.bounded && treeResult.boundedReason) {
+      warnings.push(treeResult.boundedReason);
+    }
+
+    // Ingest all pages discovered and fetched by the tree crawler
+    const fetchedPages = treeResult.fetchedPages || [];
+    const seenUrls = new Set<string>();
+
+    for (const fp of fetchedPages) {
+      if (seenUrls.has(fp.url)) continue;
+      seenUrls.add(fp.url);
+
+      const page = buildNormalizedPage({
+        sourceId: primarySourceId,
+        url: fp.finalUrl || fp.url,
+        rawContent: fp.body,
+        contentType: fp.contentType,
+        sourceUrl: primarySource?.url || effectiveDocRootUrl,
+        targetUrl,
+        discoveredBy: fp.discoveryMethod || primarySource?.discoveredBy || 'tree_crawler',
+        fetchedAt: new Date().toISOString(),
+        parentUrl: fp.parentUrl,
+        category: fp.category,
+        breadcrumb: fp.breadcrumb,
+        depth: fp.depth,
+        framework: treeResult.siteDetection.framework,
+        docVersion: treeResult.siteDetection.docVersion,
+      });
+
+      this.repository.savePage(page);
+      ingestedPages.push(page);
+    }
+
+    // 4. Ingest auxiliary machine-readable sources (OpenAPI or llms.txt)
+    const auxiliaryUrlsToFetch: Array<{ url: string; discoveredBy: string }> = [];
+
+    if (apiRank.recommended && apiRank.recommended.type === 'openapi' && !seenUrls.has(apiRank.recommended.url)) {
+      auxiliaryUrlsToFetch.push({ url: apiRank.recommended.url, discoveredBy: 'openapi' });
+    }
+
+    const bestLlms = discovered.find(s => s.type === 'llms_full_txt' && s.status === 'valid')
+      || discovered.find(s => s.type === 'llms_txt' && s.status === 'valid');
+    if (bestLlms && !seenUrls.has(bestLlms.url)) {
+      auxiliaryUrlsToFetch.push({ url: bestLlms.url, discoveredBy: bestLlms.discoveredBy });
+    }
+
+    for (const aux of auxiliaryUrlsToFetch) {
+      if (seenUrls.has(aux.url)) continue;
+      if (ingestedPages.length >= this.policy.maxPages) break;
+      seenUrls.add(aux.url);
+
       try {
-        const parsed = new URL(url);
-        const normalized = `${parsed.origin}${parsed.pathname}`;
-        pagesDiscovered++;
-        if (depth > this.policy.maxDepth) return;
-        if (!visited.has(normalized) && queue.length < this.policy.maxPages) {
-          queue.push({ url: normalized, depth });
-        }
-      } catch {
-        // Ignore
-      }
-    };
+        const res = await this.fetcher.fetch(aux.url, { timeoutMs: 5000 });
+        if (res.status >= 200 && res.status < 300) {
+          const page = buildNormalizedPage({
+            sourceId: primarySourceId,
+            url: res.finalUrl || aux.url,
+            rawContent: res.body,
+            contentType: res.contentType,
+            sourceUrl: aux.url,
+            targetUrl,
+            discoveredBy: aux.discoveredBy,
+            fetchedAt: new Date().toISOString(),
+            depth: 0,
+          });
+          this.repository.savePage(page);
+          ingestedPages.push(page);
 
-    // 1. Prioritize targetUrl as the primary entry point (depth: 0)
-    enqueue(targetUrl, 0);
-
-    // 2. If an OpenAPI spec is available, enqueue it (depth: 0)
-    if (apiRank.recommended && apiRank.recommended.type === 'openapi' && apiRank.recommended.url !== targetUrl) {
-      enqueue(apiRank.recommended.url, 0);
-    }
-
-    // 3. If llms.txt or llms-full.txt is available, enqueue it (depth: 0)
-    const llmsFull = discovered.find(s => s.type === 'llms_full_txt' && s.status === 'valid');
-    const llms = discovered.find(s => s.type === 'llms_txt' && s.status === 'valid');
-
-    if (llmsFull && llmsFull.url !== targetUrl) {
-      enqueue(llmsFull.url, 0);
-    } else if (llms && llms.url !== targetUrl) {
-      enqueue(llms.url, 0);
-    }
-
-    if (primarySource && primarySource.url !== targetUrl) {
-      enqueue(primarySource.url, 0);
-    }
-
-    const targetOrigin = new URL(targetUrl).origin;
-
-    while (queue.length > 0 && ingestedPages.length < this.policy.maxPages) {
-      const item = queue.shift()!;
-      const currentUrl = item.url;
-      const currentDepth = item.depth;
-
-      if (visited.has(currentUrl)) continue;
-      visited.add(currentUrl);
-
-      try {
-        const res = await this.fetcher.fetch(currentUrl);
-        if (res.status < 200 || res.status >= 300) {
-          errors.push({ url: currentUrl, error: `HTTP status ${res.status}` });
-          continue;
-        }
-
-        const page = buildNormalizedPage({
-          sourceId: primarySourceId,
-          url: res.finalUrl || currentUrl,
-          rawContent: res.body,
-          contentType: res.contentType,
-          sourceUrl: primarySource?.url || targetUrl,
-          targetUrl,
-          discoveredBy: primarySource?.discoveredBy || 'direct',
-          fetchedAt: new Date().toISOString(),
-        });
-
-        this.repository.savePage(page);
-        ingestedPages.push(page);
-
-        // Subpage link discovery
-        if (isValidLlmsTxt(res.body)) {
-          if (this.policy.followLlmsReferences && currentDepth < this.policy.maxDepth) {
-            const llmsDoc = parseLlmsTxt(res.body, currentUrl);
+          // If llms.txt has links and policy permits subpage traversal
+          if (isValidLlmsTxt(res.body) && this.policy.followLlmsReferences && this.policy.maxDepth > 0) {
+            const llmsDoc = parseLlmsTxt(res.body, aux.url);
             for (const sec of llmsDoc.sections) {
               for (const lnk of sec.links) {
-                if (ingestedPages.length + queue.length < this.policy.maxPages) {
+                if (ingestedPages.length < this.policy.maxPages && !seenUrls.has(lnk.url)) {
                   try {
-                    const parsedLnk = new URL(lnk.url);
-                    if (this.policy.followExternalDomains || parsedLnk.origin === targetOrigin) {
-                      enqueue(lnk.url, currentDepth + 1);
+                    const lUrl = new URL(lnk.url, aux.url).href;
+                    if (!seenUrls.has(lUrl)) {
+                      seenUrls.add(lUrl);
+                      const subRes = await this.fetcher.fetch(lUrl, { timeoutMs: 5000 });
+                      if (subRes.status >= 200 && subRes.status < 300) {
+                        const subPage = buildNormalizedPage({
+                          sourceId: primarySourceId,
+                          url: subRes.finalUrl || lUrl,
+                          rawContent: subRes.body,
+                          contentType: subRes.contentType,
+                          sourceUrl: aux.url,
+                          targetUrl,
+                          discoveredBy: 'llms_link',
+                          fetchedAt: new Date().toISOString(),
+                          depth: 1,
+                        });
+                        this.repository.savePage(subPage);
+                        ingestedPages.push(subPage);
+                      }
                     }
-                  } catch {
-                    // Ignore
-                  }
-                }
-              }
-            }
-          }
-        } else {
-          if (currentDepth < this.policy.maxDepth) {
-            for (const lnk of page.links) {
-              if (ingestedPages.length + queue.length < this.policy.maxPages) {
-                try {
-                  const linkUrl = new URL(lnk.url);
-                  if (this.policy.followExternalDomains || linkUrl.origin === targetOrigin) {
-                    enqueue(lnk.url, currentDepth + 1);
-                  }
-                } catch {
-                  // Ignore
+                  } catch {}
                 }
               }
             }
           }
         }
-      } catch (err: unknown) {
-        errors.push({ url: currentUrl, error: err instanceof Error ? err.message : String(err) });
+      } catch (err) {
+        errors.push({ url: aux.url, error: err instanceof Error ? err.message : String(err) });
       }
     }
 
@@ -310,13 +375,20 @@ export class IngestionPipeline {
       sourcesDiscovered: discovered,
       selectedSources,
       pages: ingestedPages,
-      pagesDiscovered,
-      pagesFetched: visited.size,
+      pagesDiscovered: treeResult.pagesDiscovered,
+      pagesFetched: fetchedPages.length,
       pagesStored: ingestedPages.length,
       snapshotId,
       warnings,
       errors,
       durationMs,
+      docTree: treeResult.tree,
+      siteDetection: treeResult.siteDetection,
+      discoveredDocRoot: effectiveDocRootUrl,
+      bounded: treeResult.bounded,
+      boundedReason: treeResult.boundedReason,
+      pagesSkipped: treeResult.pagesSkipped,
+      duplicateUrls: treeResult.duplicateUrls,
       stats: {
         totalPages: ingestedPages.length,
         totalBytes,

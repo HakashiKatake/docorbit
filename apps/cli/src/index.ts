@@ -1,4 +1,5 @@
 import { runInspectCommand } from './commands/inspect.ts';
+import { runDiscoverCommand } from './commands/discover.ts';
 import { runAddCommand } from './commands/add.ts';
 import { runSearchCommand } from './commands/search.ts';
 import { runContextCommand } from './commands/context.ts';
@@ -17,7 +18,7 @@ import { runExportCommand } from './commands/export.ts';
 import { handleEvaluateCommand } from './commands/evaluate.ts';
 import type { ChunkType, PitfallKind } from '../../../packages/shared/src/index.ts';
 
-const VERSION = '0.1.7';
+const VERSION = '0.1.8';
 
 function printHelp(): void {
   console.log(`
@@ -31,6 +32,7 @@ COMMANDS:
   init [dir]        Scan workspace, detect project dependencies, resolve docs, and write docs.lock
   update [pkg]      Update docs.lock dependencies (selective or global refresh)
   inspect <url>     Probe target documentation domain for canonical machine-readable sources
+  discover <url>    Discover doc root and recursively crawl complete hierarchical documentation tree
   add <url>         Discover, rank, fetch, normalize, slice, and store documentation into local SQLite
   search "<query>"  Deterministic hybrid search across sliced documentation chunks
   context "<task>"  Pack relevant documentation context optimized for AI coding agent tasks
@@ -154,6 +156,12 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
   const maxPagesIdx = args.indexOf('--max-pages');
   if (maxPagesIdx !== -1 && args[maxPagesIdx + 1]) {
     maxPages = parseInt(args[maxPagesIdx + 1], 10);
+  }
+
+  let maxDepth: number | undefined;
+  const maxDepthIdx = args.indexOf('--max-depth') !== -1 ? args.indexOf('--max-depth') : args.indexOf('--depth');
+  if (maxDepthIdx !== -1 && args[maxDepthIdx + 1]) {
+    maxDepth = parseInt(args[maxDepthIdx + 1], 10);
   }
 
   let limit: number | undefined;
@@ -288,6 +296,23 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         process.exit(1);
       }
       await runInspectCommand(queryArg, { json: isJson, allowLocalhost });
+      break;
+    }
+    case 'discover': {
+      if (!queryArg) {
+        console.error('Error: "discover" requires a target URL argument.');
+        printHelp();
+        process.exit(1);
+      }
+      await runDiscoverCommand(queryArg, {
+        json: isJson,
+        dbPath,
+        maxPages,
+        maxDepth,
+        allowLocalhost,
+        projectDir,
+        isGlobal,
+      });
       break;
     }
     case 'add': {

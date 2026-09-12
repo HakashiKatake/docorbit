@@ -57,20 +57,23 @@ export class RetrievalEngine {
     const pageAuthorityCache = new Map<string, SourceAuthority>();
 
     for (const item of candidates) {
-      let authority: SourceAuthority = 'official';
-      const pageId = item.chunk.pageId;
+      let authority: SourceAuthority = item.sourceAuthority || 'official';
 
-      if (!pageAuthorityCache.has(pageId)) {
-        const page = this.repository.getPage(pageId);
-        if (page?.sourceId) {
-          const src = this.repository.getSource(page.sourceId);
-          if (src?.authority) {
-            authority = src.authority;
+      // Fallback only if sourceAuthority was not populated by batch join
+      if (!item.sourceAuthority) {
+        const pageId = item.chunk.pageId;
+        if (!pageAuthorityCache.has(pageId)) {
+          const page = this.repository.getPage(pageId);
+          if (page?.sourceId) {
+            const src = this.repository.getSource(page.sourceId);
+            if (src?.authority) {
+              authority = src.authority;
+            }
           }
+          pageAuthorityCache.set(pageId, authority);
+        } else {
+          authority = pageAuthorityCache.get(pageId)!;
         }
-        pageAuthorityCache.set(pageId, authority);
-      } else {
-        authority = pageAuthorityCache.get(pageId)!;
       }
 
       const scored = scoreChunkCandidate({

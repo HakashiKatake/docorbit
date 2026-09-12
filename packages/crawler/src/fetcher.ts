@@ -36,6 +36,7 @@ export class SecureFetcher {
   private userAgent: string;
   private allowLocalhostForTesting: boolean;
   private fetchFn: typeof fetch;
+  public dnsLookup?: (hostname: string) => Promise<Array<{ address: string; family: number }>>;
 
   constructor(defaults: Partial<FetchOptions> = {}) {
     this.timeoutMs = defaults.timeoutMs ?? DEFAULT_CRAWLER_CONFIG.timeoutMs;
@@ -44,6 +45,7 @@ export class SecureFetcher {
     this.userAgent = defaults.userAgent ?? DEFAULT_CRAWLER_CONFIG.userAgent;
     this.allowLocalhostForTesting = defaults.allowLocalhostForTesting ?? false;
     this.fetchFn = defaults.fetchFn ?? globalThis.fetch;
+    this.dnsLookup = defaults.dnsLookup;
   }
 
   async fetch(urlStr: string, options: FetchOptions = {}): Promise<FetchResult> {
@@ -54,6 +56,7 @@ export class SecureFetcher {
     const method = options.method ?? 'GET';
     const allowLocalhost = options.allowLocalhostForTesting ?? this.allowLocalhostForTesting;
     const activeFetch = options.fetchFn ?? this.fetchFn;
+    const dnsLookup = options.dnsLookup ?? this.dnsLookup;
 
     let currentUrl = urlStr;
     let redirectCount = 0;
@@ -64,6 +67,7 @@ export class SecureFetcher {
       // 1. SSRF & Protocol validation before making the hop
       await validateTargetUrl(currentUrl, {
         allowLocalhostForTesting: allowLocalhost,
+        dnsLookup,
       });
 
       const controller = new AbortController();

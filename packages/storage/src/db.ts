@@ -1,4 +1,4 @@
-import { DatabaseSync } from 'node:sqlite';
+import { DatabaseSync, type StatementSync } from 'node:sqlite';
 import { dirname, join, resolve } from 'node:path';
 import { mkdirSync, existsSync } from 'node:fs';
 import { homedir as getHomedir, tmpdir as getTmpdir } from 'node:os';
@@ -139,10 +139,21 @@ export class DocOrbitDb {
     // Enable foreign keys
     this.db.exec('PRAGMA foreign_keys = ON;');
 
-    // Enable WAL mode for file-based database for concurrent reads
+    // High-performance SQLite engine tuning for sub-millisecond retrieval
+    try {
+      this.db.exec('PRAGMA synchronous = NORMAL;');
+      this.db.exec('PRAGMA cache_size = -64000;'); // 64MB memory page cache
+      this.db.exec('PRAGMA temp_store = MEMORY;');
+      this.db.exec('PRAGMA busy_timeout = 5000;');
+    } catch {
+      // Ignore if pragma unsupported
+    }
+
+    // Enable WAL mode and memory-mapped zero-copy I/O for file-based database
     if (targetPath !== ':memory:') {
       try {
         this.db.exec('PRAGMA journal_mode = WAL;');
+        this.db.exec('PRAGMA mmap_size = 268435456;'); // 256MB mmap
       } catch {
         // Ignore if WAL pragma fails on restricted filesystems
       }
@@ -174,6 +185,22 @@ export class DocOrbitDb {
       // Column already exists
     }
 
+    const newPageColumns = [
+      'page_type TEXT',
+      'parent_url TEXT',
+      'category TEXT',
+      'breadcrumb_json TEXT',
+      'depth INTEGER',
+      'discovery_method TEXT',
+    ];
+    for (const col of newPageColumns) {
+      try {
+        this.db.exec(`ALTER TABLE pages ADD COLUMN ${col};`);
+      } catch {
+        // Column already exists
+      }
+    }
+
     // Test and enable FTS5 virtual table
     try {
       this.db.exec(FTS_SCHEMA_SQL);
@@ -187,11 +214,23 @@ export class DocOrbitDb {
     return this.ftsAvailable;
   }
 
+  private statementCache = new Map<string, StatementSync>();
+
+  prepareStatement(sql: string): StatementSync {
+    let stmt = this.statementCache.get(sql);
+    if (!stmt) {
+      stmt = this.db.prepare(sql);
+      this.statementCache.set(sql, stmt);
+    }
+    return stmt;
+  }
+
   getRawDb(): DatabaseSync {
     return this.db;
   }
 
   close(): void {
+    this.statementCache.clear();
     this.db.close();
   }
 }

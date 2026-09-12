@@ -78,6 +78,18 @@ export function isPrivateOrBlockedIp(ip: string): boolean {
 
 export interface SsrfValidationOptions {
   allowLocalhostForTesting?: boolean;
+  dnsLookup?: (hostname: string) => Promise<Array<{ address: string; family: number }>>;
+}
+
+interface DnsCacheEntry {
+  records: Array<{ address: string; family: number }>;
+  expiresAt: number;
+}
+const DNS_CACHE = new Map<string, DnsCacheEntry>();
+const DNS_CACHE_TTL_MS = 60_000;
+
+export function clearDnsCache(): void {
+  DNS_CACHE.clear();
 }
 
 /**
@@ -127,9 +139,24 @@ export async function validateTargetUrl(
 
   // Resolve hostname via DNS
   try {
-    const res = await lookup(cleanHost, { all: true });
-    if (!res || res.length === 0) {
-      throw new SsrfError(`Hostname "${cleanHost}" could not be resolved via DNS.`);
+    let res: Array<{ address: string; family: number }>;
+    const now = Date.now();
+    const cached = DNS_CACHE.get(cleanHost);
+
+    if (!options.dnsLookup && cached && cached.expiresAt > now) {
+      res = cached.records;
+    } else {
+      const lookupFn = options.dnsLookup ?? ((h: string) => lookup(h, { all: true }));
+      res = await lookupFn(cleanHost);
+      if (!res || res.length === 0) {
+        throw new SsrfError(`Hostname "${cleanHost}" could not be resolved via DNS.`);
+      }
+      if (!options.dnsLookup) {
+        DNS_CACHE.set(cleanHost, {
+          records: res,
+          expiresAt: now + DNS_CACHE_TTL_MS,
+        });
+      }
     }
 
     for (const record of res) {

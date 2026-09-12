@@ -10,6 +10,7 @@ import type {
   IndexedExample,
   Pitfall,
   PitfallKind,
+  DocumentationTreeNode,
 } from '../../shared/src/index.ts';
 
 export interface Snapshot {
@@ -44,6 +45,7 @@ export interface IPageRepository {
   savePageLinks(pageId: string, targetUrls: string[]): void;
   getPageLinks(pageId: string): string[];
   searchPagesFts(query: string, limit?: number): NormalizedPage[];
+  getDocumentTree(sourceId?: string): DocumentationTreeNode | null;
 }
 
 export interface IChunkRepository {
@@ -72,6 +74,7 @@ export interface IChunkRepository {
   ): Array<{
     chunk: DocumentChunk;
     ftsRank: number;
+    sourceAuthority?: SourceAuthority;
     symbols: SymbolReference[];
     codeSnippets: ChunkCode[];
   }>;

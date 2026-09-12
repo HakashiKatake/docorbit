@@ -16,6 +16,8 @@ export * from './providers/sitemap.ts';
 export * from './providers/github.ts';
 export * from './providers/skill.ts';
 export * from './providers/generic.ts';
+export * from './detector.ts';
+export * from './root-finder.ts';
 
 export function createDefaultDiscoveryCoordinator(): DiscoveryCoordinator {
   const coordinator = new DiscoveryCoordinator();

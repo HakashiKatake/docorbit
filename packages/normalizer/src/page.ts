@@ -8,11 +8,13 @@ import type {
   Link,
   CodeExample,
   Provenance,
+  PageType,
 } from '../../shared/src/index.ts';
 import { detectSecurityAnnotations } from '../../security/src/index.ts';
 import { normalizeHtmlToMarkdown } from './html.ts';
 import { parseLlmsTxt, isValidLlmsTxt } from './llms.ts';
 import { detectOpenApiSpec } from './openapi.ts';
+import { classifyPageType } from './classifier.ts';
 
 function extractMarkdownHeadings(content: string): Heading[] {
   const headings: Heading[] = [];
@@ -83,6 +85,13 @@ export interface BuildNormalizedPageInput {
   discoveredBy?: string;
   fetchedAt?: string;
   snapshotId?: string;
+  pageType?: PageType;
+  parentUrl?: string;
+  category?: string;
+  breadcrumb?: string[];
+  depth?: number;
+  framework?: string;
+  docVersion?: string;
 }
 
 export function buildNormalizedPage(input: BuildNormalizedPageInput): NormalizedPage {
@@ -165,7 +174,7 @@ export function buildNormalizedPage(input: BuildNormalizedPageInput): Normalized
     snapshotId: input.snapshotId,
   };
 
-  return {
+  const candidatePage: NormalizedPage = {
     id,
     sourceId,
     title,
@@ -180,5 +189,16 @@ export function buildNormalizedPage(input: BuildNormalizedPageInput): Normalized
     estimatedTokens,
     securityAnnotations,
     provenance,
+    parentUrl: input.parentUrl,
+    category: input.category,
+    breadcrumb: input.breadcrumb,
+    depth: input.depth,
+    framework: input.framework,
+    docVersion: input.docVersion,
   };
+
+  const pageType = input.pageType || classifyPageType(candidatePage, rawContent);
+  candidatePage.pageType = pageType;
+
+  return candidatePage;
 }

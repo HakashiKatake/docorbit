@@ -10,6 +10,7 @@ import type {
   IndexedExample,
   Pitfall,
   PitfallKind,
+  DocumentationTreeNode,
 } from '../../shared/src/index.ts';
 import type { DocOrbitDb } from './db.ts';
 import type {
@@ -146,6 +147,10 @@ export class DocOrbitRepository
 
   searchPagesFts(query: string, limit: number = 10): NormalizedPage[] {
     return this.pages.searchPagesFts(query, limit);
+  }
+
+  getDocumentTree(sourceId?: string): DocumentationTreeNode | null {
+    return this.pages.getDocumentTree(sourceId);
   }
 
   // --- IChunkRepository Delegations ---

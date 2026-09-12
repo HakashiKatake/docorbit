@@ -3,44 +3,22 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Live Library Explorer Search & Category Filter (Context7 Style)
-  const libSearch = document.getElementById('lib-search');
-  const libTbody = document.getElementById('lib-tbody');
-  const pillBtns = document.querySelectorAll('.pill-btn');
+  // 1. Interactive Agent Prompt Studio Tabs
+  const promptTabs = document.querySelectorAll('.prompt-tab');
+  const promptPanes = document.querySelectorAll('.prompt-pane');
 
-  let activeCat = 'all';
+  promptTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const target = tab.getAttribute('data-ptab');
 
-  function filterLibraries() {
-    if (!libTbody) return;
-    const query = (libSearch?.value || '').toLowerCase().trim();
-    const rows = libTbody.querySelectorAll('tr');
+      promptTabs.forEach((t) => t.classList.remove('active'));
+      promptPanes.forEach((p) => p.classList.remove('active'));
 
-    rows.forEach((row) => {
-      const cat = row.getAttribute('data-cat') || '';
-      const name = row.getAttribute('data-name') || '';
-      const text = row.textContent?.toLowerCase() || '';
-
-      const matchesCat = activeCat === 'all' || cat === activeCat;
-      const matchesQuery = !query || name.includes(query) || text.includes(query);
-
-      if (matchesCat && matchesQuery) {
-        row.style.display = '';
-      } else {
-        row.style.display = 'none';
+      tab.classList.add('active');
+      const pane = document.getElementById(`ptab-${target}`);
+      if (pane) {
+        pane.classList.add('active');
       }
-    });
-  }
-
-  if (libSearch) {
-    libSearch.addEventListener('input', filterLibraries);
-  }
-
-  pillBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      pillBtns.forEach((b) => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeCat = btn.getAttribute('data-cat') || 'all';
-      filterLibraries();
     });
   });
 

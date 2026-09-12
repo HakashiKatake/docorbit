@@ -154,10 +154,20 @@ body {
   white-space: nowrap;
 }
 
+.brand-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: cover;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+  flex-shrink: 0;
+  display: block;
+}
+
 .brand-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 7px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   background: linear-gradient(135deg, #10b981, #059669);
   display: flex;
   align-items: center;
@@ -503,145 +513,300 @@ body {
 }
 
 /* ==========================================================================
-   Context7-Style Live Library Explorer Table
+   How to Use DocOrbit & Agent Prompt Showcase
    ========================================================================== */
-.library-explorer {
-  margin-top: 3.5rem;
-  padding-top: 3rem;
+.how-to-use-section {
   border-top: 1px solid var(--border);
+  background: #080c12;
+  position: relative;
 }
 
-.explorer-header {
+.workflow-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 3.5rem;
+}
+
+.step-card {
+  background: #0d121b;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.step-card:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
+}
+
+.step-num {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--emerald-bright);
+  background: var(--emerald-dim);
+  border: 1px solid var(--emerald-border);
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 0.85rem;
+}
+
+.step-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.step-card p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 1rem;
+}
+
+.step-code {
+  background: #06090e;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--emerald-bright);
+  word-break: break-all;
+}
+
+/* Prompt Studio Showcase */
+.prompt-studio {
+  background: #0d131e;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.75);
+}
+
+.prompt-studio-header {
+  background: #090d14;
+  border-bottom: 1px solid var(--border);
+  padding: 0.85rem 1.25rem;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
-.explorer-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #ffffff;
+.prompt-studio-title {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: #ffffff;
 }
 
-.explorer-bar {
-  display: inline-block;
-  width: 3px;
-  height: 18px;
-  background: var(--emerald);
-  border-radius: 2px;
+.prompt-studio-title .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--emerald-bright);
+  box-shadow: 0 0 8px var(--emerald-bright);
 }
 
-.search-filter-box {
+.prompt-tabs {
   display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  flex: 1;
-  max-width: 520px;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
-.search-input {
-  width: 100%;
-  background: #0e141e;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 8px 12px;
-  color: var(--text-primary);
-  font-size: 0.85rem;
-  outline: none;
-  font-family: var(--font-sans);
-}
-
-.search-input:focus {
-  border-color: var(--emerald-bright);
-}
-
-.filter-pills {
-  display: flex;
-  gap: 4px;
-}
-
-.pill-btn {
+.prompt-tab {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  padding: 5px 10px;
+  font-size: 0.76rem;
+  padding: 5px 12px;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.15s ease;
   white-space: nowrap;
 }
 
-.pill-btn.active {
+.prompt-tab:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.prompt-tab.active {
   background: var(--emerald-dim);
   border-color: var(--emerald-border);
   color: var(--emerald-bright);
+  font-weight: 600;
 }
 
-.lib-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #0d121a;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  font-size: 0.85rem;
+.prompt-pane {
+  display: none;
+  padding: 1.5rem;
 }
 
-.lib-table th {
-  background: #080c12;
-  padding: 10px 14px;
+.prompt-pane.active {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 960px) {
+  .prompt-pane.active {
+    grid-template-columns: 1fr;
+  }
+}
+
+.prompt-left, .prompt-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.pane-label {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-muted);
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-
-.lib-table td {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border-subtle);
-  color: var(--text-secondary);
-}
-
-.lib-table tr:last-child td {
-  border-bottom: none;
-}
-
-.lib-table tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.lib-name {
-  color: var(--text-primary);
-  font-weight: 600;
+  margin-bottom: 0.65rem;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
 }
 
-.lib-badge {
+.prompt-box {
+  background: #06090e;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
-  padding: 1px 5px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: #e2e8f0;
+  position: relative;
+  flex: 1;
+}
+
+.prompt-box .highlight {
+  color: var(--emerald-bright);
+  font-weight: 600;
+}
+
+.prompt-box .url {
+  color: var(--cyan);
+  text-decoration: underline;
+}
+
+.prompt-notes {
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+}
+
+.prompt-notes strong {
+  color: var(--emerald-bright);
+}
+
+.trace-timeline {
+  background: #06090e;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.trace-step {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.trace-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+  font-size: 0.7rem;
+}
+
+.trace-icon.ok {
+  background: var(--emerald-dim);
+  color: var(--emerald-bright);
+  border: 1px solid var(--emerald-border);
+}
+
+.trace-content {
+  flex: 1;
+}
+
+.trace-fn {
+  color: var(--emerald-bright);
+  font-weight: 600;
+}
+
+.trace-meta {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  margin-top: 2px;
+}
+
+.verified-code-box {
+  background: #06090e;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.code-box-header {
+  background: #090d14;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
   color: var(--text-muted);
 }
 
-.status-badge-green {
-  color: var(--emerald-bright);
-  font-weight: 600;
+.code-box-content {
+  padding: 12px 14px;
   font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: #cbd5e1;
+  overflow-x: auto;
+  max-height: 240px;
 }
+
+.code-box-content .cm { color: #64748b; }
+.code-box-content .kw { color: #f472b6; }
+.code-box-content .fn { color: #60a5fa; }
+.code-box-content .str { color: #34d399; }
 
 /* ==========================================================================
    Supabase-Style Bento Features (The 5 Vectors Solved)

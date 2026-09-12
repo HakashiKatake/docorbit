@@ -170,6 +170,22 @@ export class DashboardServer {
       }
     }
 
+    // Static Assets & Images
+    if (pathname.endsWith('.png') || pathname.endsWith('.jpg') || pathname.endsWith('.jpeg') || pathname.endsWith('.svg')) {
+      const assetRel = pathname.replace(/^\/(site|docs)\//, '');
+      const assetPath = this.resolveSiteFile(`site/${assetRel}`) ||
+                        this.resolveSiteFile(assetRel) ||
+                        this.resolveSiteFile(`site/assets/${path.basename(assetRel)}`) ||
+                        this.resolveSiteFile(`assets/${path.basename(assetRel)}`);
+      if (assetPath && fs.existsSync(assetPath)) {
+        const ext = path.extname(assetPath).toLowerCase();
+        const contentType = ext === '.png' ? 'image/png' : ext === '.svg' ? 'image/svg+xml' : 'image/jpeg';
+        res.writeHead(200, { 'Content-Type': contentType });
+        res.end(fs.readFileSync(assetPath));
+        return;
+      }
+    }
+
     // JSON REST API
     if (pathname.startsWith('/api/')) {
       res.setHeader('Content-Type', 'application/json; charset=utf-8');

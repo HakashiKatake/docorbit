@@ -1,3 +1,11 @@
+<p align="center">
+  <img src="assets/banner.png" alt="DocOrbit Banner" width="100%" style="border-radius: 8px;" />
+</p>
+
+<p align="center">
+  <img src="assets/logo.png" alt="DocOrbit Logo" width="80" height="80" style="border-radius: 16px;" />
+</p>
+
 # DocOrbit
 
 <p align="center">
@@ -12,7 +20,7 @@
   <a href="https://www.npmjs.com/package/docorbit"><img src="https://img.shields.io/npm/v/docorbit?color=339933&style=flat-square" alt="npm version" /></a>
   <a href="https://www.npmjs.com/package/docorbit"><img src="https://img.shields.io/npm/dm/docorbit?color=blue&style=flat-square" alt="npm downloads" /></a>
   <a href="https://glama.ai/mcp/servers/HakashiKatake/docorbit"><img src="https://glama.ai/mcp/servers/HakashiKatake/docorbit/badges/score.svg" alt="docorbit MCP server score" /></a>
-  <a href="https://github.com/HakashiKatake/docorbit/actions"><img src="https://img.shields.io/badge/tests-131%20passing-brightgreen.svg?style=flat-square" alt="tests passing" /></a>
+  <a href="https://github.com/HakashiKatake/docorbit/actions"><img src="https://img.shields.io/badge/tests-143%20passing-brightgreen.svg?style=flat-square" alt="tests passing" /></a>
   <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D22.5.0-black.svg?style=flat-square" alt="Node.js version" /></a>
   <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-15%20tools-blueviolet.svg?style=flat-square" alt="Model Context Protocol" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="license MIT" /></a>
@@ -130,6 +138,20 @@ claude mcp add docorbit -- npx -y docorbit mcp
 ```
 
 *DocOrbit detects when standard input is a machine pipe and starts the MCP stdio transport automatically in project-local mode. If you prefer a shared user-wide store across all projects, pass `-g`: `["-y", "docorbit", "mcp", "-g"]`.*
+
+### 3. How to Work with DocOrbit in Your Prompts
+
+Once mounted, you never need to manually copy-paste documentation pages into your agent chat. Simply give your agent the official documentation link and tell it to use DocOrbit:
+
+```text
+I want to setup stripe in my app, the link of stripe docs: https://docs.stripe.com/payments/checkout
+use docorbit to set it up.
+```
+
+**What DocOrbit does behind the scenes:**
+1. **Tree Crawling & SQLite FTS5 Indexing**: The agent automatically invokes `docorbit.ingest_doc({ url: "https://docs.stripe.com/payments/checkout" })`. DocOrbit crawls the documentation with SSRF protection and indexes endpoints and types in ~24ms.
+2. **Context Assembly (Zero JSON Bloat)**: The agent calls `docorbit.get_implementation_context(...)` and receives 412 tokens of clean, pure GitHub Markdown grounded in active API contracts.
+3. **AST Contract Verification**: The agent calls `docorbit.check_api(...)` to verify code against AST contracts before writing to disk, preventing deprecated methods (such as legacy `stripe.charges.create`) and runtime parameter crashes.
 
 ---
 

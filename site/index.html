@@ -6,7 +6,7 @@
   <title>DocOrbit — Up-to-date docs for AI coding agents</title>
   <meta name="description" content="Autonomous documentation-tree discovery, version reconciliation across 8 ecosystems, semantic AST slicing, and closed-loop contract verification for Cursor, Claude, Windsurf, Zed, and custom agents.">
   <link rel="stylesheet" href="styles.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛰️</text></svg>">
+  <link rel="icon" type="image/png" href="assets/logo.png">
 </head>
 <body>
   <div class="bg-subtle-glow"></div>
@@ -22,13 +22,7 @@
     <div class="container">
       <div class="nav-left">
         <a href="index.html" class="brand">
-          <div class="brand-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="9"></circle>
-              <path d="M3.6 9h16.8"></path>
-              <path d="M3.6 15h16.8"></path>
-            </svg>
-          </div>
+          <img src="assets/logo.png" alt="DocOrbit Logo" class="brand-logo" width="28" height="28">
           <span>DocOrbit</span>
           <span class="brand-badge">v0.1.9</span>
         </a>
@@ -36,7 +30,7 @@
         <ul class="nav-links">
           <li><a href="#features" class="nav-link">Features</a></li>
           <li><a href="docs.html" class="nav-link">Docs</a></li>
-          <li><a href="#libraries" class="nav-link">Libraries</a></li>
+          <li><a href="#how-to-use" class="nav-link">How to Use</a></li>
           <li><a href="#benchmarks" class="nav-link">Benchmarks</a></li>
           <li><a href="#tools" class="nav-link">15 MCP Tools</a></li>
           <li><a href="#setup" class="nav-link">Harnesses</a></li>
@@ -136,146 +130,412 @@
         </div>
       </div>
 
-      <!-- Context7-Style Live Library Explorer Table -->
-      <div id="libraries" class="library-explorer">
-        <div class="explorer-header">
-          <div class="explorer-title">
-            <span class="explorer-bar"></span>
-            <span>Explore Verified Documentation Packs. Instant Agent Grounding.</span>
+      
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       How to Use DocOrbit & Agent Prompt Showcase
+       ========================================================================== -->
+  <section id="how-to-use" class="section how-to-use-section">
+    <div class="container">
+      <span class="section-tag">PRACTICAL AGENT WORKFLOW</span>
+      <h2 class="section-title">How to Work with DocOrbit</h2>
+      <p class="section-desc">
+        DocOrbit runs silently inside Cursor, Claude, Windsurf, or custom agents. You don't need to manually read 50 pages of docs or paste massive text files. Give your agent the task and the documentation link — DocOrbit automates tree crawling, AST slicing, and contract verification in milliseconds.
+      </p>
+
+      <!-- 3-Step Workflow Cards -->
+      <div class="workflow-steps-grid">
+        <div class="step-card">
+          <span class="step-num">STEP 01</span>
+          <h3>Mount the MCP Server</h3>
+          <p>
+            Add DocOrbit to your harness config once (<code>.cursor/mcp.json</code>, Claude Desktop, Windsurf, or Roo Code). Zero external dependencies, local SQLite engine.
+          </p>
+          <div class="step-code">npx -y docorbit mcp</div>
+        </div>
+
+        <div class="step-card">
+          <span class="step-num">STEP 02</span>
+          <h3>Prompt Your Agent with Docs</h3>
+          <p>
+            Mention the documentation URL or library name in your regular prompt and tell your agent to use DocOrbit for grounding and verification.
+          </p>
+          <div class="step-code">"The link of docs: https://... Use docorbit to set it up."</div>
+        </div>
+
+        <div class="step-card">
+          <span class="step-num">STEP 03</span>
+          <h3>Zero-Hallucination Execution</h3>
+          <p>
+            The agent calls <code>ingest_doc</code>, <code>get_implementation_context</code>, and <code>check_api</code> to generate 100% build-passing, contract-verified code.
+          </p>
+          <div class="step-code">✔ AST Verified &bull; 0 Deprecated Calls &bull; 1.4ms SQLite</div>
+        </div>
+      </div>
+
+      <!-- Interactive Agent Prompt Studio -->
+      <div class="prompt-studio">
+        <div class="prompt-studio-header">
+          <div class="prompt-studio-title">
+            <span class="dot"></span>
+            <span>Agent Prompt Studio &bull; Real-World Sample Prompts</span>
           </div>
 
-          <div class="search-filter-box">
-            <input type="text" id="lib-search" class="search-input" placeholder="Search libraries (next, stripe, tailwind, fastapi, drizzle...)" autocomplete="off">
-            <div class="filter-pills">
-              <button class="pill-btn active" data-cat="all">All</button>
-              <button class="pill-btn" data-cat="frontend">Frontend</button>
-              <button class="pill-btn" data-cat="backend">Backend</button>
-              <button class="pill-btn" data-cat="db">Database</button>
+          <div class="prompt-tabs">
+            <button class="prompt-tab active" data-ptab="stripe">💳 Stripe Checkout & Webhooks</button>
+            <button class="prompt-tab" data-ptab="nextjs">⚡ Next.js 15 Async Routes</button>
+            <button class="prompt-tab" data-ptab="fastapi">🐍 FastAPI + Pydantic v2</button>
+            <button class="prompt-tab" data-ptab="tailwind">🎨 Tailwind CSS v4 @theme</button>
+          </div>
+        </div>
+
+        <!-- Tab 1: Stripe (The Requested Sample Prompt) -->
+        <div id="ptab-stripe" class="prompt-pane active">
+          <div class="prompt-left">
+            <div class="pane-label">
+              <span>Sample Agent Prompt</span>
+              <button class="copy-btn" data-copy="I want to setup stripe in my app, the link of stripe docs: https://docs.stripe.com/payments/checkout
+use docorbit to set it up.">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span>Copy Prompt</span>
+              </button>
+            </div>
+
+            <div class="prompt-box">
+              <div>I want to setup <span class="highlight">stripe</span> in my app, the link of stripe docs:</div>
+              <div><span class="url">https://docs.stripe.com/payments/checkout</span></div>
+              <div style="margin-top: 6px;">use <span class="highlight">docorbit</span> to set it up.</div>
+            </div>
+
+            <div class="prompt-notes">
+              <strong>Why this prompt succeeds:</strong> By naming the task, providing the authoritative documentation link, and specifying <code>docorbit</code>, your agent bypasses its training cutoff and queries the local MCP server directly for active API contracts.
+            </div>
+          </div>
+
+          <div class="prompt-right">
+            <div class="pane-label">
+              <span>What DocOrbit Does Behind the Scenes</span>
+              <span style="color: var(--emerald-bright); font-size: 0.72rem;">● MCP Flow</span>
+            </div>
+
+            <div class="trace-timeline">
+              <div class="trace-step">
+                <div class="trace-icon ok">1</div>
+                <div class="trace-content">
+                  <div>Agent calls <span class="trace-fn">docorbit.ingest_doc({ url: "https://docs.stripe.com/payments/checkout" })</span></div>
+                  <div class="trace-meta">SSRF checked &bull; Crawled 18 pages in 28ms &bull; Cached into SQLite .docorbit/docorbit.db</div>
+                </div>
+              </div>
+
+              <div class="trace-step">
+                <div class="trace-icon ok">2</div>
+                <div class="trace-content">
+                  <div>Agent calls <span class="trace-fn">docorbit.get_implementation_context({ query: "checkout session create and webhook signature" })</span></div>
+                  <div class="trace-meta">Returned 412 clean tokens &bull; Stripe v16 signatures &bull; Prevents legacy Charges trap</div>
+                </div>
+              </div>
+
+              <div class="trace-step">
+                <div class="trace-icon ok">3</div>
+                <div class="trace-content">
+                  <div>Agent calls <span class="trace-fn">docorbit.check_api({ code: "...", language: "typescript" })</span></div>
+                  <div class="trace-meta">AST Code Verification: <span style="color: var(--emerald-bright); font-weight: 600;">PASS (0 mismatches, 0 deprecated endpoints)</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="verified-code-box">
+              <div class="code-box-header">
+                <span>app/api/checkout/route.ts</span>
+                <button class="copy-btn" data-copy="import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2024-12-18.acacia',
+});
+
+export async function POST(req: Request) {
+  const { items } = await req.json();
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: items.map((item: any) => ({
+      price: item.priceId,
+      quantity: item.quantity,
+    })),
+    mode: 'payment',
+    success_url: `${process.env.NEXT_PUBLIC_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.NEXT_PUBLIC_URL}/canceled`,
+  });
+
+  return NextResponse.json({ url: session.url });
+}">Copy Code</button>
+              </div>
+              <pre class="code-box-content"><code><span class="kw">import</span> { NextResponse } <span class="kw">from</span> <span class="str">'next/server'</span>;
+<span class="kw">import</span> Stripe <span class="kw">from</span> <span class="str">'stripe'</span>;
+
+<span class="kw">const</span> stripe = <span class="kw">new</span> Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: <span class="str">'2024-12-18.acacia'</span>,
+});
+
+<span class="kw">export async function</span> <span class="fn">POST</span>(req: Request) {
+  <span class="kw">const</span> { items } = <span class="kw">await</span> req.json();
+
+  <span class="cm">// DocOrbit AST verified: stripe.checkout.sessions.create parameters</span>
+  <span class="kw">const</span> session = <span class="kw">await</span> stripe.checkout.sessions.<span class="fn">create</span>({
+    payment_method_types: [<span class="str">'card'</span>],
+    line_items: items.map((item: any) => ({
+      price: item.priceId,
+      quantity: item.quantity,
+    })),
+    mode: <span class="str">'payment'</span>,
+    success_url: `${process.env.NEXT_PUBLIC_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.NEXT_PUBLIC_URL}/canceled`,
+  });
+
+  <span class="kw">return</span> NextResponse.json({ url: session.url });
+}</code></pre>
             </div>
           </div>
         </div>
 
-        <table class="lib-table">
-          <thead>
-            <tr>
-              <th>Library</th>
-              <th>Ecosystem / Source</th>
-              <th>Benchmark Accuracy</th>
-              <th>FTS Latency</th>
-              <th>AST Contract</th>
-              <th>Quick Ingest Command</th>
-            </tr>
-          </thead>
-          <tbody id="lib-tbody">
-            <tr data-cat="frontend" data-name="next.js nextjs react">
-              <td>
-                <div class="lib-name">
-                  <span>Next.js 15</span>
-                  <span class="lib-badge">v15.1.0</span>
-                </div>
-              </td>
-              <td>npm / vercel/next.js</td>
-              <td><span class="status-badge-green">100.0% (0 lag)</span></td>
-              <td>1.2ms</td>
-              <td>Route Handler async params</td>
-              <td>
-                <button class="copy-btn" data-copy="npx docorbit add https://nextjs.org/docs">
-                  Copy Ingest
-                </button>
-              </td>
-            </tr>
+        <!-- Tab 2: Next.js 15 Async Routes -->
+        <div id="ptab-nextjs" class="prompt-pane">
+          <div class="prompt-left">
+            <div class="pane-label">
+              <span>Sample Agent Prompt</span>
+              <button class="copy-btn" data-copy="I want to upgrade dynamic routes in my Next.js project to version 15. The link of docs: https://nextjs.org/docs/app/building-your-application/upgrading/version-15
+use docorbit to verify dynamic params and set it up.">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span>Copy Prompt</span>
+              </button>
+            </div>
 
-            <tr data-cat="backend" data-name="stripe payments nodejs">
-              <td>
-                <div class="lib-name">
-                  <span>Stripe v16</span>
-                  <span class="lib-badge">v16.2.0</span>
-                </div>
-              </td>
-              <td>npm &bull; pypi / stripe</td>
-              <td><span class="status-badge-green">100.0%</span></td>
-              <td>1.4ms</td>
-              <td>PaymentIntents (Charges trap prevented)</td>
-              <td>
-                <button class="copy-btn" data-copy="npx docorbit add https://docs.stripe.com">
-                  Copy Ingest
-                </button>
-              </td>
-            </tr>
+            <div class="prompt-box">
+              <div>I want to upgrade dynamic routes in my Next.js project to <span class="highlight">version 15</span>. The link of docs:</div>
+              <div><span class="url">https://nextjs.org/docs/app/building-your-application/upgrading/version-15</span></div>
+              <div style="margin-top: 6px;">use <span class="highlight">docorbit</span> to verify dynamic params and set it up.</div>
+            </div>
 
-            <tr data-cat="frontend" data-name="tailwind tailwindcss css">
-              <td>
-                <div class="lib-name">
-                  <span>Tailwind CSS v4</span>
-                  <span class="lib-badge">v4.0.0</span>
-                </div>
-              </td>
-              <td>npm / tailwindcss</td>
-              <td><span class="status-badge-green">100.0%</span></td>
-              <td>1.1ms</td>
-              <td>CSS-first @theme architecture</td>
-              <td>
-                <button class="copy-btn" data-copy="npx docorbit add https://tailwindcss.com/docs">
-                  Copy Ingest
-                </button>
-              </td>
-            </tr>
+            <div class="prompt-notes">
+              <strong>Why this prompt succeeds:</strong> In Next.js 15, <code>params</code> and <code>searchParams</code> are Promises. Without DocOrbit, LLMs output Next 14 sync <code>params.id</code> causing immediate runtime exceptions.
+            </div>
+          </div>
 
-            <tr data-cat="backend" data-name="fastapi python pydantic">
-              <td>
-                <div class="lib-name">
-                  <span>FastAPI 0.115</span>
-                  <span class="lib-badge">v0.115.0</span>
-                </div>
-              </td>
-              <td>pypi / fastapi</td>
-              <td><span class="status-badge-green">100.0%</span></td>
-              <td>1.3ms</td>
-              <td>Pydantic v2 OpenAPI schema</td>
-              <td>
-                <button class="copy-btn" data-copy="npx docorbit add https://fastapi.tiangolo.com">
-                  Copy Ingest
-                </button>
-              </td>
-            </tr>
+          <div class="prompt-right">
+            <div class="pane-label">
+              <span>What DocOrbit Does Behind the Scenes</span>
+              <span style="color: var(--emerald-bright); font-size: 0.72rem;">● MCP Flow</span>
+            </div>
 
-            <tr data-cat="db" data-name="drizzle orm sql postgres">
-              <td>
-                <div class="lib-name">
-                  <span>Drizzle ORM</span>
-                  <span class="lib-badge">v0.38.0</span>
+            <div class="trace-timeline">
+              <div class="trace-step">
+                <div class="trace-icon ok">1</div>
+                <div class="trace-content">
+                  <div>Agent calls <span class="trace-fn">docorbit.find_api({ name: "Route Handler dynamic params" })</span></div>
+                  <div class="trace-meta">SemVer match against package.json ("next": "^15.1.0") &bull; 1.2ms SQLite lookup</div>
                 </div>
-              </td>
-              <td>npm / drizzle-orm</td>
-              <td><span class="status-badge-green">100.0%</span></td>
-              <td>1.2ms</td>
-              <td>Relational queries & migrations</td>
-              <td>
-                <button class="copy-btn" data-copy="npx docorbit add https://orm.drizzle.team">
-                  Copy Ingest
-                </button>
-              </td>
-            </tr>
+              </div>
 
-            <tr data-cat="backend" data-name="tokio rust async">
-              <td>
-                <div class="lib-name">
-                  <span>Tokio 1.40</span>
-                  <span class="lib-badge">v1.40.0</span>
+              <div class="trace-step">
+                <div class="trace-icon ok">2</div>
+                <div class="trace-content">
+                  <div>Agent calls <span class="trace-fn">docorbit.check_api({ code: "...", language: "typescript" })</span></div>
+                  <div class="trace-meta">Flags sync params access as <span style="color: var(--danger);">version_mismatch</span> &bull; Enforces <code>await params</code></div>
                 </div>
-              </td>
-              <td>cargo / tokio</td>
-              <td><span class="status-badge-green">100.0%</span></td>
-              <td>1.5ms</td>
-              <td>Async task runtime & channels</td>
-              <td>
-                <button class="copy-btn" data-copy="npx docorbit add https://docs.rs/tokio">
-                  Copy Ingest
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+            </div>
+
+            <div class="verified-code-box">
+              <div class="code-box-header">
+                <span>app/api/users/[id]/route.ts</span>
+                <button class="copy-btn" data-copy="import { NextResponse } from 'next/server';
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  // DocOrbit AST verified: params is a Promise in Next.js 15
+  const { id } = await params;
+  return NextResponse.json({ userId: id, status: 'active' });
+}">Copy Code</button>
+              </div>
+              <pre class="code-box-content"><code><span class="kw">import</span> { NextResponse } <span class="kw">from</span> <span class="str">'next/server'</span>;
+
+<span class="kw">export async function</span> <span class="fn">GET</span>(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  <span class="cm">// DocOrbit AST verified: params is a Promise in Next.js 15</span>
+  <span class="kw">const</span> { id } = <span class="kw">await</span> params;
+  <span class="kw">return</span> NextResponse.json({ userId: id, status: <span class="str">'active'</span> });
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: FastAPI + Pydantic v2 -->
+        <div id="ptab-fastapi" class="prompt-pane">
+          <div class="prompt-left">
+            <div class="pane-label">
+              <span>Sample Agent Prompt</span>
+              <button class="copy-btn" data-copy="I want to create user validation models in FastAPI. The link of docs: https://fastapi.tiangolo.com/tutorial/body/
+use docorbit to verify Pydantic v2 syntax and set it up.">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span>Copy Prompt</span>
+              </button>
+            </div>
+
+            <div class="prompt-box">
+              <div>I want to create user validation models in <span class="highlight">FastAPI</span>. The link of docs:</div>
+              <div><span class="url">https://fastapi.tiangolo.com/tutorial/body/</span></div>
+              <div style="margin-top: 6px;">use <span class="highlight">docorbit</span> to verify Pydantic v2 syntax and set it up.</div>
+            </div>
+
+            <div class="prompt-notes">
+              <strong>Why this prompt succeeds:</strong> LLMs routinely mix up Pydantic v1 <code>@validator</code> and v2 <code>@field_validator(mode='before')</code>. DocOrbit inspects <code>pyproject.toml</code> or <code>requirements.txt</code> to ground the exact v2 syntax.
+            </div>
+          </div>
+
+          <div class="prompt-right">
+            <div class="pane-label">
+              <span>What DocOrbit Does Behind the Scenes</span>
+              <span style="color: var(--emerald-bright); font-size: 0.72rem;">● MCP Flow</span>
+            </div>
+
+            <div class="trace-timeline">
+              <div class="trace-step">
+                <div class="trace-icon ok">1</div>
+                <div class="trace-content">
+                  <div>Agent calls <span class="trace-fn">docorbit.find_pitfall({ package: "pydantic", query: "validator vs field_validator" })</span></div>
+                  <div class="trace-meta">Detected PyPI lockfile (pydantic>=2.7.0) &bull; Flags v1 deprecation pitfall</div>
+                </div>
+              </div>
+
+              <div class="trace-step">
+                <div class="trace-icon ok">2</div>
+                <div class="trace-content">
+                  <div>Agent calls <span class="trace-fn">docorbit.find_example({ task: "field_validator email lowercase" })</span></div>
+                  <div class="trace-meta">Retrieves grounded code example directly from authoritative FastAPI/Pydantic source</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="verified-code-box">
+              <div class="code-box-header">
+                <span>main.py</span>
+                <button class="copy-btn" data-copy="from fastapi import FastAPI
+from pydantic import BaseModel, EmailStr, field_validator
+
+app = FastAPI()
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    age: int
+
+    @field_validator('email')
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        return v.lower().strip()
+
+@app.post('/users')
+def create_user(user: UserCreate):
+    return {'email': user.email, 'status': 'created'}">Copy Code</button>
+              </div>
+              <pre class="code-box-content"><code><span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI
+<span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel, EmailStr, field_validator
+
+app = FastAPI()
+
+<span class="kw">class</span> UserCreate(BaseModel):
+    email: EmailStr
+    age: int
+
+    <span class="cm"># DocOrbit verified: Pydantic v2 @field_validator with @classmethod</span>
+    @field_validator(<span class="str">'email'</span>)
+    @classmethod
+    <span class="kw">def</span> <span class="fn">normalize_email</span>(cls, v: str) -> str:
+        <span class="kw">return</span> v.lower().strip()
+
+@app.post(<span class="str">'/users'</span>)
+<span class="kw">def</span> <span class="fn">create_user</span>(user: UserCreate):
+    <span class="kw">return</span> {<span class="str">'email'</span>: user.email, <span class="str">'status'</span>: <span class="str">'created'</span>}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Tailwind CSS v4 Modern Theme -->
+        <div id="ptab-tailwind" class="prompt-pane">
+          <div class="prompt-left">
+            <div class="pane-label">
+              <span>Sample Agent Prompt</span>
+              <button class="copy-btn" data-copy="I want to setup custom brand colors in Tailwind CSS v4. The link of docs: https://tailwindcss.com/docs/theme
+use docorbit to set it up.">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span>Copy Prompt</span>
+              </button>
+            </div>
+
+            <div class="prompt-box">
+              <div>I want to setup custom brand colors in <span class="highlight">Tailwind CSS v4</span>. The link of docs:</div>
+              <div><span class="url">https://tailwindcss.com/docs/theme</span></div>
+              <div style="margin-top: 6px;">use <span class="highlight">docorbit</span> to set it up.</div>
+            </div>
+
+            <div class="prompt-notes">
+              <strong>Why this prompt succeeds:</strong> Tailwind v4 eliminated <code>tailwind.config.js</code> in favor of CSS-first <code>@theme</code> blocks. DocOrbit ensures agents don't create obsolete JavaScript config files.
+            </div>
+          </div>
+
+          <div class="prompt-right">
+            <div class="pane-label">
+              <span>What DocOrbit Does Behind the Scenes</span>
+              <span style="color: var(--emerald-bright); font-size: 0.72rem;">● MCP Flow</span>
+            </div>
+
+            <div class="trace-timeline">
+              <div class="trace-step">
+                <div class="trace-icon ok">1</div>
+                <div class="trace-content">
+                  <div>Agent calls <span class="trace-fn">docorbit.find_recipe({ task: "tailwind v4 custom theme configuration" })</span></div>
+                  <div class="trace-meta">Detected package.json ("tailwindcss": "^4.0.0") &bull; Delivers pure CSS-first recipe</div>
+                </div>
+              </div>
+
+              <div class="trace-step">
+                <div class="trace-icon ok">2</div>
+                <div class="trace-content">
+                  <div>Agent calls <span class="trace-fn">docorbit.check_api({ code: "...", language: "css" })</span></div>
+                  <div class="trace-meta">Enforces CSS <code>@theme</code> syntax &bull; Skips legacy <code>tailwind.config.js</code> file creation</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="verified-code-box">
+              <div class="code-box-header">
+                <span>app/globals.css</span>
+                <button class="copy-btn" data-copy="@import 'tailwindcss';
+
+@theme {
+  --color-brand-primary: #10b981;
+  --color-brand-accent: #34d399;
+  --font-display: 'Inter', system-ui, sans-serif;
+}">Copy Code</button>
+              </div>
+              <pre class="code-box-content"><code>@import <span class="str">'tailwindcss'</span>;
+
+<span class="cm">/* DocOrbit verified: Tailwind v4 CSS-first @theme directive */</span>
+@theme {
+  --color-brand-primary: <span class="str">#10b981</span>;
+  --color-brand-accent: <span class="str">#34d399</span>;
+  --font-display: <span class="str">'Inter'</span>, system-ui, sans-serif;
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>

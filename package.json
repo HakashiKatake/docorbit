@@ -1,6 +1,6 @@
 {
   "name": "docorbit",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "The Documentation Intelligence Layer for AI Coding Agents",
   "type": "module",
   "main": "./dist/packages/core/src/index.js",

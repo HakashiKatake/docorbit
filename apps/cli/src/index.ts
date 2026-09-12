@@ -18,7 +18,7 @@ import { runExportCommand } from './commands/export.ts';
 import { handleEvaluateCommand } from './commands/evaluate.ts';
 import type { ChunkType, PitfallKind } from '../../../packages/shared/src/index.ts';
 
-const VERSION = '0.1.9';
+const VERSION = '0.2.0';
 
 function printHelp(): void {
   console.log(`

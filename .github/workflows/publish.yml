@@ -35,11 +35,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js 22
+      - name: Setup Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
 
       # If manual trigger requested a version bump, bump version, commit and tag
       - name: Handle Version Bump (Manual Trigger)
@@ -143,6 +144,6 @@ jobs:
               export NODE_AUTH_TOKEN="${{ secrets.NPM_TOKEN }}"
             fi
             
-            npm publish --provenance --access public
+            npm publish --provenance --access public --ignore-scripts
             echo "✔ Successfully published docorbit@${PKG_VERSION} to npm!"
           fi

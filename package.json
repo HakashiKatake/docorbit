@@ -18,6 +18,9 @@
   "engines": {
     "node": ">=22.5.0"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "version:sync": "node scripts/sync-version.js",
     "version:set": "node scripts/sync-version.js",

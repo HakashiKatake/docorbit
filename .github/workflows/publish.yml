@@ -1,0 +1,148 @@
+name: Publish & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump (none, patch, minor, major)'
+        required: false
+        default: 'none'
+        type: choice
+        options:
+          - none
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write # Needed to create GitHub releases, upload assets, and push tags
+  id-token: write # REQUIRED for npm OIDC Trusted Publishing & provenance
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+
+      # If manual trigger requested a version bump, bump version, commit and tag
+      - name: Handle Version Bump (Manual Trigger)
+        id: bump_step
+        if: github.event_name == 'workflow_dispatch' && inputs.bump != 'none'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+          
+          case "${{ inputs.bump }}" in
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+          esac
+          
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "Bumping version from $CURRENT_VERSION to $NEW_VERSION"
+
+          node scripts/sync-version.js "$NEW_VERSION"
+
+          git add package.json packages/shared/src/version.ts site/
+          git commit -m "chore(release): bump version to v${NEW_VERSION}"
+          git tag -a "v${NEW_VERSION}" -m "Release v${NEW_VERSION}"
+          git push origin main --follow-tags
+
+          echo "RELEASE_TAG=v${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve Release Tag
+        id: tag_info
+        run: |
+          if [ -n "${{ steps.bump_step.outputs.RELEASE_TAG }}" ]; then
+            TAG="${{ steps.bump_step.outputs.RELEASE_TAG }}"
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            TAG="${{ github.ref_name }}"
+          else
+            VERSION=$(node -p "require('./package.json').version")
+            TAG="v${VERSION}"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Target release tag is $TAG"
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
+
+      - name: Pack tarball
+        id: pack
+        run: |
+          npm pack
+          TARBALL=$(ls -t docorbit-*.tgz | head -n 1)
+          echo "tarball=$TARBALL" >> "$GITHUB_OUTPUT"
+          echo "Created package archive: $TARBALL"
+          ls -lh "$TARBALL"
+
+      - name: Create or Update GitHub Release
+        run: |
+          TAG="${{ steps.tag_info.outputs.tag }}"
+          TARBALL="${{ steps.pack.outputs.tarball }}"
+          
+          echo "Publishing GitHub Release for $TAG with asset $TARBALL"
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" "$TARBALL" \
+              --title "$TAG" \
+              --generate-notes
+          else
+            echo "Release $TAG already exists. Uploading tarball asset..."
+            gh release upload "$TAG" "$TARBALL" --clobber
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to npm (OIDC Trusted Publishing & Provenance)
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          
+          # Check if this version is already published to npm
+          if npm view "docorbit@${PKG_VERSION}" version >/dev/null 2>&1; then
+            echo "Notice: docorbit@${PKG_VERSION} is already published on npm. Skipping publish."
+          else
+            echo "Publishing docorbit@${PKG_VERSION} to npm with provenance..."
+            
+            # If NPM_TOKEN secret exists, use it as fallback; otherwise npm OIDC Trusted Publisher handles auth
+            if [ -n "${{ secrets.NPM_TOKEN }}" ]; then
+              export NODE_AUTH_TOKEN="${{ secrets.NPM_TOKEN }}"
+            fi
+            
+            npm publish --provenance --access public
+            echo "✔ Successfully published docorbit@${PKG_VERSION} to npm!"
+          fi

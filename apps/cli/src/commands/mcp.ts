@@ -1,3 +1,4 @@
+import { DOCORBIT_VERSION } from '../../../../packages/shared/src/index.ts';
 import { DocOrbitDb, DocOrbitRepository, resolveDefaultDbPath } from '../../../../packages/storage/src/index.ts';
 import { WorkspaceResolver } from '../../../../packages/workspace/src/index.ts';
 import {
@@ -29,7 +30,7 @@ export async function runMcpCommand(options: McpCommandOptions = {}): Promise<vo
     resolver,
     projectDir,
     serverName: 'docorbit-mcp',
-    serverVersion: '0.5.0',
+    serverVersion: DOCORBIT_VERSION,
   });
 
   const isHttp = typeof options.port === 'number' && options.port > 0;

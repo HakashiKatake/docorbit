@@ -2,6 +2,7 @@ import * as http from 'node:http';
 import type { McpServer } from '../server.ts';
 import type { McpTransport } from './types.ts';
 import { JSONRPC_ERRORS } from '../types.ts';
+import { DOCORBIT_VERSION } from '../../../shared/src/index.ts';
 
 export interface HttpTransportOptions {
   port?: number;
@@ -94,7 +95,7 @@ export class StreamableHttpTransport implements McpTransport {
       res.end(JSON.stringify({
         status: 'ok',
         server: 'docorbit-mcp',
-        version: '0.5.0',
+        version: this.mcpServer?.serverVersion || DOCORBIT_VERSION,
         endpoints: {
           mcp: '/mcp',
           sse: '/sse',

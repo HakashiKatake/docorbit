@@ -89,7 +89,11 @@ export function extractPitfalls(
     content: string,
     chunk?: DocumentChunk
   ) => {
-    const trimmedContent = content.trim();
+    const MAX_PITFALL_LENGTH = 1500;
+    const bounded = content.length > MAX_PITFALL_LENGTH
+      ? content.slice(0, MAX_PITFALL_LENGTH) + '... [truncated]'
+      : content;
+    const trimmedContent = bounded.trim();
     if (!trimmedContent || trimmedContent.length < 15) return;
 
     const dedupeKey = `${kind}:${title.toLowerCase()}:${trimmedContent.substring(0, 80).toLowerCase()}`;
@@ -139,6 +143,11 @@ export function extractPitfalls(
 
   // 1. Process chunks for admonitions (> [!WARNING], > [!CAUTION], etc.)
   for (const chunk of chunks) {
+    // Skip chunks that are raw JSON/YAML schema specifications
+    if (chunk.language === 'json' || chunk.language === 'yaml' || page.url.endsWith('.json') || page.url.endsWith('.yaml')) {
+      continue;
+    }
+
     const content = chunk.content;
 
     // Match admonitions
@@ -176,8 +185,15 @@ export function extractPitfalls(
       if (match) {
         // Extract paragraph containing the match
         const paragraphs = content.split(/\n\s*\n/);
-        const matchingParagraph = paragraphs.find(p => pattern.test(p));
+        let matchingParagraph = paragraphs.find(p => pattern.test(p));
         if (matchingParagraph) {
+          // If paragraph is extraordinarily long, extract a localized window around the match
+          if (matchingParagraph.length > 1000) {
+            const matchIndex = matchingParagraph.search(pattern);
+            const start = Math.max(0, matchIndex - 200);
+            const end = Math.min(matchingParagraph.length, matchIndex + 600);
+            matchingParagraph = (start > 0 ? '... ' : '') + matchingParagraph.slice(start, end).trim() + (end < matchingParagraph.length ? ' ...' : '');
+          }
           const detail = match[1]?.trim() ? `: ${match[1].trim()}` : '';
           const title = `${titlePrefix}${detail}`;
           addPitfall(kind, title, matchingParagraph, chunk);

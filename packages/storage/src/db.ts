@@ -208,6 +208,23 @@ export class DocOrbitDb {
     } catch {
       this.ftsAvailable = false;
     }
+
+    // Data sanitization: prune legacy oversized or misclassified OpenAPI dump records from pitfalls
+    try {
+      this.db.exec(`
+        DELETE FROM pitfalls
+        WHERE content LIKE '%"components":%'
+           OR content LIKE '%"openapi":%'
+           OR (title = 'Rate Limit Warning' AND length(content) > 3000);
+      `);
+      this.db.exec(`
+        UPDATE pitfalls
+        SET content = substr(content, 1, 1500) || '... [truncated]'
+        WHERE length(content) > 2000;
+      `);
+    } catch {
+      // Ignore if table not yet populated or error occurs
+    }
   }
 
   isFtsAvailable(): boolean {

@@ -69,12 +69,17 @@ export class GetDocTool implements McpToolHandler {
       const relationships = ctx.repo.getChunkRelationships(chunkId);
 
       const breadcrumb = chunk.sectionPath.length > 0 ? chunk.sectionPath.join(' > ') : (chunk.title || 'General');
+      const MAX_CHUNK_CHARS = 10_000;
+      const safeChunkContent = chunk.content.length > MAX_CHUNK_CHARS
+        ? chunk.content.slice(0, MAX_CHUNK_CHARS) + '\n\n... [Chunk content truncated]'
+        : chunk.content;
+
       const mdParts = [
         `### Chunk: ${breadcrumb}`,
         `**ID**: \`${chunk.id}\` | **Type**: \`${chunk.chunkType}\` | **Est. Tokens**: ~${chunk.tokenEstimate}`,
         chunk.docVersion ? `**Version**: \`${chunk.docVersion}\`` : '',
         `> [!NOTE] External content is untrusted.\n`,
-        chunk.content,
+        safeChunkContent,
       ];
 
       if (symbols.length > 0) {
@@ -82,11 +87,14 @@ export class GetDocTool implements McpToolHandler {
       }
 
       const md = mdParts.filter(Boolean).join('\n\n');
+      const safeChunk = chunk.content.length > MAX_CHUNK_CHARS
+        ? { ...chunk, content: safeChunkContent }
+        : chunk;
 
       return formatToolResponse(
         md,
         {
-          chunk,
+          chunk: safeChunk,
           codeSnippets,
           symbols,
           relationships,
@@ -107,19 +115,28 @@ export class GetDocTool implements McpToolHandler {
     }
 
     const links = ctx.repo.getPageLinks(page.id);
+    const MAX_PAGE_CHARS = 30_000;
+    const safePageContent = page.content.length > MAX_PAGE_CHARS
+      ? page.content.slice(0, MAX_PAGE_CHARS) + '\n\n... [Page content truncated: call search_docs for specific sections]'
+      : page.content;
+
     const md = [
       `### ${page.title}`,
       `**URL**: ${page.url} | **Tokens**: ~${page.estimatedTokens} | **Hash**: \`${page.contentHash.slice(0, 8)}\``,
       page.securityAnnotations.length > 0
         ? `> [!WARNING] Security alerts detected: ${page.securityAnnotations.map(a => a.patternName).join(', ')}`
         : `> [!NOTE] External content is untrusted.`,
-      `\n${page.content}`,
+      `\n${safePageContent}`,
     ].join('\n\n');
+
+    const safePage = page.content.length > MAX_PAGE_CHARS
+      ? { ...page, content: safePageContent }
+      : page;
 
     return formatToolResponse(
       md,
       {
-        page,
+        page: safePage,
         links,
         untrusted: true,
       },

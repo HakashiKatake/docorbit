@@ -22,6 +22,29 @@ export class StdioServerTransport implements McpTransport {
     this.input = options.input || process.stdin;
     this.output = options.output || process.stdout;
     this.errorOutput = options.errorOutput || process.stderr;
+
+    this.setupStreamGuards();
+  }
+
+  private setupStreamGuards(): void {
+    // Prevent unhandled 'error' events on output, input, and error streams from crashing Node process
+    if (this.output && typeof (this.output as any).on === 'function') {
+      (this.output as any).on('error', (err: unknown) => {
+        this.log(`[DocOrbit MCP] Output stream error event: ${err instanceof Error ? err.message : String(err)}`);
+      });
+    }
+
+    if (this.input && typeof (this.input as any).on === 'function') {
+      (this.input as any).on('error', (err: unknown) => {
+        this.log(`[DocOrbit MCP] Input stream error event: ${err instanceof Error ? err.message : String(err)}`);
+      });
+    }
+
+    if (this.errorOutput && typeof (this.errorOutput as any).on === 'function' && this.errorOutput !== this.output) {
+      (this.errorOutput as any).on('error', () => {
+        // Suppress recursive error if stderr itself encounters an error
+      });
+    }
   }
 
   async start(server: McpServer): Promise<void> {
@@ -41,6 +64,10 @@ export class StdioServerTransport implements McpTransport {
       } catch (err) {
         this.log(`[DocOrbit MCP] Stdio error processing line: ${err instanceof Error ? err.message : String(err)}`);
       }
+    });
+
+    this.rl.on('error', (err: unknown) => {
+      this.log(`[DocOrbit MCP] Readline stream error event: ${err instanceof Error ? err.message : String(err)}`);
     });
 
     this.rl.on('close', () => {
@@ -86,13 +113,25 @@ export class StdioServerTransport implements McpTransport {
 
   private send(payload: unknown): void {
     if (!this.running) return;
-    const serialized = JSON.stringify(payload) + '\n';
-    this.output.write(serialized);
+    try {
+      const serialized = JSON.stringify(payload) + '\n';
+      this.output.write(serialized, (err) => {
+        if (err) {
+          this.log(`[DocOrbit MCP] Stdio async write error: ${err.message || String(err)}`);
+        }
+      });
+    } catch (err) {
+      this.log(`[DocOrbit MCP] Stdio sync write error: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
 
   private log(message: string): void {
-    // Isolated to stderr to never corrupt stdout JSON-RPC stream
-    this.errorOutput.write(`${message}\n`);
+    try {
+      // Isolated to stderr with empty callback to never throw or corrupt stdout JSON-RPC stream
+      this.errorOutput.write(`${message}\n`, () => {});
+    } catch {
+      // Intentionally safe if stderr is closed or broken
+    }
   }
 
   async close(): Promise<void> {

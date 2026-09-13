@@ -183,6 +183,13 @@ export class McpServer {
 
           try {
             const toolResult = await handler.execute(toolArgs, this.context);
+            if (toolResult && Array.isArray(toolResult.content)) {
+              for (const item of toolResult.content) {
+                if (item && item.type === 'text' && typeof item.text === 'string' && item.text.length > 120_000) {
+                  item.text = item.text.slice(0, 120_000) + '\n\n... [Response truncated: server ceiling exceeded]';
+                }
+              }
+            }
             return {
               jsonrpc: '2.0',
               id: id ?? null,

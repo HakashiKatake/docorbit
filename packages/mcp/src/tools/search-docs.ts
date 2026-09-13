@@ -86,24 +86,34 @@ export class SearchDocsTool implements McpToolHandler {
       return formatToolResponse(markdown, emptyPayload, args);
     }
 
-    const formattedChunks = results.map(r => ({
-      id: r.chunk.id,
-      chunk: r.chunk,
-      title: r.chunk.title || 'Untitled Section',
-      sectionPath: r.chunk.sectionPath,
-      content: r.chunk.content,
-      chunkType: r.chunk.chunkType,
-      language: r.chunk.language,
-      tokenEstimate: r.chunk.tokenEstimate,
-      docVersion: r.chunk.docVersion,
-      score: r.score,
-      symbols: r.symbols.map(s => s.name),
-      provenance: r.chunk.provenance ? {
-        sourceUrl: r.chunk.provenance.sourceUrl,
-        fetchedAt: r.chunk.provenance.fetchedAt,
-        untrusted: true,
-      } : undefined,
-    }));
+    const formattedChunks = results.map(r => {
+      const MAX_CHUNK_CONTENT_CHARS = 2000;
+      const safeContent = r.chunk.content.length > MAX_CHUNK_CONTENT_CHARS
+        ? r.chunk.content.slice(0, MAX_CHUNK_CONTENT_CHARS) + '... [truncated]'
+        : r.chunk.content;
+      const safeChunk = r.chunk.content.length > MAX_CHUNK_CONTENT_CHARS
+        ? { ...r.chunk, content: safeContent }
+        : r.chunk;
+
+      return {
+        id: r.chunk.id,
+        chunk: safeChunk,
+        title: r.chunk.title || 'Untitled Section',
+        sectionPath: r.chunk.sectionPath,
+        content: safeContent,
+        chunkType: r.chunk.chunkType,
+        language: r.chunk.language,
+        tokenEstimate: r.chunk.tokenEstimate,
+        docVersion: r.chunk.docVersion,
+        score: r.score,
+        symbols: r.symbols.map(s => s.name),
+        provenance: r.chunk.provenance ? {
+          sourceUrl: r.chunk.provenance.sourceUrl,
+          fetchedAt: r.chunk.provenance.fetchedAt,
+          untrusted: true,
+        } : undefined,
+      };
+    });
 
     const lines: string[] = [
       `### Search Results for "${query}" (${results.length} found)`,

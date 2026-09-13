@@ -402,7 +402,10 @@ export class ImplementationContextService {
     if (params.pitfalls.length > 0) {
       lines.push('## Pitfalls & Warnings');
       for (const pf of params.pitfalls.slice(0, 4)) {
-        lines.push(`- ⚠️ **[${pf.kind.toUpperCase()}] ${pf.title}**: ${pf.content}`);
+        const safeContent = pf.content.length > 500
+          ? pf.content.slice(0, 500) + '... [truncated]'
+          : pf.content;
+        lines.push(`- ⚠️ **[${pf.kind.toUpperCase()}] ${pf.title}**: ${safeContent}`);
       }
       lines.push('');
     }

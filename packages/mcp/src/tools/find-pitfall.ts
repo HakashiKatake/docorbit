@@ -74,15 +74,24 @@ export class FindPitfallTool implements McpToolHandler {
     for (const pf of pitfalls) {
       lines.push(`- ⚠️ **[${pf.kind.toUpperCase()}] ${pf.title}**${pf.docVersion ? ` (${pf.docVersion})` : ''}`);
       if (pf.relatedApi) lines.push(`  *Related API*: \`${pf.relatedApi}\``);
-      lines.push(`  ${pf.content}\n`);
+      const safeContent = pf.content.length > 1500
+        ? pf.content.slice(0, 1500) + '\n  ... [Content truncated]'
+        : pf.content;
+      lines.push(`  ${safeContent}\n`);
     }
+
+    const safePitfalls = pitfalls.map(pf =>
+      pf.content.length > 1500
+        ? { ...pf, content: pf.content.slice(0, 1500) + '... [truncated]' }
+        : pf
+    );
 
     return formatToolResponse(
       lines.join('\n'),
       {
         query,
         count: pitfalls.length,
-        pitfalls,
+        pitfalls: safePitfalls,
       },
       args
     );

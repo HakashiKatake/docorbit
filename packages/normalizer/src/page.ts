@@ -111,10 +111,29 @@ export function buildNormalizedPage(input: BuildNormalizedPageInput): Normalized
     const apiSummary = detectOpenApiSpec(rawContent, url);
     if (apiSummary) {
       title = `${apiSummary.title} (OpenAPI ${apiSummary.specVersion})`;
+      let endpointsSummary = '';
+      if (typeof apiSummary.rawJson === 'object' && apiSummary.rawJson !== null && (apiSummary.rawJson as any).paths) {
+        const pathEntries = Object.entries((apiSummary.rawJson as any).paths).slice(0, 50);
+        const pathLines: string[] = [];
+        for (const [p, methods] of pathEntries) {
+          if (methods && typeof methods === 'object') {
+            for (const [m, op] of Object.entries(methods)) {
+              if (['get', 'post', 'put', 'delete', 'patch'].includes(m.toLowerCase())) {
+                const summary = op && typeof op === 'object' && (op as any).summary ? ` - ${(op as any).summary}` : '';
+                pathLines.push(`- \`${m.toUpperCase()} ${p}\`${summary}`);
+              }
+            }
+          }
+        }
+        if (pathLines.length > 0) {
+          endpointsSummary = `\n\n## API Endpoints (${apiSummary.pathCount} total)\n\n` + pathLines.slice(0, 30).join('\n') + (pathLines.length > 30 ? '\n... and more endpoints' : '');
+        }
+      }
+
       cleanMarkdown = `# ${title}\n\n${apiSummary.description || ''}\n\n` +
         `**Servers**: ${apiSummary.servers.join(', ') || 'None specified'}\n\n` +
-        `**Endpoints Count**: ${apiSummary.pathCount}\n\n` +
-        `\`\`\`json\n${JSON.stringify(apiSummary.rawJson, null, 2)}\n\`\`\``;
+        `**Endpoints Count**: ${apiSummary.pathCount}` +
+        endpointsSummary;
       headings = [
         { level: 1, text: title, anchor: 'title' },
         { level: 2, text: 'API Overview', anchor: 'api-overview' },
@@ -123,8 +142,13 @@ export function buildNormalizedPage(input: BuildNormalizedPageInput): Normalized
         {
           id: 'spec_1',
           language: 'json',
-          code: JSON.stringify(apiSummary.rawJson, null, 2),
-          caption: 'OpenAPI Specification',
+          code: JSON.stringify({
+            title: apiSummary.title,
+            version: apiSummary.specVersion,
+            servers: apiSummary.servers,
+            pathCount: apiSummary.pathCount,
+          }, null, 2),
+          caption: 'OpenAPI Specification Overview',
         },
       ];
     }

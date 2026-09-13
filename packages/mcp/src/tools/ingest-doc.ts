@@ -220,7 +220,8 @@ export class IngestDocTool implements McpToolHandler {
         for (const ex of codeExamples) {
           lines.push(`#### ${ex.task} (${ex.language}${ex.framework ? `, ${ex.framework}` : ''})`);
           lines.push('```' + ex.language);
-          lines.push(ex.code);
+          const safeCode = ex.code.length > 2000 ? ex.code.slice(0, 2000) + '\n// ... [code truncated]' : ex.code;
+          lines.push(safeCode);
           lines.push('```\n');
         }
       }
@@ -228,7 +229,8 @@ export class IngestDocTool implements McpToolHandler {
       if (pitfalls.length > 0) {
         lines.push(``, `### Pitfalls & Deprecation Notices`);
         for (const pf of pitfalls) {
-          lines.push(`- ⚠️ **[${pf.kind.toUpperCase()}] ${pf.title}**: ${pf.content}`);
+          const safeContent = pf.content.length > 1500 ? pf.content.slice(0, 1500) + '... [truncated]' : pf.content;
+          lines.push(`- ⚠️ **[${pf.kind.toUpperCase()}] ${pf.title}**: ${safeContent}`);
         }
       }
 
@@ -240,6 +242,9 @@ export class IngestDocTool implements McpToolHandler {
         `- **Code Examples**: Call \`find_example(task: "...")\` for targeted snippets matching your framework.`,
         `- **Check Constraints**: Call \`find_pitfall(query: "...")\` to avoid deprecations or runtime traps.`
       );
+
+      const safeCodeExamples = codeExamples.map(ex => ex.code.length > 2000 ? { ...ex, code: ex.code.slice(0, 2000) + '... [truncated]' } : ex);
+      const safePitfalls = pitfalls.map(pf => pf.content.length > 1500 ? { ...pf, content: pf.content.slice(0, 1500) + '... [truncated]' } : pf);
 
       return formatToolResponse(
         lines.join('\n'),
@@ -255,8 +260,8 @@ export class IngestDocTool implements McpToolHandler {
           },
           pages: pagesSummary,
           apiEndpoints,
-          codeExamples,
-          pitfalls,
+          codeExamples: safeCodeExamples,
+          pitfalls: safePitfalls,
         },
         args
       );

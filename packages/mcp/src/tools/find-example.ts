@@ -79,16 +79,19 @@ export class FindExampleTool implements McpToolHandler {
       lines.push(`#### ${ex.task} [${ex.language}${ex.framework ? ` / ${ex.framework}` : ''}] (${ex.sourceAuthority})`);
       if (ex.relatedApi) lines.push(`*Target API*: \`${ex.relatedApi}\``);
       lines.push('```' + ex.language);
-      lines.push(ex.code);
+      const safeCode = ex.code.length > 3000 ? ex.code.slice(0, 3000) + '\n// ... [code truncated]' : ex.code;
+      lines.push(safeCode);
       lines.push('```\n');
     }
+
+    const safeExamples = examples.map(ex => ex.code.length > 3000 ? { ...ex, code: ex.code.slice(0, 3000) + '... [truncated]' } : ex);
 
     return formatToolResponse(
       lines.join('\n'),
       {
         query,
         count: examples.length,
-        examples,
+        examples: safeExamples,
       },
       args
     );

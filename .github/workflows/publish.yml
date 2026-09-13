@@ -40,7 +40,6 @@ jobs:
         with:
           node-version: 24
           registry-url: 'https://registry.npmjs.org'
-          package-manager-cache: false
 
       # If manual trigger requested a version bump, bump version, commit and tag
       - name: Handle Version Bump (Manual Trigger)

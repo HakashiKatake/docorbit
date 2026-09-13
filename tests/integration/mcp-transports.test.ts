@@ -2,13 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert';
 import { PassThrough } from 'node:stream';
 import * as http from 'node:http';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
 import {
   McpServer,
   StdioServerTransport,
   StreamableHttpTransport,
   JSONRPC_ERRORS,
-} from '../../packages/mcp/src/index.ts';
+} from '../../src/mcp/index.ts';
 
 function createTestServer(): { db: DocOrbitDb; server: McpServer } {
   const db = new DocOrbitDb(':memory:');

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { canonicalizeSourceUrl } from '../../packages/shared/src/index.ts';
+import { canonicalizeSourceUrl } from '../../src/shared/index.ts';
 
 test('canonicalizeSourceUrl: lowercases protocol and domain', () => {
   const result = canonicalizeSourceUrl('HTTPS://DOCS.GITHUB.COM/en');

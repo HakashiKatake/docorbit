@@ -3,8 +3,8 @@
   "version": "0.2.3",
   "description": "The Documentation Intelligence Layer for AI Coding Agents",
   "type": "module",
-  "main": "./dist/packages/core/src/index.js",
-  "types": "./dist/packages/core/src/index.d.ts",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "bin": {
     "docorbit": "bin/docorbit.js"
   },

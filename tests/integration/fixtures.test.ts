@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert';
 import { createFixtureFetch, FIXTURE_ORIGIN } from '../fixtures/server.ts';
-import { SecureFetcher } from '../../packages/crawler/src/index.ts';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { IngestionPipeline, inspectDocumentation } from '../../packages/core/src/index.ts';
-import { SsrfError, PayloadTooLargeError } from '../../packages/shared/src/index.ts';
+import { SecureFetcher } from '../../src/crawler/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { IngestionPipeline, inspectDocumentation } from '../../src/core/index.ts';
+import { SsrfError, PayloadTooLargeError } from '../../src/shared/index.ts';
 
 const fixtureFetch = createFixtureFetch(FIXTURE_ORIGIN);
 
@@ -38,7 +38,7 @@ test('Fixture A: Simple HTML documentation crawl and normalization', async () =>
   assert.ok(repo.countChunks() >= 3, `Expected at least 3 stored chunks in repository, got ${repo.countChunks()}`);
 
   // Test retrieval engine against ingested fixture chunks
-  const retrieval = new (await import('../../packages/retrieval/src/index.ts')).RetrievalEngine(repo);
+  const retrieval = new (await import('../../src/retrieval/index.ts')).RetrievalEngine(repo);
   const searchHits = await retrieval.search('simple-lib installation', { limit: 5 });
   assert.ok(searchHits.length > 0, 'RetrievalEngine should find chunks for fixture query');
   assert.ok(searchHits[0].chunk.content.includes('npm install simple-lib'));

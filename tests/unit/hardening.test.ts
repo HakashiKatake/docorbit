@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { validateTargetUrl, detectSecurityAnnotations, isPrivateOrBlockedIp } from '../../packages/security/src/index.ts';
-import { computeContentHash } from '../../packages/shared/src/index.ts';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { SecureFetcher } from '../../packages/crawler/src/index.ts';
-import { IngestionPipeline, inspectDocumentation } from '../../packages/core/src/index.ts';
-import { SsrfError, DocOrbitError } from '../../packages/shared/src/index.ts';
+import { validateTargetUrl, detectSecurityAnnotations, isPrivateOrBlockedIp } from '../../src/security/index.ts';
+import { computeContentHash } from '../../src/shared/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { SecureFetcher } from '../../src/crawler/index.ts';
+import { IngestionPipeline, inspectDocumentation } from '../../src/core/index.ts';
+import { SsrfError, DocOrbitError } from '../../src/shared/index.ts';
 import { createFixtureFetch, FIXTURE_ORIGIN } from '../fixtures/server.ts';
 
 test('Hardening: IPv6 bracketed hostnames are strictly blocked', async () => {

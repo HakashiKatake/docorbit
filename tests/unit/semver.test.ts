@@ -5,7 +5,7 @@ import {
   compareVersions,
   satisfiesRange,
   resolveDocVersion,
-} from '../../packages/workspace/src/semver.ts';
+} from '../../src/workspace/semver.ts';
 
 test('SemVer: parseSemVer correctly parses standard, partial, and prerelease versions', () => {
   // Standard semver

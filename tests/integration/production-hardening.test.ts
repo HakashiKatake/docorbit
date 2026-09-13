@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { RetrievalEngine } from '../../packages/retrieval/src/index.ts';
-import { buildNormalizedPage } from '../../packages/normalizer/src/index.ts';
-import { VerificationService } from '../../packages/verification/src/index.ts';
-import { McpServer } from '../../packages/mcp/src/index.ts';
-import { detectSecurityAnnotations } from '../../packages/security/src/annotations.ts';
-import type { NormalizedPage, DocumentChunk } from '../../packages/shared/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { RetrievalEngine } from '../../src/retrieval/index.ts';
+import { buildNormalizedPage } from '../../src/normalizer/index.ts';
+import { VerificationService } from '../../src/verification/index.ts';
+import { McpServer } from '../../src/mcp/index.ts';
+import { detectSecurityAnnotations } from '../../src/security/annotations.ts';
+import type { NormalizedPage, DocumentChunk } from '../../src/shared/index.ts';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 

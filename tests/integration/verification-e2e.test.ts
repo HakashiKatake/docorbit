@@ -3,15 +3,15 @@ import assert from 'node:assert';
 import { mkdtempSync, writeFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { WorkspaceResolver } from '../../packages/workspace/src/index.ts';
-import { McpServer } from '../../packages/mcp/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { WorkspaceResolver } from '../../src/workspace/index.ts';
+import { McpServer } from '../../src/mcp/index.ts';
 import type {
   DiscoveredSource,
   NormalizedPage,
   ApiEndpoint,
   Pitfall,
-} from '../../packages/shared/src/index.ts';
+} from '../../src/shared/index.ts';
 
 test('Integration E2E: Verification, Diffing, and Workspace Impact in Coding Agent Workflow', async () => {
   // 1. Set up workspace

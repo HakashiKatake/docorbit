@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { extractPitfalls } from '../../packages/normalizer/src/pitfall-extractor.ts';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import type { NormalizedPage, DocumentChunk } from '../../packages/shared/src/index.ts';
+import { extractPitfalls } from '../../src/normalizer/pitfall-extractor.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import type { NormalizedPage, DocumentChunk } from '../../src/shared/index.ts';
 
 test('Pitfalls: extractPitfalls extracts admonitions and explicit warnings', () => {
   const page: NormalizedPage = {

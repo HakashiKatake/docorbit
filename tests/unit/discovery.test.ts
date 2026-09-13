@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert';
 import { createFixtureFetch, FIXTURE_ORIGIN } from '../fixtures/server.ts';
-import { SecureFetcher } from '../../packages/crawler/src/index.ts';
+import { SecureFetcher } from '../../src/crawler/index.ts';
 import {
   createDefaultDiscoveryCoordinator,
   LlmsTxtProvider,
   OpenApiProvider,
   MarkdownProvider,
   SitemapProvider,
-} from '../../packages/discovery/src/index.ts';
+} from '../../src/discovery/index.ts';
 
 const fetcher = new SecureFetcher({
   allowLocalhostForTesting: true,

@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { formatToolResponse, MAX_TOOL_OUTPUT_CHARS } from '../../packages/mcp/src/tools/types.ts';
-import { FindPitfallTool } from '../../packages/mcp/src/tools/find-pitfall.ts';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { DOCORBIT_VERSION } from '../../packages/shared/src/index.ts';
-import { McpServer } from '../../packages/mcp/src/server.ts';
+import { formatToolResponse, MAX_TOOL_OUTPUT_CHARS } from '../../src/mcp/tools/types.ts';
+import { FindPitfallTool } from '../../src/mcp/tools/find-pitfall.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { DOCORBIT_VERSION } from '../../src/shared/index.ts';
+import { McpServer } from '../../src/mcp/server.ts';
 
 test('MCP Safety: formatToolResponse caps oversized markdown output at default 60,000 chars', () => {
   const hugeMarkdown = 'A'.repeat(MAX_TOOL_OUTPUT_CHARS + 50_000);
@@ -214,7 +214,7 @@ test('Database Sanitization: automatically cleans legacy OpenAPI dumps and trunc
 
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { StreamableHttpTransport } from '../../packages/mcp/src/transports/http.ts';
+import { StreamableHttpTransport } from '../../src/mcp/transports/http.ts';
 
 test('MCP Version: Default McpServer version matches DOCORBIT_VERSION', () => {
   const db = new DocOrbitDb(':memory:');

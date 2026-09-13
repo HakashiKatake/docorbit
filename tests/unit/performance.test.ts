@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { RetrievalEngine } from '../../packages/retrieval/src/index.ts';
-import { validateTargetUrl, clearDnsCache } from '../../packages/security/src/index.ts';
-import { DocumentationTreeCrawler, SecureFetcher } from '../../packages/crawler/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { RetrievalEngine } from '../../src/retrieval/index.ts';
+import { validateTargetUrl, clearDnsCache } from '../../src/security/index.ts';
+import { DocumentationTreeCrawler, SecureFetcher } from '../../src/crawler/index.ts';
 import { createXobinFetch, XOBIN_ORIGIN, xobinDnsLookup } from '../fixtures/xobin-fixture.ts';
-import type { DocumentChunk } from '../../packages/shared/src/index.ts';
+import type { DocumentChunk } from '../../src/shared/index.ts';
 
 test('Performance: Sub-millisecond FTS hybrid search across 100+ chunks', async () => {
   const db = new DocOrbitDb(':memory:');

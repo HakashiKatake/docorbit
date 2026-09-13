@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert';
 import { PassThrough, Writable } from 'node:stream';
-import { StdioServerTransport } from '../../packages/mcp/src/transports/stdio.ts';
-import { McpServer } from '../../packages/mcp/src/server.ts';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { formatToolResponse, DEFAULT_MAX_TOOL_OUTPUT_CHARS } from '../../packages/mcp/src/tools/types.ts';
+import { StdioServerTransport } from '../../src/mcp/transports/stdio.ts';
+import { McpServer } from '../../src/mcp/server.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { formatToolResponse, DEFAULT_MAX_TOOL_OUTPUT_CHARS } from '../../src/mcp/tools/types.ts';
 
 test('Stdio Transport Robustness: Synchronous write failure is caught safely without process crash', async () => {
   const db = new DocOrbitDb(':memory:');

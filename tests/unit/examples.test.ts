@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { extractIndexedExamples } from '../../packages/normalizer/src/example-indexer.ts';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import type { NormalizedPage, DocumentChunk } from '../../packages/shared/src/index.ts';
+import { extractIndexedExamples } from '../../src/normalizer/example-indexer.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import type { NormalizedPage, DocumentChunk } from '../../src/shared/index.ts';
 
 test('Examples: extractIndexedExamples detects framework, task, and related APIs', () => {
   const page: NormalizedPage = {

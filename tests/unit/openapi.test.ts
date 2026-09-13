@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { parseOpenApiEndpoints, detectOpenApiSpec } from '../../packages/normalizer/src/openapi.ts';
+import { parseOpenApiEndpoints, detectOpenApiSpec } from '../../src/normalizer/openapi.ts';
 
 const SAMPLE_OPENAPI_3 = JSON.stringify({
   openapi: '3.0.3',

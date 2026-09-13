@@ -1,13 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
 import {
   RetrievalEngine,
   detectQueryIntent,
   DEFAULT_SCORING_WEIGHTS_V1,
   resolveScoringWeights,
-} from '../../packages/retrieval/src/index.ts';
-import type { DocumentChunk } from '../../packages/shared/src/index.ts';
+} from '../../src/retrieval/index.ts';
+import type { DocumentChunk } from '../../src/shared/index.ts';
 
 test('Retrieval: Intent detection categorizes queries deterministically', () => {
   assert.equal(detectQueryIntent('POST /v1/charges endpoint schema and parameters'), 'api');

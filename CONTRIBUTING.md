@@ -12,11 +12,16 @@ DocOrbit is structured as a zero-dependency TypeScript monorepo designed for hig
 
 ```
 docorbit/
-├── apps/
-│   └── cli/                # Command-line interface (`docorbit <command>`)
-├── packages/
+├── bin/                    # Executable binary entrypoint (`bin/docorbit.js`)
+├── site/                   # Developer landing page & documentation (/docs)
+├── src/
+│   ├── cli/                # Command-line interface (`docorbit <command>`)
+│   ├── core/               # Ingestion pipeline, source manager & implementation services
 │   ├── crawler/            # Recursive documentation-tree crawler & HTML fetcher
 │   ├── discovery/          # Doc root finder (llms.txt, sitemaps, framework detection)
+│   ├── evaluation/         # Empirical benchmarking engine (DocOrbit vs Context7 vs Firecrawl)
+│   ├── export/             # Deterministic AGENTS.md, CLAUDE.md, skill.md, llms.txt export
+│   ├── mcp/                # 15 Agent-Native Model Context Protocol (MCP) tools
 │   ├── normalizer/         # HTML-to-Markdown, OpenAPI 3.x / Swagger parser, AST slicer
 │   ├── retrieval/          # Hybrid FTS5 search engine, context packer, recipe assembler
 │   ├── security/           # SSRF protection, IP blocklist, prompt injection defense
@@ -24,11 +29,7 @@ docorbit/
 │   ├── storage/            # Embedded SQLite repository with WAL mode & statement caching
 │   ├── verification/       # Closed-loop AST code verifier, diff engine, impact scanner
 │   ├── workspace/          # Ecosystem scanners (npm, cargo, go, pypi, composer, etc.)
-│   ├── mcp/                # 15 Agent-Native Model Context Protocol (MCP) tools
-│   ├── export/             # Deterministic AGENTS.md, CLAUDE.md, skill.md, llms.txt export
-│   └── evaluation/         # Empirical benchmarking engine (DocOrbit vs Context7 vs Firecrawl)
-├── site/                   # Developer landing page & documentation (/docs)
-├── bin/                    # Executable binary entrypoint (`bin/docorbit.js`)
+│   └── index.ts            # Public programmatic SDK exports
 └── tests/
     ├── unit/               # Hermetic unit tests
     └── integration/        # End-to-end MCP, crawler, and retrieval tests
@@ -104,15 +105,15 @@ When submitting code, please align with our design ethos:
 ## 5. How to Add a New Capability
 
 ### Adding a New MCP Tool
-1. Define the tool definition and input schema in `packages/mcp/src/tools/`.
-2. Register the tool in `packages/mcp/src/tools/index.ts`.
+1. Define the tool definition and input schema in `src/mcp/tools/`.
+2. Register the tool in `src/mcp/tools/index.ts`.
 3. Support clean markdown delivery by default in `content[0].text`, with backward-compatible JSON mode.
 4. Add unit and integration tests in `tests/unit/mcp.test.ts` and `tests/integration/mcp-e2e.test.ts`.
 
 ### Adding a New Ecosystem Scanner
-1. Implement the package detector in `packages/workspace/src/ecosystems/<ecosystem>.ts`.
+1. Implement the package detector in `src/workspace/ecosystems/<ecosystem>.ts`.
 2. Implement lockfile parsing and SemVer resolution.
-3. Register the ecosystem in `packages/workspace/src/detector.ts`.
+3. Register the ecosystem in `src/workspace/detector.ts`.
 4. Add test fixtures in `tests/unit/workspace.test.ts`.
 
 ---

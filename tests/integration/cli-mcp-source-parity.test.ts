@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { McpServer } from '../../packages/mcp/src/index.ts';
-import { SourceManagementService } from '../../packages/core/src/index.ts';
-import { readDocsLock } from '../../packages/workspace/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { McpServer } from '../../src/mcp/index.ts';
+import { SourceManagementService } from '../../src/core/index.ts';
+import { readDocsLock } from '../../src/workspace/index.ts';
 
 test('CLI and MCP Parity: Shared source management and idempotency across interfaces', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'docorbit-parity-'));

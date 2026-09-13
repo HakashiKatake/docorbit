@@ -1,17 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
 import {
   CodeApiExtractor,
   SchemaVerifier,
   VerificationService,
-} from '../../packages/verification/src/index.ts';
+} from '../../src/verification/index.ts';
 import type {
   ApiEndpoint,
   DiscoveredSource,
   NormalizedPage,
   Pitfall,
-} from '../../packages/shared/src/index.ts';
+} from '../../src/shared/index.ts';
 
 function setupTestDb(): { db: DocOrbitDb; repo: DocOrbitRepository } {
   const db = new DocOrbitDb(':memory:');

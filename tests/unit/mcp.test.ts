@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert';
 import { tmpdir } from 'node:os';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
 import {
   McpServer,
   createDefaultTools,
   McpResourceManager,
   JSONRPC_ERRORS,
-} from '../../packages/mcp/src/index.ts';
+} from '../../src/mcp/index.ts';
 import type {
   NormalizedPage,
   DocumentChunk,
@@ -15,7 +15,7 @@ import type {
   ApiEndpoint,
   IndexedExample,
   Pitfall,
-} from '../../packages/shared/src/index.ts';
+} from '../../src/shared/index.ts';
 
 function setupMockDb(): { db: DocOrbitDb; repo: DocOrbitRepository; server: McpServer } {
   const db = new DocOrbitDb(':memory:');

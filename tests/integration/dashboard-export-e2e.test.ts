@@ -3,12 +3,12 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { McpServer } from '../../packages/mcp/src/index.ts';
-import { DashboardServer } from '../../packages/core/src/index.ts';
-import { ExportService } from '../../packages/export/src/index.ts';
-import { runExportCommand } from '../../apps/cli/src/commands/export.ts';
-import type { DiscoveredSource, NormalizedPage, ApiEndpoint, Pitfall } from '../../packages/shared/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { McpServer } from '../../src/mcp/index.ts';
+import { DashboardServer } from '../../src/core/index.ts';
+import { ExportService } from '../../src/export/index.ts';
+import { runExportCommand } from '../../src/cli/commands/export.ts';
+import type { DiscoveredSource, NormalizedPage, ApiEndpoint, Pitfall } from '../../src/shared/index.ts';
 
 function setupE2eDb(dbPath: string): { db: DocOrbitDb; repo: DocOrbitRepository } {
   const db = new DocOrbitDb(dbPath);

@@ -13,6 +13,6 @@
     "noCheck": true,
     "noEmitOnError": false
   },
-  "include": ["apps/**/*", "packages/**/*", "bin/**/*"],
+  "include": ["src/**/*", "bin/**/*"],
   "exclude": ["node_modules", "dist", "tests", "eval-results"]
 }

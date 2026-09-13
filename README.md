@@ -526,30 +526,33 @@ docorbit mcp [-p|-g]         # Start Model Context Protocol server (stdio / HTTP
 
 ```text
 docorbit/
-├── apps/
-│   └── cli/                      # Command-line interface and command handlers
 ├── bin/
-│   └── docorbit.js               # Executable entry point
+│   └── docorbit.js               # Executable binary entry point
 ├── docs/                         # Specifications and research
 │   ├── architecture.md           # Deep architectural specification
 │   ├── competitive-analysis.md   # Ecosystem analysis vs Context7, Firecrawl, etc.
 │   └── product-spec.md           # Product requirements and capabilities
-├── packages/
-│   ├── core/                     # Ingestion pipeline and implementation services
+├── site/                         # Landing page and documentation website
+├── src/
+│   ├── cli/                      # Command-line interface and command handlers
+│   ├── core/                     # Ingestion pipeline, source manager, and implementation services
 │   ├── crawler/                  # SecureFetcher with SSRF and streaming bounds
-│   ├── discovery/                # 7 discovery providers and purpose ranker
+│   ├── discovery/                # Discovery providers and purpose ranker
+│   ├── evaluation/               # Benchmark runners and comparative strategies
 │   ├── export/                   # AGENTS.md, CLAUDE.md, and skill.md generators
+│   ├── mcp/                      # 15 MCP tools, Stdio and Streamable HTTP transports
 │   ├── normalizer/               # HTML-to-Markdown, OpenAPI parser, and chunk slicer
 │   ├── retrieval/                # FTS5 retrieval, intent detection, and context packer
 │   ├── security/                 # SSRF validation and prompt injection detection
 │   ├── shared/                   # Domain models, hashing, and SemVer logic
 │   ├── storage/                  # SQLite schema, WAL setup, and repositories
 │   ├── verification/             # AST code extractor and schema contract verifier
-│   └── workspace/                # Dependency scanner for 8 package ecosystems
+│   ├── workspace/                # Dependency scanner for 8 package ecosystems
+│   └── index.ts                  # Public programmatic SDK exports
 └── tests/
     ├── fixtures/                 # In-memory test servers (Fixtures A–J)
     ├── integration/              # Real-world benchmark and transport suites
-    └── unit/                     # Unit test suites across all packages
+    └── unit/                     # Unit test suites across all components
 ```
 
 ---

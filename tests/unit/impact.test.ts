@@ -6,8 +6,8 @@ import * as os from 'node:os';
 import {
   WorkspaceImpactScanner,
   ImpactAnalysisService,
-} from '../../packages/verification/src/index.ts';
-import type { DocDiffResult } from '../../packages/shared/src/index.ts';
+} from '../../src/verification/index.ts';
+import type { DocDiffResult } from '../../src/shared/index.ts';
 
 function createMockDiff(): DocDiffResult {
   return {

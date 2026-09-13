@@ -4,8 +4,7 @@ WORKDIR /app
 
 COPY package*.json ./
 COPY tsconfig.json ./
-COPY apps/ ./apps/
-COPY packages/ ./packages/
+COPY src/ ./src/
 COPY bin/ ./bin/
 
 RUN npm run build

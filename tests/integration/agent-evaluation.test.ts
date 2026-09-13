@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { BenchmarkRunner } from '../../packages/evaluation/src/index.ts';
+import { BenchmarkRunner } from '../../src/evaluation/index.ts';
 
 /**
  * Agent Evaluation: Comparative benchmark test.

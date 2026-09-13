@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { isPrivateOrBlockedIp, validateTargetUrl, detectSecurityAnnotations } from '../../packages/security/src/index.ts';
-import { SsrfError } from '../../packages/shared/src/index.ts';
+import { isPrivateOrBlockedIp, validateTargetUrl, detectSecurityAnnotations } from '../../src/security/index.ts';
+import { SsrfError } from '../../src/shared/index.ts';
 
 test('isPrivateOrBlockedIp blocks dangerous, private, and loopback IP ranges', () => {
   // Loopback

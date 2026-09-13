@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { RecipeEngine, RetrievalEngine } from '../../packages/retrieval/src/index.ts';
-import { parseOpenApiEndpoints, extractIndexedExamples, extractPitfalls } from '../../packages/normalizer/src/index.ts';
-import type { NormalizedPage, DocumentChunk } from '../../packages/shared/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { RecipeEngine, RetrievalEngine } from '../../src/retrieval/index.ts';
+import { parseOpenApiEndpoints, extractIndexedExamples, extractPitfalls } from '../../src/normalizer/index.ts';
+import type { NormalizedPage, DocumentChunk } from '../../src/shared/index.ts';
 
 interface BenchmarkTask {
   id: number;

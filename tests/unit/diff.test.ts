@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { DocDiffEngine, DiffService } from '../../packages/verification/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { DocDiffEngine, DiffService } from '../../src/verification/index.ts';
 import type {
   ApiEndpoint,
   DiscoveredSource,
   DocumentChunk,
   NormalizedPage,
   Pitfall,
-} from '../../packages/shared/src/index.ts';
+} from '../../src/shared/index.ts';
 
 function setupDiffDb(): { db: DocOrbitDb; repo: DocOrbitRepository } {
   const db = new DocOrbitDb(':memory:');

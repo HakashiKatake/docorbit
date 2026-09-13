@@ -10,8 +10,8 @@ import {
   readDocsLock,
   writeDocsLock,
   WorkspaceResolver,
-} from '../../packages/workspace/src/index.ts';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
+} from '../../src/workspace/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
 
 test('Workspace Detection: accurately scans all 8 ecosystems', () => {
   const tempDir = mkdtempSync(join(tmpdir(), 'docorbit-scan-'));

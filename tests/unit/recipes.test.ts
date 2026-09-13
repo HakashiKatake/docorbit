@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { RecipeEngine } from '../../packages/retrieval/src/recipe-engine.ts';
-import type { NormalizedPage, ApiEndpoint, IndexedExample, Pitfall } from '../../packages/shared/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { RecipeEngine } from '../../src/retrieval/recipe-engine.ts';
+import type { NormalizedPage, ApiEndpoint, IndexedExample, Pitfall } from '../../src/shared/index.ts';
 
 test('Recipes: assembleRecipe compiles evidence-grounded recipe with explicit evidence levels', async () => {
   const db = new DocOrbitDb(':memory:');

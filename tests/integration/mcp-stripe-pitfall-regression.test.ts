@@ -4,10 +4,10 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { unlinkSync, existsSync } from 'node:fs';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { buildNormalizedPage, extractPitfalls } from '../../packages/normalizer/src/index.ts';
-import { DOCORBIT_VERSION } from '../../packages/shared/src/index.ts';
-import { DEFAULT_MAX_TOOL_OUTPUT_CHARS } from '../../packages/mcp/src/tools/types.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { buildNormalizedPage, extractPitfalls } from '../../src/normalizer/index.ts';
+import { DOCORBIT_VERSION } from '../../src/shared/index.ts';
+import { DEFAULT_MAX_TOOL_OUTPUT_CHARS } from '../../src/mcp/tools/types.ts';
 
 function createJsonRpcClient(proc: ChildProcess) {
   let buffer = '';

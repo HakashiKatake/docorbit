@@ -3,15 +3,15 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { ExportService } from '../../packages/export/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { ExportService } from '../../src/export/index.ts';
 import type {
   NormalizedPage,
   ApiEndpoint,
   Pitfall,
   IndexedExample,
   DiscoveredSource,
-} from '../../packages/shared/src/index.ts';
+} from '../../src/shared/index.ts';
 
 function setupExportTestDb(): { db: DocOrbitDb; repo: DocOrbitRepository; service: ExportService } {
   const db = new DocOrbitDb(':memory:');

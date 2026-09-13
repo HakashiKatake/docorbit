@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { rankSources } from '../../packages/discovery/src/index.ts';
-import type { DiscoveredSource } from '../../packages/shared/src/index.ts';
+import { rankSources } from '../../src/discovery/index.ts';
+import type { DiscoveredSource } from '../../src/shared/index.ts';
 
 const mockSources: DiscoveredSource[] = [
   {

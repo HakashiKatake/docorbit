@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { SourceManagementService } from '../../packages/core/src/index.ts';
-import { readDocsLock } from '../../packages/workspace/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { SourceManagementService } from '../../src/core/index.ts';
+import { readDocsLock } from '../../src/workspace/index.ts';
 
 test('SourceManager: track-only mode registers source in docs.lock without crawling', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'docorbit-trackonly-'));

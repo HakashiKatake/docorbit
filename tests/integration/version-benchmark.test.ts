@@ -3,14 +3,14 @@ import assert from 'node:assert';
 import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { RetrievalEngine } from '../../packages/retrieval/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { RetrievalEngine } from '../../src/retrieval/index.ts';
 import {
   detectWorkspaceDependencies,
   generateDocsLock,
   writeDocsLock,
-} from '../../packages/workspace/src/index.ts';
-import type { NormalizedPage, DocumentChunk } from '../../packages/shared/src/index.ts';
+} from '../../src/workspace/index.ts';
+import type { NormalizedPage, DocumentChunk } from '../../src/shared/index.ts';
 
 test('Version Intelligence Benchmark: multi-version conflict resolution (Next.js 14 vs 15 vs 16)', async () => {
   const tempDir = mkdtempSync(join(tmpdir(), 'docorbit-version-bench-'));

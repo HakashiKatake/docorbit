@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert';
 import http from 'node:http';
 import { PassThrough } from 'node:stream';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { DashboardServer } from '../../packages/core/src/index.ts';
-import type { DiscoveredSource, ApiEndpoint, Pitfall } from '../../packages/shared/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { DashboardServer } from '../../src/core/index.ts';
+import type { DiscoveredSource, ApiEndpoint, Pitfall } from '../../src/shared/index.ts';
 
 function createMockExchange(options: {
   method?: string;

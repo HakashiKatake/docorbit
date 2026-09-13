@@ -4,8 +4,8 @@ import {
   slicePageIntoChunks,
   extractSymbols,
   detectChunkType,
-} from '../../packages/normalizer/src/index.ts';
-import type { NormalizedPage } from '../../packages/shared/src/index.ts';
+} from '../../src/normalizer/index.ts';
+import type { NormalizedPage } from '../../src/shared/index.ts';
 
 test('Slicer: Heading hierarchy traversal preserves full breadcrumbs', () => {
   const content = `# Payment System

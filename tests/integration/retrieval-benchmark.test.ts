@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { RetrievalEngine, detectQueryIntent } from '../../packages/retrieval/src/index.ts';
-import { slicePageIntoChunks } from '../../packages/normalizer/src/index.ts';
-import type { NormalizedPage, DocumentChunk, QueryIntent } from '../../packages/shared/src/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { RetrievalEngine, detectQueryIntent } from '../../src/retrieval/index.ts';
+import { slicePageIntoChunks } from '../../src/normalizer/index.ts';
+import type { NormalizedPage, DocumentChunk, QueryIntent } from '../../src/shared/index.ts';
 
 interface BenchmarkTestCase {
   category: 'conceptual' | 'api' | 'examples' | 'configuration' | 'troubleshooting' | 'migration' | 'negative';

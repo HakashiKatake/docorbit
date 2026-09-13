@@ -9,9 +9,9 @@ import {
   generateDocsLock,
   updateDocsLock,
   DOCS_LOCK_FILENAME,
-} from '../../packages/workspace/src/index.ts';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import type { DocsLock, LockedSource } from '../../packages/shared/src/index.ts';
+} from '../../src/workspace/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import type { DocsLock, LockedSource } from '../../src/shared/index.ts';
 
 test('DocsLock: backward compatibility with legacy lockfile missing sources array', () => {
   const dir = mkdtempSync(join(tmpdir(), 'docorbit-legacy-lock-'));

@@ -3,9 +3,9 @@ import assert from 'node:assert';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import { McpServer } from '../../packages/mcp/src/server.ts';
-import { DEFAULT_MAX_TOOL_OUTPUT_CHARS } from '../../packages/mcp/src/tools/types.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import { McpServer } from '../../src/mcp/server.ts';
+import { DEFAULT_MAX_TOOL_OUTPUT_CHARS } from '../../src/mcp/tools/types.ts';
 
 test('MCP Safety: All 15 MCP tools emit strictly bounded responses in Markdown and JSON modes', async () => {
   const tempDir = mkdtempSync(join(tmpdir(), 'docorbit-safety-test-'));

@@ -7,8 +7,8 @@ import {
   resolveDefaultDbPath,
   resolveGlobalDbPath,
   hasProjectDb,
-} from '../../packages/storage/src/index.ts';
-import type { DiscoveredSource, NormalizedPage } from '../../packages/shared/src/index.ts';
+} from '../../src/storage/index.ts';
+import type { DiscoveredSource, NormalizedPage } from '../../src/shared/index.ts';
 
 test('DocOrbitRepository saves and retrieves sources and pages in SQLite', () => {
   const db = new DocOrbitDb(':memory:');
@@ -87,7 +87,7 @@ test('findNearestProjectRoot detects root directory containing package.json or g
   assert.strictEqual(root, currentDir);
 
   // Nested subfolder
-  const nested = `${currentDir}/packages/storage/src`;
+  const nested = `${currentDir}/src/storage`;
   const detectedRoot = findNearestProjectRoot(nested);
   assert.strictEqual(detectedRoot, currentDir);
 });

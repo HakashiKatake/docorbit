@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert';
 import { performance } from 'node:perf_hooks';
-import { buildNormalizedPage } from '../../packages/normalizer/src/index.ts';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
-import type { NormalizedPage } from '../../packages/shared/src/index.ts';
+import { buildNormalizedPage } from '../../src/normalizer/index.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
+import type { NormalizedPage } from '../../src/shared/index.ts';
 
 function generateHtmlPage(targetBytes: number, title: string): string {
   const paragraph = '<p>This is a technical paragraph explaining distributed API design and cryptographic proofs in detail.</p>\n';

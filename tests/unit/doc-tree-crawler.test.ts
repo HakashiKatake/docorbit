@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert';
 import { createXobinFetch, XOBIN_ORIGIN, xobinDnsLookup } from '../fixtures/xobin-fixture.ts';
-import { SecureFetcher } from '../../packages/crawler/src/index.ts';
-import { DocumentationRootFinder, DocumentationSiteDetector } from '../../packages/discovery/src/index.ts';
-import { DocumentationLinkExtractor } from '../../packages/crawler/src/extractor.ts';
-import { DocumentationTreeCrawler } from '../../packages/crawler/src/tree-crawler.ts';
-import { IngestionPipeline } from '../../packages/core/src/pipeline.ts';
-import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
+import { SecureFetcher } from '../../src/crawler/index.ts';
+import { DocumentationRootFinder, DocumentationSiteDetector } from '../../src/discovery/index.ts';
+import { DocumentationLinkExtractor } from '../../src/crawler/extractor.ts';
+import { DocumentationTreeCrawler } from '../../src/crawler/tree-crawler.ts';
+import { IngestionPipeline } from '../../src/core/pipeline.ts';
+import { DocOrbitDb, DocOrbitRepository } from '../../src/storage/index.ts';
 
 const xobinFetch = createXobinFetch(XOBIN_ORIGIN);
 const fetcher = new SecureFetcher({

@@ -6,8 +6,8 @@ import {
   isValidLlmsTxt,
   detectOpenApiSpec,
   buildNormalizedPage,
-} from '../../packages/normalizer/src/index.ts';
-import { computeContentHash } from '../../packages/shared/src/index.ts';
+} from '../../src/normalizer/index.ts';
+import { computeContentHash } from '../../src/shared/index.ts';
 
 test('normalizeHtmlToMarkdown extracts headings, code blocks, tables, and removes boilerplate', () => {
   const html = `

@@ -34,6 +34,33 @@ export async function runUpdateCommand(
   const repository = new DocOrbitRepository(db);
 
   try {
+    const isUrl = targetPackage && (targetPackage.startsWith('http://') || targetPackage.startsWith('https://'));
+    const matchingSource = existingLock.sources?.find(
+      s => s.url === targetPackage || (targetPackage && s.url.toLowerCase().includes(targetPackage.toLowerCase()))
+    );
+
+    if (isUrl || matchingSource) {
+      const targetUrl = matchingSource ? matchingSource.url : targetPackage!;
+      const { SourceManagementService } = await import('../../../../packages/core/src/index.ts');
+      const sourceManager = new SourceManagementService(repository, { projectDir });
+      const result = await sourceManager.addOrTrackSource({
+        url: targetUrl,
+        projectDir,
+        force: true,
+      });
+
+      if (options.json) {
+        console.log(JSON.stringify(result, null, 2));
+        return;
+      }
+
+      console.log(`\n=== DocOrbit Source Updated ===`);
+      console.log(`Source:      ${result.url}`);
+      console.log(`Status:      ${result.status}`);
+      console.log(`Snapshot ID: ${result.snapshotId || 'N/A'}`);
+      console.log(`Message:     ${result.message}\n`);
+      return;
+    }
     const scanResult = detectWorkspaceDependencies(projectDir);
     const updated = updateDocsLock(scanResult, repository, existingLock, targetPackage);
 

@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import type {
   DocsLock,
   LockedDoc,
+  LockedSource,
   WorkspaceScanResult,
   ProjectDependency,
   DocVersionMatch,
@@ -14,6 +15,7 @@ export const DOCS_LOCK_FILENAME = 'docs.lock';
 
 /**
  * Reads and parses docs.lock from a project directory if present.
+ * Ensures backward compatibility by providing empty sources array if omitted.
  */
 export function readDocsLock(projectDir: string): DocsLock | null {
   const filePath = join(projectDir, DOCS_LOCK_FILENAME);
@@ -23,7 +25,11 @@ export function readDocsLock(projectDir: string): DocsLock | null {
     const raw = readFileSync(filePath, 'utf-8');
     const parsed = JSON.parse(raw);
     if (parsed && parsed.version === 1 && typeof parsed.dependencies === 'object') {
-      return parsed as DocsLock;
+      const sources: LockedSource[] = Array.isArray(parsed.sources) ? parsed.sources : [];
+      return {
+        ...parsed,
+        sources,
+      } as DocsLock;
     }
   } catch {
     // Malformed lockfile
@@ -33,7 +39,7 @@ export function readDocsLock(projectDir: string): DocsLock | null {
 
 /**
  * Deterministically writes a docs.lock file to project directory.
- * Sorts dependency keys alphabetically and uses 2-space indentation.
+ * Sorts dependency keys alphabetically, sorts sources by URL, and uses 2-space indentation.
  */
 export function writeDocsLock(projectDir: string, lock: DocsLock): void {
   const filePath = join(projectDir, DOCS_LOCK_FILENAME);
@@ -44,10 +50,16 @@ export function writeDocsLock(projectDir: string, lock: DocsLock): void {
     sortedDeps[key] = lock.dependencies[key];
   }
 
+  // Sort sources alphabetically by canonical url
+  const sortedSources: LockedSource[] = (lock.sources || [])
+    .slice()
+    .sort((a, b) => a.url.localeCompare(b.url));
+
   const deterministicLock: DocsLock = {
     version: 1,
     workspaceRoot: lock.workspaceRoot,
     dependencies: sortedDeps,
+    sources: sortedSources,
   };
 
   const serialized = JSON.stringify(deterministicLock, null, 2) + '\n';
@@ -158,6 +170,7 @@ export function generateDocsLock(
     version: 1,
     workspaceRoot: scanResult.workspaceRoot,
     dependencies: lockedDeps,
+    sources: existingLock?.sources ? [...existingLock.sources] : [],
   };
 }
 
@@ -193,5 +206,6 @@ export function updateDocsLock(
     version: 1,
     workspaceRoot: scanResult.workspaceRoot,
     dependencies: resultDeps,
+    sources: existingLock?.sources ? [...existingLock.sources] : [],
   };
 }

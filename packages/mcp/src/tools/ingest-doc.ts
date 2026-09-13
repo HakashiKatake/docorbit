@@ -1,13 +1,12 @@
 import type { CallToolResult, McpTool } from '../types.ts';
 import { type McpContext, type McpToolHandler, formatToolResponse, formatToolError } from './types.ts';
-import { IngestionPipeline } from '../../../core/src/index.ts';
-import { buildNormalizedPage, slicePageIntoChunks } from '../../../normalizer/src/index.ts';
+import { SourceManagementService, type IngestionResult } from '../../../core/src/index.ts';
 
 export class IngestDocTool implements McpToolHandler {
   readonly definition: McpTool = {
     name: 'ingest_doc',
     description:
-      'Ingest, crawl, parse, and index authoritative documentation from any URL or raw content directly into DocOrbit. Extracts semantic chunks, OpenAPI endpoints, code examples, and pitfalls. If taskContext is provided, immediately synthesizes and returns an evidence-grounded implementation recipe with exact code and API details.',
+      'Ingest, crawl, parse, and index authoritative documentation from any URL or raw content directly into DocOrbit. Tracks documentation sources deterministically in docs.lock. Extracts semantic chunks, OpenAPI endpoints, code examples, and pitfalls. If taskContext is provided, immediately synthesizes and returns an evidence-grounded implementation recipe with exact code and API details.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -22,6 +21,14 @@ export class IngestDocTool implements McpToolHandler {
         maxPages: {
           type: 'number',
           description: 'Maximum number of pages to crawl (default: 20, max: 50).',
+        },
+        force: {
+          type: 'boolean',
+          description: 'Force re-fetching and re-crawling documentation even if the source is already tracked (default: false).',
+        },
+        refresh: {
+          type: 'boolean',
+          description: 'Alias for force.',
         },
         content: {
           type: 'string',
@@ -59,79 +66,73 @@ export class IngestDocTool implements McpToolHandler {
     }
 
     try {
-      let targetUrl = rawUrl;
-      let snapshotId = '';
-      let pagesCount = 0;
-      let chunksCount = 0;
-      let codeExamplesCount = 0;
-      let estimatedTokens = 0;
-      let durationMs = 0;
-      const pagesSummary: Array<{ title: string; url: string; tokens: number; codeBlocks: number }> = [];
+      const isForce = Boolean(args.force || args.refresh);
+      const sourceManager = ctx.sourceManager || new SourceManagementService(ctx.repo, {
+        projectDir: ctx.projectDir || ctx.workspaceRoot,
+      });
 
-      if (rawContent) {
-        const startTime = Date.now();
-        targetUrl = rawUrl || 'local://direct-content';
-        const sourceId = ctx.repo.saveSource({
-          url: targetUrl,
-          type: 'web',
-          discoveredBy: 'direct',
-          status: 'valid',
-          confidence: 1.0,
-          authority: 'official',
-          machineReadable: false,
-        });
+      const sourceResult = await sourceManager.addOrTrackSource({
+        url: rawUrl,
+        content: rawContent || undefined,
+        title,
+        projectDir: ctx.projectDir || ctx.workspaceRoot,
+        force: isForce,
+        refresh: isForce,
+        maxPages,
+        allowLocalhost,
+        taskContext,
+      });
 
-        snapshotId = ctx.repo.createSnapshot(sourceId, {
-          targetUrl,
-          pageCount: 1,
-          ingestedAt: new Date().toISOString(),
-        });
+      if (sourceResult.status === 'already_tracked' && !taskContext) {
+        const lines: string[] = [
+          `# 🛰️ DocOrbit: Documentation Already Tracked`,
+          `> **Canonical URL**: \`${sourceResult.url}\` | **Snapshot ID**: \`${sourceResult.snapshotId || 'N/A'}\``,
+          ``,
+          `The documentation for \`${sourceResult.url}\` is already tracked and up-to-date in \`docs.lock\`.`,
+          `- **Snapshot Hash**: \`${sourceResult.snapshotHash || 'N/A'}\``,
+          `- **Pages Cached**: ${sourceResult.pageCount ?? 'N/A'}`,
+          `- **Tracked At**: ${sourceResult.trackedAt}`,
+          `- **Last Checked**: ${sourceResult.updatedAt}`,
+          ``,
+          `> [!TIP]`,
+          `> To force a fresh crawl and check for remote updates, pass \`"force": true\` to \`ingest_doc\`.`,
+          ``,
+          `### Available Documentation In Workspace`,
+          `- Call \`search_docs(query: "...")\` to search across all cached chunks.`,
+          `- Call \`find_api(query: "...")\` to inspect endpoints.`,
+          `- Call \`get_implementation_context(task: "...")\` to compile an implementation recipe.`,
+        ];
 
-        const page = buildNormalizedPage({
-          sourceId,
-          url: targetUrl,
-          rawContent,
-          contentType: 'text/markdown',
-          sourceUrl: targetUrl,
-          targetUrl,
-          title: title || 'Direct Content Ingestion',
-          discoveredBy: 'direct',
-          fetchedAt: new Date().toISOString(),
-        });
-
-        ctx.repo.savePage(page);
-        const slicing = slicePageIntoChunks(page, snapshotId);
-        ctx.repo.saveChunks(slicing.chunks, slicing.relationships, slicing.codeSnippets, slicing.symbols);
-
-        pagesCount = 1;
-        chunksCount = slicing.chunks.length;
-        codeExamplesCount = page.codeExamples.length;
-        estimatedTokens = page.estimatedTokens;
-        durationMs = Date.now() - startTime;
-        pagesSummary.push({
-          title: page.title,
-          url: page.url,
-          tokens: page.estimatedTokens,
-          codeBlocks: page.codeExamples.length,
-        });
-      } else {
-        const pipeline = new IngestionPipeline(ctx.repo, {
-          allowLocalhostForTesting: allowLocalhost,
-          crawlerConfig: {
-            maxPages,
+        return formatToolResponse(
+          lines.join('\n'),
+          {
+            status: sourceResult.status,
+            targetUrl: sourceResult.url,
+            sourceId: sourceResult.sourceId,
+            snapshotId: sourceResult.snapshotId,
+            snapshotHash: sourceResult.snapshotHash,
+            pageCount: sourceResult.pageCount,
+            docVersion: sourceResult.docVersion,
+            trackedAt: sourceResult.trackedAt,
+            updatedAt: sourceResult.updatedAt,
+            message: sourceResult.message,
           },
-        });
+          args
+        );
+      }
 
-        const result = await pipeline.ingest(rawUrl);
-        targetUrl = result.targetUrl;
-        snapshotId = result.snapshotId;
-        pagesCount = result.stats.totalPages;
-        chunksCount = result.stats.totalChunks;
-        codeExamplesCount = result.stats.totalCodeExamples;
-        estimatedTokens = result.stats.totalEstimatedTokens;
-        durationMs = result.durationMs;
+      const targetUrl = sourceResult.url;
+      const snapshotId = sourceResult.snapshotId || '';
+      const pagesCount = sourceResult.pageCount || 1;
+      const ingResult = sourceResult.ingestionResult as IngestionResult | undefined;
+      const chunksCount = ingResult?.stats?.totalChunks || ctx.repo.countChunks(snapshotId) || 0;
+      const codeExamplesCount = ingResult?.stats?.totalCodeExamples || 0;
+      const estimatedTokens = ingResult?.stats?.totalEstimatedTokens || 0;
+      const durationMs = ingResult?.durationMs || 0;
 
-        for (const p of result.pages) {
+      const pagesSummary: Array<{ title: string; url: string; tokens: number; codeBlocks: number }> = [];
+      if (ingResult?.pages) {
+        for (const p of ingResult.pages) {
           pagesSummary.push({
             title: p.title,
             url: p.url,
@@ -139,6 +140,13 @@ export class IngestDocTool implements McpToolHandler {
             codeBlocks: p.codeExamples.length,
           });
         }
+      } else if (rawContent) {
+        pagesSummary.push({
+          title: title || 'Direct Content Ingestion',
+          url: targetUrl,
+          tokens: estimatedTokens,
+          codeBlocks: codeExamplesCount,
+        });
       }
 
       // If user provided a specific task context, compile an immediate implementation context recipe!
@@ -249,8 +257,13 @@ export class IngestDocTool implements McpToolHandler {
       return formatToolResponse(
         lines.join('\n'),
         {
+          status: sourceResult.status,
           targetUrl,
+          sourceId: sourceResult.sourceId,
           snapshotId,
+          snapshotHash: sourceResult.snapshotHash,
+          trackedAt: sourceResult.trackedAt,
+          updatedAt: sourceResult.updatedAt,
           stats: {
             pagesCount,
             chunksCount,

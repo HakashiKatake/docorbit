@@ -71,6 +71,8 @@ OPTIONS:
   --host <ip>         Host to bind HTTP transport / dashboard (default: 127.0.0.1)
   --max-pages <num>   Maximum pages to crawl and ingest (default: 50)
   --allow-localhost   Allow localhost / loopback targets (useful for local development & testing)
+  -f, --force         Force re-fetch and update even if source is already tracked (alias: --refresh)
+  --track-only        Track source in docs.lock without immediate network crawl
   -h, --help          Show this help message
   -v, --version       Show DocOrbit version
 
@@ -78,6 +80,7 @@ EXAMPLES:
   docorbit init -p
   docorbit init -g
   docorbit add https://docs.stripe.com -p
+  docorbit add https://docs.stripe.com --force
   docorbit search "webhooks" -g
   docorbit verify "fetch('/v1/charges', { method: 'POST' })" --doc-version v14
   docorbit diff --from v14 --to v15
@@ -118,6 +121,8 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
 
   const isJson = args.includes('--json');
   const allowLocalhost = args.includes('--allow-localhost');
+  const isForce = args.includes('--force') || args.includes('-f') || args.includes('--refresh');
+  const trackOnly = args.includes('--track-only');
 
   const isGlobal = args.includes('-g') || args.includes('--global');
   let isProject = args.includes('-p') || args.includes('--local');
@@ -320,7 +325,18 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         printHelp();
         process.exit(1);
       }
-      await runAddCommand(queryArg, { json: isJson, dbPath, maxPages, allowLocalhost, projectDir, global: isGlobal, project: isProject });
+      await runAddCommand(queryArg, {
+        json: isJson,
+        dbPath,
+        maxPages,
+        allowLocalhost,
+        projectDir,
+        global: isGlobal,
+        project: isProject,
+        force: isForce,
+        refresh: isForce,
+        trackOnly,
+      });
       break;
     }
     case 'search': {

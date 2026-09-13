@@ -1,5 +1,5 @@
 import type { DocOrbitRepository } from '../../../storage/src/index.ts';
-import type { ImplementationContextService } from '../../../core/src/index.ts';
+import type { ImplementationContextService, SourceManagementService } from '../../../core/src/index.ts';
 import type { WorkspaceResolver } from '../../../workspace/src/index.ts';
 import type {
   VerificationService,
@@ -20,6 +20,7 @@ export interface McpContext {
   diffService?: DiffService;
   impactService?: ImpactAnalysisService;
   exportService?: ExportService;
+  sourceManager?: SourceManagementService;
 }
 
 export interface McpToolHandler {

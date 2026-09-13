@@ -153,6 +153,11 @@ export class SourceRepository {
     };
   }
 
+  getLatestSnapshot(sourceId: string): SnapshotRecord | null {
+    const snaps = this.listSnapshots(sourceId);
+    return snaps.length > 0 ? snaps[0] : null;
+  }
+
   listSnapshots(sourceId?: string): SnapshotRecord[] {
     const raw = this.db.getRawDb();
     let sql = 'SELECT * FROM snapshots';

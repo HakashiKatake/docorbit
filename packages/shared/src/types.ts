@@ -443,10 +443,41 @@ export interface LockedDoc {
   metadata?: Record<string, unknown>;
 }
 
+export interface LockedSource {
+  url: string;
+  sourceId: string;
+  status: 'tracked' | 'ingested' | 'failed';
+  title?: string;
+  snapshotId?: string;
+  snapshotHash?: string;
+  docVersion?: string;
+  pageCount?: number;
+  trackedAt: string;
+  updatedAt: string;
+  metadata?: Record<string, unknown>;
+}
+
 export interface DocsLock {
   version: 1;
   workspaceRoot: string;
   dependencies: Record<string, LockedDoc>;
+  sources?: LockedSource[];
+}
+
+export type SourceStatus = 'added' | 'already_tracked' | 'updated';
+
+export interface SourceManagementResult {
+  status: SourceStatus;
+  url: string;
+  sourceId: string;
+  snapshotId?: string;
+  snapshotHash?: string;
+  pageCount?: number;
+  docVersion?: string;
+  trackedAt: string;
+  updatedAt: string;
+  message: string;
+  ingestionResult?: unknown;
 }
 
 // --- Milestone 4: Structured Implementation Knowledge ---

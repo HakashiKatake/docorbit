@@ -1,6 +1,6 @@
 import type { DocOrbitRepository } from '../../storage/src/index.ts';
 import type { WorkspaceResolver } from '../../workspace/src/index.ts';
-import { ImplementationContextService } from '../../core/src/index.ts';
+import { ImplementationContextService, SourceManagementService } from '../../core/src/index.ts';
 import {
   VerificationService,
   DiffService,
@@ -57,6 +57,7 @@ export class McpServer {
     const diffService = new DiffService(this.repo);
     const impactService = new ImpactAnalysisService(this.repo);
     const exportService = new ExportService(this.repo);
+    const sourceManager = new SourceManagementService(this.repo, { projectDir: this.projectDir });
 
     this.context = {
       repo: this.repo,
@@ -69,6 +70,7 @@ export class McpServer {
       diffService,
       impactService,
       exportService,
+      sourceManager,
     };
   }
 

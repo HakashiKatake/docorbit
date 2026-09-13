@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
+import { tmpdir } from 'node:os';
 import { DocOrbitDb, DocOrbitRepository } from '../../packages/storage/src/index.ts';
 import {
   McpServer,
@@ -129,6 +130,7 @@ function setupMockDb(): { db: DocOrbitDb; repo: DocOrbitRepository; server: McpS
 
   const server = new McpServer({
     repo,
+    projectDir: tmpdir(),
     serverName: 'docorbit-test',
     serverVersion: '0.5.0',
   });
